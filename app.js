@@ -28,10 +28,11 @@ function renderUrgent(items) {
       <div class="urgent-copy">
         <h3>${escapeHtml(item.ticker)} · ${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.summary)}</p>
+        <div class="signal-tags">${(item.hashtags || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
       </div>
       <div class="urgent-source">
         <b>${item.strength}/100</b>
-        <a href="${escapeHtml(item.source.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source.publisher)} ↗</a>
+        <a href="${escapeHtml(item.source.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source.publisher)}${item.sourceCount > 1 ? ` +${item.sourceCount - 1}` : ""} ↗</a>
       </div>
     </article>
   `).join("");

@@ -11,6 +11,7 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from email.utils import parsedate_to_datetime
+from html.parser import HTMLParser
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -26,18 +27,53 @@ USER_AGENT = "TradeSignal/1.0 (+https://github.com/VasyaForester/TradeSignal)"
 MOSCOW_TZ = timezone(timedelta(hours=3))
 
 MOEX = "https://iss.moex.com/iss"
-RSS_FEEDS = [("Банк России", "https://www.cbr.ru/rss/RssPress")]
+RANKING_LIMIT = 10
+URGENT_LIMIT = 10
+RSS_FEEDS = [
+    ("Банк России", "https://www.cbr.ru/rss/RssPress"),
+    ("Интерфакс", "https://www.interfax.ru/rss"),
+    ("Коммерсантъ", "https://www.kommersant.ru/RSS/main.xml"),
+    ("Газпром", "https://www.gazprom.ru/rss/"),
+    ("Роснефть", "https://www.rosneft.ru/press/releases/rss/"),
+]
+TELEGRAM_FEEDS = [("MarketTwits", "https://t.me/s/markettwits")]
+ISSUER_TICKERS = {
+    "газпром": "GAZP", "роснефт": "ROSN", "лукойл": "LKOH",
+    "сбербанк": "SBER", "сбер": "SBER", "втб": "VTBR",
+    "норникел": "GMKN", "яндекс": "YDEX", "озон": "OZON",
+    "ростелеком": "RTKM", "мтс": "MTSS", "полюс": "PLZL",
+    "фосагро": "PHOR", "русагро": "AGRO", "новатэк": "NVTK",
+    "транснефт": "TRNFP", "интер рао": "IRAO", "аэрофлот": "AFLT",
+}
+NON_TICKER_TOKENS = {"MOEX", "RUB", "USD", "CNY", "IFRS", "BRICS", "EBITDA", "OIBDA"}
+SOURCE_PRIORITY = {
+    "Московская биржа": 4,
+    "Банк России": 4,
+    "Газпром": 4,
+    "Роснефть": 4,
+    "Интерфакс": 2,
+    "Коммерсантъ": 2,
+    "MarketTwits": 1,
+}
 
 POSITIVE_WORDS = {
     "дивиденд": 18, "рекомендовал выплат": 28, "выкуп": 24, "байбэк": 24,
     "сильнее ожиданий": 26, "рекордн": 16, "повысил прогноз": 25,
-    "снизить ключевую ставку": 20, "возобнов": 14,
+    "снизить ключевую ставку": 20, "возобнов": 14, "рост выручк": 16,
+    "рост прибыли": 18, "увеличил прибыль": 18, "повысил рейтинг": 20,
+    "одобрил сделк": 16, "заключил соглашение": 14, "новый контракт": 16,
+    "начал производство": 16, "разместил облигац": 14,
+    "увеличил производство": 16,
 }
 NEGATIVE_WORDS = {
     "дефолт": 45, "банкрот": 42, "арест": 38, "обыск": 35,
     "приостанов": 25, "отказ от дивиденд": 30, "убыток": 18,
     "слабее ожиданий": 24, "понизил прогноз": 25, "дискретный аукцион": 22,
-    "нарушен": 18, "санкци": 20, "авар": 24,
+    "нарушен": 18, "санкци": 20, "авар": 24, "снижение прибыли": 20,
+    "падение прибыли": 22, "падение выручки": 20, "сократил прогноз": 24,
+    "отзыв лицензии": 38, "расследован": 24, "задержан": 30,
+    "обвинен": 28, "пожар": 24, "прекращение торгов": 28,
+    "исключении ценных бумаг": 22, "дополнительные меры": 16,
 }
 
 
@@ -86,16 +122,37 @@ def market_price(security: dict[str, Any], market: dict[str, Any]) -> float:
 
 
 def fetch_board(market: str, board: str, securities: list[str] | None = None) -> list[dict[str, Any]]:
-    query = {"iss.meta": "off", "iss.only": "securities,marketdata"}
+    query = {
+        "iss.meta": "off",
+        "iss.only": "securities,marketdata",
+        "securities.columns": (
+            "SECID,SHORTNAME,SECNAME,PREVPRICE,MATDATE,COUPONPERCENT,"
+            "INSTRID,SECTYPE"
+        ),
+        "marketdata.columns": (
+            "SECID,LAST,MARKETPRICE,LCLOSEPRICE,LASTTOPREVPRICE,"
+            "VALTODAY,VALTODAY_RUR,YIELD,EFFECTIVEYIELD,DURATION"
+        ),
+    }
     if securities:
         query["securities"] = ",".join(securities)
-    url = (
-        f"{MOEX}/engines/stock/markets/{market}/boards/{board}/securities.json?"
-        + urllib.parse.urlencode(query)
-    )
-    payload = get_json(url)
-    static = {item["SECID"]: item for item in rows(payload, "securities")}
-    dynamic = {item["SECID"]: item for item in rows(payload, "marketdata")}
+    static: dict[str, dict[str, Any]] = {}
+    dynamic: dict[str, dict[str, Any]] = {}
+    start = 0
+    while True:
+        page_query = {**query, "start": start}
+        url = (
+            f"{MOEX}/engines/stock/markets/{market}/boards/{board}/securities.json?"
+            + urllib.parse.urlencode(page_query)
+        )
+        payload = get_json(url)
+        static_page = rows(payload, "securities")
+        dynamic_page = rows(payload, "marketdata")
+        static.update({item["SECID"]: item for item in static_page})
+        dynamic.update({item["SECID"]: item for item in dynamic_page})
+        if securities or max(len(static_page), len(dynamic_page)) < 100:
+            break
+        start += 100
     return [{**item, **dynamic.get(secid, {})} for secid, item in static.items()]
 
 
@@ -144,7 +201,11 @@ def build_stocks(config: dict[str, Any]) -> list[dict[str, Any]]:
             "liquidityRub": round(number(quote.get("VALTODAY_RUR") or quote.get("VALTODAY"))),
             "sources": forecast["sources"],
         })
-    return sorted(output, key=lambda item: (item["expectedReturn"], item["confidence"]), reverse=True)[:5]
+    return sorted(
+        output,
+        key=lambda item: (item["expectedReturn"], item["confidence"]),
+        reverse=True,
+    )[:RANKING_LIMIT]
 
 
 def parse_date(value: Any) -> date | None:
@@ -158,7 +219,7 @@ def parse_date(value: Any) -> date | None:
 
 def bond_candidate(item: dict[str, Any], board: str) -> bool:
     maturity = parse_date(item.get("MATDATE"))
-    if not maturity or maturity < date.today() + timedelta(days=365):
+    if not maturity or maturity < date.today() + timedelta(days=90):
         return False
     ytm = number(item.get("YIELD") or item.get("EFFECTIVEYIELD"))
     price = market_price(item, item)
@@ -167,7 +228,10 @@ def bond_candidate(item: dict[str, Any], board: str) -> bool:
     if board == "TQOB":
         return str(item.get("SECID", "")).startswith("SU")
     name = f"{item.get('SHORTNAME', '')} {item.get('SECNAME', '')}".lower()
-    trusted = ("ржд", "роснефт", "газпром", "сбер", "вэб", "дом.рф", "мтс", "норник")
+    trusted = (
+        "ржд", "роснефт", "газпром", "сбер", "вэб", "дом.рф", "мтс",
+        "норник", "россети", "росатом", "алроса", "транснефт", "совкомбанк",
+    )
     return any(issuer in name for issuer in trusted)
 
 
@@ -206,15 +270,34 @@ def build_bonds(config: dict[str, Any]) -> list[dict[str, Any]]:
                 ),
                 "source": "https://iss.moex.com/iss/reference/",
             })
-    liquid = [item for item in candidates if item["liquidityRub"] >= 100_000]
+    liquid = [
+        item for item in candidates
+        if item["liquidityRub"] >= (100_000 if item["kind"] == "ОФЗ" else 25_000)
+    ]
     pool = liquid or candidates
-    corp = sorted((x for x in pool if x["kind"] != "ОФЗ"), key=lambda x: x["expectedReturn"], reverse=True)[:2]
+    corp = sorted(
+        (x for x in pool if x["kind"] != "ОФЗ"),
+        key=lambda x: x["expectedReturn"],
+        reverse=True,
+    )[:5]
     ofz = sorted(
         (x for x in pool if x["kind"] == "ОФЗ"),
         key=lambda x: x["expectedReturn"],
         reverse=True,
-    )[: 5 - len(corp)]
-    return sorted(ofz + corp, key=lambda item: item["expectedReturn"], reverse=True)[:5]
+    )[:5]
+    selected = ofz + corp
+    if len(selected) < RANKING_LIMIT:
+        used = {item["secid"] for item in selected}
+        selected.extend(
+            item
+            for item in sorted(pool, key=lambda x: x["expectedReturn"], reverse=True)
+            if item["secid"] not in used
+        )
+    return sorted(
+        selected,
+        key=lambda item: item["expectedReturn"],
+        reverse=True,
+    )[:RANKING_LIMIT]
 
 
 def daily_closes(secid: str) -> list[float]:
@@ -305,7 +388,11 @@ def build_funds(config: dict[str, Any]) -> list[dict[str, Any]]:
             "risks": "Это экстраполяция рыночного тренда, а не консенсус аналитиков.",
             "source": "https://iss.moex.com/iss/reference/",
         })
-    return sorted(result, key=lambda item: (item["expectedReturn"], item["confidence"]), reverse=True)[:5]
+    return sorted(
+        result,
+        key=lambda item: (item["expectedReturn"], item["confidence"]),
+        reverse=True,
+    )[:RANKING_LIMIT]
 
 
 def strip_html(value: str) -> str:
@@ -316,14 +403,83 @@ def rss_items(source: str, url: str) -> list[dict[str, str]]:
     root = ET.fromstring(request_bytes(url))
     output = []
     for item in root.findall(".//item")[:40]:
+        published_at = (
+            item.findtext("pubDate", "")
+            or item.findtext("{http://purl.org/dc/elements/1.1/}date", "")
+            or item.findtext("date", "")
+        )
         output.append({
             "source": source,
             "title": strip_html(item.findtext("title", "")),
             "description": strip_html(item.findtext("description", "")),
             "url": item.findtext("link", ""),
-            "publishedAt": item.findtext("pubDate", ""),
+            "publishedAt": published_at,
         })
     return output
+
+
+class TelegramChannelParser(HTMLParser):
+    def __init__(self, source: str):
+        super().__init__(convert_charrefs=True)
+        self.source = source
+        self.items: list[dict[str, str]] = []
+        self.current: dict[str, Any] | None = None
+        self.text_depth = 0
+
+    def _flush(self) -> None:
+        if not self.current:
+            return
+        text = re.sub(r"\s+", " ", "".join(self.current["text"])).strip()
+        published_at = self.current.get("publishedAt", "")
+        if text and published_at:
+            title = text[:220] + ("…" if len(text) > 220 else "")
+            self.items.append({
+                "source": self.source,
+                "title": title,
+                "description": text,
+                "url": self.current.get("url") or f"https://t.me/{self.current['post']}",
+                "publishedAt": published_at,
+            })
+        self.current = None
+        self.text_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        post = attributes.get("data-post")
+        if post:
+            self._flush()
+            self.current = {"post": post, "text": []}
+        if not self.current:
+            return
+        classes = attributes.get("class", "") or ""
+        if tag == "div" and "tgme_widget_message_text" in classes:
+            self.text_depth = 1
+        elif self.text_depth:
+            self.text_depth += 1
+        if tag == "br" and self.text_depth:
+            self.current["text"].append(" ")
+        if tag == "time" and attributes.get("datetime"):
+            self.current["publishedAt"] = attributes["datetime"]
+        if tag == "a" and "tgme_widget_message_date" in classes and attributes.get("href"):
+            self.current["url"] = attributes["href"]
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.text_depth:
+            self.text_depth -= 1
+
+    def handle_data(self, data: str) -> None:
+        if self.current and self.text_depth:
+            self.current["text"].append(data)
+
+    def finish(self) -> list[dict[str, str]]:
+        self._flush()
+        return self.items
+
+
+def telegram_items(source: str, url: str) -> list[dict[str, str]]:
+    parser = TelegramChannelParser(source)
+    parser.feed(request_bytes(url).decode("utf-8", errors="replace"))
+    return parser.finish()
 
 
 def moex_sitenews() -> list[dict[str, str]]:
@@ -340,15 +496,60 @@ def moex_sitenews() -> list[dict[str, str]]:
     ]
 
 
-def related_ticker(text: str, stocks: list[dict[str, Any]]) -> str:
+def make_hashtag(value: str) -> str:
+    cleaned = re.sub(r"[^0-9A-Za-zА-Яа-яЁё]", "", value)
+    return f"#{cleaned}" if cleaned else ""
+
+
+def related_instrument(
+    text: str,
+    stocks: list[dict[str, Any]],
+    bonds: list[dict[str, Any]],
+    funds: list[dict[str, Any]] | None = None,
+) -> tuple[str, list[str]] | None:
     upper = text.upper()
+    lower = text.lower()
     for stock in stocks:
         if stock["secid"] in upper or stock["name"].upper().split(",")[0] in upper:
-            return stock["secid"]
-    ticker = re.search(r"\b[A-Z]{4,5}\b", upper)
-    if ticker:
-        return ticker.group(0)
-    return "РЫНОК"
+            tags = [make_hashtag(stock["name"].split(",")[0]), f"#{stock['secid']}"]
+            return stock["secid"], list(dict.fromkeys(tag for tag in tags if tag))
+    for bond in bonds:
+        if bond["secid"] in upper or str(bond["name"]).lower() in lower:
+            tags = [make_hashtag(str(bond["name"])), f"#{bond['secid']}"]
+            return bond["secid"], list(dict.fromkeys(tag for tag in tags if tag))
+    for issuer, ticker_id in ISSUER_TICKERS.items():
+        if issuer in lower:
+            return ticker_id, [make_hashtag(issuer.title()), f"#{ticker_id}"]
+    isin = re.search(r"\bRU[A-Z0-9]{10}\b", upper)
+    if isin:
+        return isin.group(0), [f"#{isin.group(0)}"]
+    known_tickers = {stock["secid"] for stock in stocks} | set(ISSUER_TICKERS.values())
+    fund_tickers = {fund["secid"] for fund in (funds or [])}
+    tagged_tickers = re.findall(r"#([A-Z]{4,5})\b", upper)
+    for ticker in tagged_tickers:
+        if ticker in fund_tickers or ticker in NON_TICKER_TOKENS:
+            continue
+        if ticker in known_tickers or "🇷🇺" in text:
+            issuer = next(
+                (name.title() for name, value in ISSUER_TICKERS.items() if value == ticker),
+                ticker,
+            )
+            return ticker, list(dict.fromkeys([make_hashtag(issuer), f"#{ticker}"]))
+    if re.search(r"акци|бумаг|облигац|тикер", lower):
+        tickers = re.findall(r"\b[A-Z]{4,5}\b", upper)
+        ticker = next((value for value in tickers if value not in NON_TICKER_TOKENS), None)
+        if ticker:
+            return ticker, [f"#{ticker}"]
+    return None
+
+
+def event_key(
+    text: str,
+    direction: str,
+) -> str:
+    dictionary = NEGATIVE_WORDS if direction == "SELL" else POSITIVE_WORDS
+    matches = [(weight, keyword) for keyword, weight in dictionary.items() if keyword in text]
+    return max(matches)[1] if matches else direction.lower()
 
 
 def published_datetime(value: str) -> datetime:
@@ -361,7 +562,11 @@ def published_datetime(value: str) -> datetime:
     return parsed.astimezone(MOSCOW_TZ)
 
 
-def build_urgent(stocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
+def build_urgent(
+    stocks: list[dict[str, Any]],
+    bonds: list[dict[str, Any]],
+    funds: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     health = []
     news: list[dict[str, str]] = []
     try:
@@ -370,20 +575,29 @@ def build_urgent(stocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], li
         health.append({"source": "Московская биржа", "status": "ok", "detail": f"{len(items)} сообщений"})
     except Exception as exc:
         health.append({"source": "Московская биржа", "status": "error", "detail": str(exc)[:140]})
-    for source, url in RSS_FEEDS:
-        try:
-            items = rss_items(source, url)
-            news.extend(items)
-            health.append({"source": source, "status": "ok", "detail": f"{len(items)} сообщений"})
-        except Exception as exc:  # feed failure must not block the entire snapshot
-            health.append({"source": source, "status": "error", "detail": str(exc)[:140]})
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        futures = {
+            executor.submit(rss_items, source, url): source
+            for source, url in RSS_FEEDS
+        }
+        futures.update({
+            executor.submit(telegram_items, source, url): source
+            for source, url in TELEGRAM_FEEDS
+        })
+        for future in as_completed(futures):
+            source = futures[future]
+            try:
+                items = future.result()
+                news.extend(items)
+                health.append({"source": source, "status": "ok", "detail": f"{len(items)} сообщений"})
+            except Exception as exc:  # one feed failure must not block the snapshot
+                health.append({"source": source, "status": "error", "detail": str(exc)[:140]})
 
-    signals = []
-    seen = set()
+    signals_by_key: dict[tuple[str, str, str, str], dict[str, Any]] = {}
     for item in news:
         try:
             published = published_datetime(item["publishedAt"])
-            if datetime.now(MOSCOW_TZ) - published > timedelta(days=4):
+            if datetime.now(MOSCOW_TZ) - published > timedelta(hours=36):
                 continue
         except (TypeError, ValueError, OverflowError):
             continue
@@ -391,16 +605,18 @@ def build_urgent(stocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], li
         positive = sum(weight for keyword, weight in POSITIVE_WORDS.items() if keyword in text)
         negative = sum(weight for keyword, weight in NEGATIVE_WORDS.items() if keyword in text)
         strength = max(positive, negative)
-        if strength < 18:
+        if strength < 14:
             continue
-        ticker = related_ticker(text, stocks)
-        key = (ticker, item["title"][:60])
-        if key in seen:
+        instrument = related_instrument(text, stocks, bonds, funds)
+        if instrument is None:
             continue
-        seen.add(key)
+        ticker, hashtags = instrument
         direction = "SELL" if negative > positive else "BUY"
-        signals.append({
+        source = {"publisher": item["source"], "url": item["url"]}
+        key = (ticker, direction, event_key(text, direction), published.date().isoformat())
+        candidate = {
             "ticker": ticker,
+            "hashtags": hashtags,
             "action": direction,
             "strength": min(99, 48 + strength),
             "title": item["title"],
@@ -410,10 +626,32 @@ def build_urgent(stocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], li
                 else "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник."
             ),
             "publishedAt": item["publishedAt"],
-            "expiresAt": (datetime.now(MOSCOW_TZ) + timedelta(hours=36 if strength >= 30 else 72)).isoformat(),
-            "source": {"publisher": item["source"], "url": item["url"]},
-        })
-    return sorted(signals, key=lambda item: item["strength"], reverse=True)[:5], health
+            "expiresAt": (datetime.now(MOSCOW_TZ) + timedelta(hours=24 if strength >= 30 else 48)).isoformat(),
+            "source": source,
+            "sources": [source],
+            "sourceCount": 1,
+            "_priority": SOURCE_PRIORITY.get(item["source"], 1),
+        }
+        existing = signals_by_key.get(key)
+        if existing is None:
+            signals_by_key[key] = candidate
+            continue
+        if source["url"] and source["url"] not in {value["url"] for value in existing["sources"]}:
+            existing["sources"].append(source)
+            existing["sourceCount"] = len(existing["sources"])
+        existing["strength"] = max(existing["strength"], candidate["strength"])
+        if candidate["_priority"] > existing["_priority"]:
+            for field in ("title", "summary", "publishedAt", "source", "_priority"):
+                existing[field] = candidate[field]
+
+    signals = list(signals_by_key.values())
+    for signal in signals:
+        signal.pop("_priority", None)
+    return sorted(
+        signals,
+        key=lambda item: (item["strength"], item["publishedAt"]),
+        reverse=True,
+    )[:URGENT_LIMIT], health
 
 
 def previous_data() -> dict[str, Any]:
@@ -447,11 +685,13 @@ def main() -> int:
     stocks = safe_build("MOEX: акции", lambda: build_stocks(config), "stocks")
     bonds = safe_build("MOEX: облигации", lambda: build_bonds(config), "bonds")
     funds = safe_build("MOEX: фонды", lambda: build_funds(config), "funds")
-    urgent, feed_health = build_urgent(stocks)
+    urgent, feed_health = build_urgent(stocks, bonds, funds)
     if not urgent:
         urgent = [
             item for item in previous.get("urgent", [])
             if item.get("expiresAt", "") > datetime.now(MOSCOW_TZ).isoformat()
+            and item.get("ticker") not in {"РЫНОК", "НЕФТЕГАЗ"}
+            and item.get("hashtags")
         ]
 
     payload = {

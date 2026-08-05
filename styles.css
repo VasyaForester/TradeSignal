@@ -90,6 +90,8 @@ h2 { font-size: clamp(28px, 4vw, 43px); letter-spacing: -.045em; margin-bottom: 
 .action.buy { color: var(--green); background: rgba(88,246,169,.1); border: 1px solid rgba(88,246,169,.25); }
 .urgent-copy h3 { font-size: 14px; margin: 0 0 5px; }
 .urgent-copy p { color: var(--muted); margin: 0; font-size: 12px; }
+.signal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.signal-tags span { color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: .02em; }
 .urgent-source { text-align: right; }
 .urgent-source b { display: block; font-size: 20px; color: var(--red); }
 .urgent-source a { color: var(--muted); font-size: 10px; }
