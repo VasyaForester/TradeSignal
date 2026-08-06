@@ -71,7 +71,8 @@ function driverSummary(item) {
 function subtitle(item, type) {
   if (type === "stocks") return `модель ${price(item.targetPrice)} · дивиденд ${price(item.dividend12m)}`;
   if (type === "bonds") return `${item.kind} · погашение ${item.maturity}`;
-  return `3 мес. ${pct(item.return3m)} · 12 мес. ${pct(item.return12m)}`;
+  const category = item.categoryLabel ? `${item.categoryLabel} · ` : "";
+  return `${category}3 мес. ${pct(item.return3m)} · 12 мес. ${pct(item.return12m)}`;
 }
 
 function secondaryMetric(item, type) {

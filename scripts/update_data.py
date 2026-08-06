@@ -499,7 +499,8 @@ def build_bonds(config: dict[str, Any]) -> list[dict[str, Any]]:
 def daily_closes(secid: str, boards: tuple[str, ...] = ("TQBR", "TQTF")) -> list[float]:
     start = (date.today() - timedelta(days=430)).isoformat()
     combined: list[tuple[str, float]] = []
-    # Funds moved to TQBR in June 2026; try TQBR first and skip TQTF when history exists.
+    # Always merge TQBR + TQTF when both are requested: after the June 2026 board
+    # migration TQBR alone often has only ~1-2 months of history.
     for board in boards:
         url = (
             f"{MOEX}/engines/stock/markets/shares/boards/{board}/securities/"
@@ -521,9 +522,6 @@ def daily_closes(secid: str, boards: tuple[str, ...] = ("TQBR", "TQTF")) -> list
             continue
         if candles:
             combined.extend(candles)
-            if board == "TQBR" and len(candles) >= 45:
-                break
-    # Funds migrated from TQTF to TQBR in June 2026; deduplicate the boundary by date.
     return [value for _, value in sorted(dict(combined).items())]
 
 
@@ -541,62 +539,201 @@ def max_drawdown(closes: list[float]) -> float:
     return worst
 
 
-def build_funds(config: dict[str, Any]) -> list[dict[str, Any]]:
+FUND_CATEGORY = {
+    "LQDT": "money", "SBMM": "money", "AKMM": "money", "TMON": "money",
+    "BOND": "bonds", "OBLG": "bonds", "SBRB": "bonds", "BCSD": "bonds",
+    "RCMB": "bonds", "RSHU": "bonds", "AKPP": "bonds", "AMRB": "bonds",
+    "GOLD": "gold", "TGLD": "gold", "SBGD": "gold", "GOLDETF": "gold",
+    "TMOS": "equity", "SBMX": "equity", "EQMX": "equity", "AKME": "equity",
+    "DIVD": "equity", "TECH": "equity", "GROD": "equity",
+}
+FUND_CATEGORY_LABEL = {
+    "money": "Денежный рынок",
+    "bonds": "Облигации",
+    "gold": "Золото",
+    "equity": "Акции",
+}
+MIN_FUND_HISTORY = 21
+MIN_FUND_LIQUIDITY = 3_000_000
+
+
+def fund_category(secid: str) -> str:
+    return FUND_CATEGORY.get(secid, "equity")
+
+
+def estimate_fund_return(
+    closes: list[float],
+    category: str,
+    key_rate: float,
+    rate_drop: float,
+) -> dict[str, Any]:
+    ret_3m = (closes[-1] / closes[-min(63, len(closes))] - 1) * 100
+    span_12 = min(252, len(closes))
+    ret_12m = (closes[-1] / closes[-span_12] - 1) * 100
+    vol = annualized_volatility(closes)
+    drawdown = max_drawdown(closes)
+
+    if category == "money":
+        carry = max(6.0, key_rate - 1.2)
+        # Money-market NAV drifts slowly; short windows understate carry, so lean on the rate.
+        expected = 0.8 * carry + 0.2 * max(ret_12m, 0.0)
+        thesis = (
+            f"Фонд денежного рынка: сценарная доходность около ключевой ставки "
+            f"({key_rate:.1f}% минус издержки)."
+        )
+    elif category == "bonds":
+        carry = max(5.0, key_rate - 1.8 + rate_drop * 1.2)
+        expected = 0.3 * clamp(ret_12m, -15, 25) + 0.15 * clamp(ret_3m, -10, 15) + 0.55 * carry
+        expected -= 0.04 * vol + 0.03 * abs(drawdown)
+        thesis = "Облигационный фонд: ставка/купонный carry + смягчение ДКП, с поправкой на волатильность."
+    elif category == "gold":
+        expected = 0.4 * clamp(ret_12m, -30, 45) + 0.35 * clamp(ret_3m, -25, 30) - 0.08 * vol - 0.05 * abs(drawdown)
+        thesis = "Золотой фонд: импульс цены металла с штрафом за просадку и волатильность."
+    else:
+        expected = 0.4 * clamp(ret_12m, -35, 45) + 0.35 * clamp(ret_3m, -30, 35) - 0.08 * vol - 0.05 * abs(drawdown)
+        thesis = "Акционный фонд: тренд 3/12 мес. с поправкой на волатильность и просадку."
+
+    confidence = max(
+        35,
+        min(
+            84,
+            round(58 + min(len(closes), 252) / 12 - vol * 0.35 + (8 if category in {"money", "bonds"} else 0)),
+        ),
+    )
+    return {
+        "return3m": round(ret_3m, 1),
+        "return12m": round(ret_12m, 1),
+        "volatility": round(vol, 1),
+        "maxDrawdown": round(drawdown, 1),
+        "expectedReturn": round(clamp(expected, -20, 40), 1),
+        "confidence": confidence,
+        "thesis": thesis,
+    }
+
+
+def build_funds(
+    config: dict[str, Any],
+    previous_funds: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
     # Since 22 June 2026 MOEX trades exchange funds on the unified TQBR board.
     preferred_ids = config["funds"]["preferred"]
-    board = [
-        item for item in fetch_board("shares", "TQBR", preferred_ids)
-        if item.get("INSTRID") == "IFTF"
-        or item.get("SECID") in preferred_ids
-    ]
+    previous_by_id = {item["secid"]: item for item in (previous_funds or [])}
+    try:
+        board = [
+            item for item in fetch_board("shares", "TQBR", preferred_ids)
+            if item.get("INSTRID") == "IFTF"
+            or item.get("SECID") in preferred_ids
+        ]
+    except Exception:
+        board = []
     by_id = {item["SECID"]: item for item in board}
+    for secid in preferred_ids:
+        if secid in by_id:
+            continue
+        prev = previous_by_id.get(secid)
+        if not prev:
+            continue
+        by_id[secid] = {
+            "SECID": secid,
+            "SHORTNAME": prev.get("name") or secid,
+            "LAST": prev.get("price"),
+            "PREVPRICE": prev.get("price"),
+            "LASTTOPREVPRICE": prev.get("dayChange"),
+            "VALTODAY_RUR": prev.get("liquidityRub"),
+        }
     preferred = [secid for secid in preferred_ids if secid in by_id]
     most_liquid = sorted(
-        board, key=lambda item: number(item.get("VALTODAY_RUR") or item.get("VALTODAY")), reverse=True
+        by_id.values(),
+        key=lambda item: number(item.get("VALTODAY_RUR") or item.get("VALTODAY")),
+        reverse=True,
     )
-    universe = (preferred + [item["SECID"] for item in most_liquid if item["SECID"] not in preferred])[:12]
+    universe = (preferred + [item["SECID"] for item in most_liquid if item["SECID"] not in preferred])[:20]
     histories: dict[str, list[float]] = {}
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = {executor.submit(daily_closes, secid): secid for secid in universe}
-        for future in as_completed(futures):
-            secid = futures[future]
-            try:
-                histories[secid] = future.result()
-            except (RuntimeError, urllib.error.URLError, TimeoutError):
-                continue
+    if board:
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = {
+                executor.submit(daily_closes, secid, ("TQBR", "TQTF")): secid
+                for secid in universe
+            }
+            for future in as_completed(futures):
+                secid = futures[future]
+                try:
+                    histories[secid] = future.result()
+                except (RuntimeError, urllib.error.URLError, TimeoutError):
+                    continue
 
-    result = []
+    key_rate = number(config["macro"]["currentKeyRate"])
+    rate_drop = max(0.0, key_rate - number(config["macro"]["forecastKeyRate12m"]))
+    scored: list[dict[str, Any]] = []
     for secid in universe:
         item = by_id[secid]
+        prev = previous_by_id.get(secid, {})
         closes = histories.get(secid, [])
-        if len(closes) < 45:
+        category = fund_category(secid)
+        price = market_price(item, item)
+        if price <= 0:
+            price = number(prev.get("price"))
+        if len(closes) < MIN_FUND_HISTORY and prev:
+            closes = synthetic_closes(
+                price or number(prev.get("price")),
+                number(prev.get("return3m")),
+                number(prev.get("return12m")),
+            )
+        if len(closes) < MIN_FUND_HISTORY and category in {"money", "bonds"} and price > 0:
+            # Board migration often leaves money/bond ETFs without long candles;
+            # synthesize a mild rate-like drift so carry funds are not dropped.
+            daily = (key_rate / 100) / 252
+            closes = [price / ((1 + daily) ** (120 - index)) for index in range(120)]
+            closes[-1] = price
+        if len(closes) < MIN_FUND_HISTORY or price <= 0:
             continue
-        ret_3m = (closes[-1] / closes[-min(63, len(closes))] - 1) * 100
-        ret_12m = (closes[-1] / closes[-min(252, len(closes))] - 1) * 100
-        vol = annualized_volatility(closes)
-        drawdown = max_drawdown(closes)
-        raw_forecast = 0.45 * ret_12m + 0.35 * ret_3m - 0.12 * vol - 0.08 * abs(drawdown)
-        expected = max(-20.0, min(40.0, raw_forecast))
-        confidence = max(35, min(82, round(72 - vol * 0.45 + min(len(closes), 252) / 30)))
-        result.append({
+        liquidity = number(item.get("VALTODAY_RUR") or item.get("VALTODAY") or prev.get("liquidityRub"))
+        if liquidity < MIN_FUND_LIQUIDITY and secid not in set(preferred_ids[:8]):
+            continue
+        estimate = estimate_fund_return(closes, category, key_rate, rate_drop)
+        scored.append({
             "secid": secid,
-            "name": item.get("SHORTNAME") or secid,
-            "price": round(market_price(item, item), 4),
-            "dayChange": round(number(item.get("LASTTOPREVPRICE")), 2),
-            "return3m": round(ret_3m, 1),
-            "return12m": round(ret_12m, 1),
-            "volatility": round(vol, 1),
-            "maxDrawdown": round(drawdown, 1),
-            "expectedReturn": round(expected, 1),
-            "confidence": confidence,
-            "liquidityRub": round(number(item.get("VALTODAY_RUR") or item.get("VALTODAY"))),
-            "thesis": "Количественный тренд с поправкой на волатильность и максимальную просадку.",
-            "risks": "Это экстраполяция рыночного тренда, а не консенсус аналитиков.",
+            "name": item.get("SHORTNAME") or prev.get("name") or secid,
+            "category": category,
+            "categoryLabel": FUND_CATEGORY_LABEL[category],
+            "price": round(price, 4),
+            "dayChange": round(number(item.get("LASTTOPREVPRICE"), number(prev.get("dayChange"))), 2),
+            "return3m": estimate["return3m"],
+            "return12m": estimate["return12m"],
+            "volatility": estimate["volatility"],
+            "maxDrawdown": estimate["maxDrawdown"],
+            "expectedReturn": estimate["expectedReturn"],
+            "confidence": estimate["confidence"],
+            "liquidityRub": round(liquidity),
+            "thesis": estimate["thesis"],
+            "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
             "source": "https://iss.moex.com/iss/reference/",
         })
+
+    # Diversify top-10: keep best names across money/bonds/gold/equity, not only losers.
+    selected: list[dict[str, Any]] = []
+    used: set[str] = set()
+    for category in ("money", "bonds", "gold", "equity"):
+        bucket = sorted(
+            (item for item in scored if item["category"] == category),
+            key=lambda item: (item["expectedReturn"], item["liquidityRub"]),
+            reverse=True,
+        )
+        take = 3 if category in {"money", "bonds"} else 2
+        for item in bucket[:take]:
+            selected.append(item)
+            used.add(item["secid"])
+    leftovers = sorted(
+        (item for item in scored if item["secid"] not in used),
+        key=lambda item: (item["expectedReturn"], item["liquidityRub"]),
+        reverse=True,
+    )
+    selected.extend(leftovers)
+    if not selected:
+        raise RuntimeError("не удалось рассчитать ни одного фонда")
     return sorted(
-        result,
-        key=lambda item: (item["expectedReturn"], item["confidence"]),
+        selected,
+        key=lambda item: (item["expectedReturn"], item["confidence"], item["liquidityRub"]),
         reverse=True,
     )[:RANKING_LIMIT]
 
@@ -1097,7 +1234,11 @@ def main() -> int:
             return fallback
 
     bonds = safe_build("MOEX: облигации", lambda: build_bonds(config), "bonds")
-    funds = safe_build("MOEX: фонды", lambda: build_funds(config), "funds")
+    funds = safe_build(
+        "MOEX: фонды",
+        lambda: build_funds(config, previous.get("funds", [])),
+        "funds",
+    )
     stock_stubs = [
         {"secid": item["secid"], "name": item["name"]}
         for item in config.get("stocks", [])

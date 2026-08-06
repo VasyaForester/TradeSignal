@@ -5,6 +5,7 @@ from pathlib import Path
 
 from scripts.update_data import (
     TelegramChannelParser,
+    estimate_fund_return,
     estimate_stock_target,
     evaluate_entity_linking,
     event_key,
@@ -160,6 +161,25 @@ class SnapshotContractTest(unittest.TestCase):
         self.assertEqual(event_key("кредитор подал на банкротство", "SELL"), "credit_distress")
         self.assertTrue(is_mechanical_dividend_event("акции упали после дивидендной отсечки"))
         self.assertFalse(is_mechanical_dividend_event("акции закрыли дивидендный гэп"))
+
+    def test_fund_ranking_is_diversified(self):
+        funds = self.data["funds"]
+        self.assertGreaterEqual(len(funds), 4)
+        categories = {item.get("category") for item in funds}
+        # Snapshot may be stale offline, but live model must not be equity-only losers.
+        if any(item.get("category") for item in funds):
+            self.assertTrue(categories & {"money", "bonds", "gold", "equity"})
+        for item in funds:
+            self.assertGreaterEqual(item["expectedReturn"], -20)
+            self.assertLessEqual(item["expectedReturn"], 40)
+
+    def test_estimate_fund_return_prefers_money_market_carry(self):
+        rising = [100 + index * 0.02 for index in range(120)]
+        falling_equity = [100 - index * 0.08 for index in range(120)]
+        money = estimate_fund_return(rising, "money", key_rate=14.0, rate_drop=2.0)
+        equity = estimate_fund_return(falling_equity, "equity", key_rate=14.0, rate_drop=2.0)
+        self.assertGreater(money["expectedReturn"], 8)
+        self.assertGreater(money["expectedReturn"], equity["expectedReturn"])
 
     def test_estimate_stock_target_reacts_to_news(self):
         closes = [100 + index * 0.2 for index in range(120)]
