@@ -14,8 +14,10 @@ permissions:
   id-token: write
 
 concurrency:
+  # Never cancel an in-flight Pages deploy: overlapping push+schedule runs
+  # were aborting each other with "Deployment cancelled".
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   update:
