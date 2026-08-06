@@ -5,12 +5,11 @@ on:
   push:
     branches: [main]
   schedule:
-    # Every 2 hours in Moscow trading window (09-23). Frequent Pages deploys
-    # were stalling in deployment_queued and timing out.
+    # Every 2 hours in Moscow trading window (09-23).
     - cron: "17 6,8,10,12,14,16,18,20 * * 1-5"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -22,9 +21,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment_retry.outputs.page_url || steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -40,9 +36,6 @@ jobs:
       - name: Validate snapshot
         run: python -m unittest discover -s tests -v
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
       - name: Assemble static site
         run: |
           mkdir _site
@@ -50,23 +43,26 @@ jobs:
           mkdir _site/data
           cp data/market-data.json _site/data/
 
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        continue-on-error: true
-        uses: actions/deploy-pages@v4
-
-      - name: Retry deploy after Pages backend stall
-        id: deployment_retry
-        if: steps.deployment.outcome == 'failure'
-        uses: actions/deploy-pages@v4
-
-      - name: Fail job if deploy never succeeded
-        if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome != 'success'
+      # Branch deploy avoids flaky actions/deploy-pages "deployment_queued" /
+      # "in progress deployment" failures on the Pages Deployment API.
+      - name: Ensure Pages serves gh-pages branch
         run: |
-          echo "GitHub Pages deploy failed after retry"
-          exit 1
+          gh api --method PUT "repos/${{ github.repository }}/pages" \
+            -f build_type=legacy \
+            -f "source[branch]=gh-pages" \
+            -f "source[path]=/" || \
+          gh api --method POST "repos/${{ github.repository }}/pages" \
+            -f build_type=legacy \
+            -f "source[branch]=gh-pages" \
+            -f "source[path]=/"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
