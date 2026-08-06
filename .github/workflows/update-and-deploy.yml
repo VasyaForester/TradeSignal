@@ -4,12 +4,15 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "README.md"
   schedule:
     # Every 2 hours in Moscow trading window (09-23).
     - cron: "17 6,8,10,12,14,16,18,20 * * 1-5"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -20,10 +23,10 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.fallback.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -39,16 +42,31 @@ jobs:
       - name: Validate snapshot
         run: python -m unittest discover -s tests -v
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
       - name: Assemble static site
         run: |
-          mkdir _site
+          mkdir -p _site/data docs/data
           cp index.html styles.css app.js _site/
-          mkdir _site/data
           cp data/market-data.json _site/data/
           touch _site/.nojekyll
+          cp -r _site/. docs/
+          echo "published=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > docs/.publish-stamp
+
+      - name: Publish docs fallback on main
+        id: fallback
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "No docs changes"
+          else
+            git commit -m "Publish site snapshot to docs/ [skip ci]"
+            git push origin HEAD:main
+          fi
+          echo "page_url=https://cdn.jsdelivr.net/gh/${{ github.repository }}@main/docs/index.html" >> "$GITHUB_OUTPUT"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
@@ -57,4 +75,35 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
+
+      - name: Long-poll Pages if still queued
+        if: steps.deployment.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          sha="${{ github.sha }}"
+          echo "Polling pages deployment for ${sha} without cancelling..."
+          for i in $(seq 1 60); do
+            status=$(gh api "repos/${{ github.repository }}/pages/deployments/${sha}" --jq '.status // empty' 2>/dev/null)
+            echo "attempt=$i status=$status"
+            case "$status" in
+              succeed|success|deployment_succeeded|built|"")
+                pages=$(gh api "repos/${{ github.repository }}/pages" --jq '.status // empty')
+                echo "pages_site_status=$pages"
+                if [ "$status" = "succeed" ] || [ "$status" = "success" ] || [ "$status" = "deployment_succeeded" ] || [ "$pages" = "built" ]; then
+                  echo "Pages eventually became healthy"
+                  exit 0
+                fi
+                ;;
+              deployment_failed|failed|error|deployment_cancelled)
+                echo "Terminal failure: $status"
+                exit 0
+                ;;
+            esac
+            sleep 30
+          done
+          echo "Still not healthy after long poll; docs/ fallback remains available"
+          exit 0

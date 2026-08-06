@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Сигналы по акциям, облигациям и фондам Московской биржи">
+  <title>TradeSignal — российский рынок</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="TradeSignal">
+      <span class="brand-mark"><i></i><i></i><i></i></span>
+      <span>TRADE<span>SIGNAL</span></span>
+    </a>
+    <div class="market-state"><span class="pulse"></span><span id="market-state">Данные загружаются</span></div>
+    <button class="ghost-button" id="method-button">Как считаем</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">МОСКОВСКАЯ БИРЖА · СИСТЕМНЫЙ ВЗГЛЯД</p>
+        <h1>Решения на фактах.<br><span>Не на шуме.</span></h1>
+        <p class="hero-copy">Сводим котировки, прогнозы аналитиков и рыночные тенденции в один понятный сигнал.</p>
+      </div>
+      <div class="hero-meta">
+        <span>СНИМОК РЫНКА</span>
+        <strong id="updated-at">—</strong>
+        <small>МСК · котировки MOEX могут быть задержаны ≥15 минут</small>
+      </div>
+    </section>
+
+    <section class="urgent-section" aria-labelledby="urgent-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow danger">ТРЕБУЕТ ВНИМАНИЯ</p>
+          <h2 id="urgent-title">Срочные сигналы</h2>
+        </div>
+        <div class="signal-count"><b id="signal-count">0</b><span>активных<br>сигналов</span></div>
+      </div>
+      <div id="urgent-list" class="urgent-list">
+        <div class="empty-state">Проверяем свежие события…</div>
+      </div>
+    </section>
+
+    <section class="ideas-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">ГОРИЗОНТ · 12 МЕСЯЦЕВ</p>
+          <h2>Лучшие идеи</h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Тип инструмента">
+          <button class="tab active" data-type="stocks" role="tab">Акции</button>
+          <button class="tab" data-type="bonds" role="tab">Облигации</button>
+          <button class="tab" data-type="funds" role="tab">Фонды</button>
+        </div>
+      </div>
+      <div class="category-note" id="category-note"></div>
+      <div class="ranking-head">
+        <span>Рейтинг</span><span>Цена</span><span>Ожидание</span><span>Уверенность</span>
+      </div>
+      <div id="ranking" class="ranking"></div>
+    </section>
+
+    <section class="context-grid">
+      <article class="context-card">
+        <p class="eyebrow">МАКРОСЦЕНАРИЙ</p>
+        <div class="rate-row">
+          <div><span>Ставка сейчас</span><strong id="rate-now">—</strong></div>
+          <span class="rate-arrow">→</span>
+          <div><span>Через 12 мес.</span><strong id="rate-target">—</strong></div>
+        </div>
+        <p id="macro-note"></p>
+      </article>
+      <article class="context-card">
+        <p class="eyebrow">КАЧЕСТВО ДАННЫХ</p>
+        <div id="source-health" class="source-health"></div>
+        <p class="eyebrow pipeline-title">ПАЙПЛАЙН НОВОСТЕЙ</p>
+        <div id="pipeline-metrics" class="pipeline-metrics"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p id="disclaimer"></p>
+    <a href="https://github.com/VasyaForester/TradeSignal" target="_blank" rel="noreferrer">Исходный код и методология ↗</a>
+  </footer>
+
+  <dialog id="method-dialog">
+    <button class="dialog-close" aria-label="Закрыть">×</button>
+    <p class="eyebrow">МЕТОДОЛОГИЯ</p>
+    <h2>Откуда берется рейтинг</h2>
+    <div class="method-block">
+      <b>Акции</b>
+      <p id="stock-method">Таргет пересчитывает модель TradeSignal при каждом обновлении: импульс 3/12 мес., качество бизнеса, свежие новости и чувствительность к ставке. Полная доходность = рост цены + дивиденд. Это не консенсус брокеров.</p>
+    </div>
+    <div class="method-block">
+      <b>Облигации</b>
+      <p>Доходность к погашению + сценарный эффект изменения ставки с учетом дюрации. Это сценарий, не обещание результата.</p>
+    </div>
+    <div class="method-block">
+      <b>Фонды</b>
+      <p id="fund-method"></p>
+    </div>
+    <div class="method-block">
+      <b>Срочные сигналы</b>
+      <p>Компании связываются с тикерами по явным кодам, ISIN и базе алиасов. Похожие заголовки внутри одной компании объединяются. Sentiment и сценарная реакция цены рассчитаны прозрачной правиловой моделью, а не являются прогнозом гарантированной доходности.</p>
+    </div>
+    <p class="dialog-warning">Любой сигнал — повод для проверки, а не команда на сделку. Учитывайте горизонт, ликвидность и допустимый убыток.</p>
+  </dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

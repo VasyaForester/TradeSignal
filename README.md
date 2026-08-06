@@ -58,7 +58,11 @@ python -m http.server 8000
 2. В **Build and deployment → Source** выберите **GitHub Actions**.
 3. Запустите workflow **Update market data and deploy** вручную.
 
-Workflow также запускается каждые 2 часа в торговое время по будням и при push в `main`. Обновленный JSON публикуется в Pages как artifact; исходный файл в ветке при этом не коммитится автоматически.
+Workflow также запускается каждые 2 часа в торговое время по будням и при push в `main`. Сайт публикуется в GitHub Pages; параллельно актуальный снимок кладётся в `docs/` на `main` (fallback через jsDelivr, если бэкенд Pages снова зависнет в очереди):
+
+https://cdn.jsdelivr.net/gh/VasyaForester/TradeSignal@main/docs/index.html
+
+Обновленный JSON в ветке `main` не коммитится автоматически (кроме копии внутри `docs/`).
 
 ## Лицензирование данных
 
