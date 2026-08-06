@@ -3,7 +3,17 @@ import re
 import unittest
 from pathlib import Path
 
-from scripts.update_data import TelegramChannelParser, related_instrument
+from scripts.update_data import (
+    TelegramChannelParser,
+    evaluate_entity_linking,
+    event_key,
+    impact_estimate,
+    is_mechanical_dividend_event,
+    is_negative_actor_only,
+    jaccard_similarity,
+    related_instrument,
+    text_shingles,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,7 +25,10 @@ class SnapshotContractTest(unittest.TestCase):
         cls.data = json.loads((ROOT / "data" / "market-data.json").read_text(encoding="utf-8"))
 
     def test_required_sections_exist(self):
-        for key in ("generatedAt", "urgent", "stocks", "bonds", "funds", "sourceHealth"):
+        for key in (
+            "generatedAt", "urgent", "stocks", "bonds", "funds",
+            "sourceHealth", "pipelineMetrics",
+        ):
             self.assertIn(key, self.data)
 
     def test_rankings_are_top_ten_and_sorted(self):
@@ -40,6 +53,17 @@ class SnapshotContractTest(unittest.TestCase):
                 self.assertGreaterEqual(item["confidence"], 0)
                 self.assertLessEqual(item["confidence"], 100)
 
+    def test_pipeline_quality_metrics(self):
+        metrics = self.data["pipelineMetrics"]
+        for key in ("dedupRate", "entityLinkPrecision", "entityLinkRecall", "latencyMs"):
+            self.assertIn(key, metrics)
+        self.assertGreaterEqual(metrics["dedupRate"], 0)
+        self.assertLessEqual(metrics["dedupRate"], 1)
+        evaluated = evaluate_entity_linking([], [], [{"secid": "LQDT"}])
+        self.assertEqual(evaluated["entityEvalSamples"], 9)
+        self.assertGreaterEqual(evaluated["entityLinkPrecision"], 0.9)
+        self.assertGreaterEqual(evaluated["entityLinkRecall"], 0.9)
+
     def test_urgent_signals_are_attributable(self):
         self.assertLessEqual(len(self.data["urgent"]), 10)
         fingerprints = set()
@@ -50,6 +74,12 @@ class SnapshotContractTest(unittest.TestCase):
             self.assertTrue(signal["source"]["publisher"])
             self.assertTrue(signal["source"]["url"].startswith("http"))
             self.assertIn(signal["action"], ("BUY", "SELL"))
+            self.assertGreaterEqual(signal["sentimentScore"], -1)
+            self.assertLessEqual(signal["sentimentScore"], 1)
+            self.assertGreaterEqual(signal["impactConfidence"], 0)
+            self.assertLessEqual(signal["impactConfidence"], 100)
+            self.assertGreaterEqual(signal["entityConfidence"], 0)
+            self.assertLessEqual(signal["entityConfidence"], 100)
             normalized_title = re.sub(r"\W+", "", signal["title"].lower())
             fingerprint = (signal["ticker"], signal["action"], normalized_title)
             self.assertNotIn(fingerprint, fingerprints)
@@ -77,6 +107,46 @@ class SnapshotContractTest(unittest.TestCase):
                 [{"secid": "LQDT"}],
             )
         )
+        self.assertEqual(
+            related_instrument(
+                "🇷🇺#OZPH Озон Фармацевтика обновила дивидендную политику",
+                [{"secid": "OZON", "name": "Ozon"}],
+                [],
+            )[0],
+            "OZPH",
+        )
+        self.assertIsNone(related_instrument("Лента новостей: рынки снизились", [], []))
+        self.assertEqual(
+            related_instrument(
+                "Сбербанк обсуждал с Евротрансом варианты урегулирования",
+                [],
+                [],
+            )[0],
+            "EUTR",
+        )
+        self.assertTrue(
+            is_negative_actor_only(
+                'Сбербанк намерен инициировать банкротство сети АЗС "Трасса"',
+                "SBER",
+            )
+        )
+
+    def test_similarity_and_impact_models(self):
+        first = text_shingles("Сбербанк рекомендовал дивиденды за 2025 год")
+        duplicate = text_shingles("Сбербанк рекомендовал дивиденды за 2025 год акционерам")
+        unrelated = text_shingles("Лукойл сообщил о новом нефтяном месторождении")
+        self.assertGreater(jaccard_similarity(first, duplicate), 0.5)
+        self.assertLess(jaccard_similarity(first, unrelated), 0.2)
+        positive = impact_estimate("BUY", 30, 0.9, 3)
+        negative = impact_estimate("SELL", 30, 0.9, 3)
+        self.assertGreater(positive[0], 0)
+        self.assertGreater(positive[1], 0)
+        self.assertLess(negative[0], 0)
+        self.assertLess(negative[1], 0)
+        self.assertEqual(event_key("эмитент подтвердил дефолт", "SELL"), "credit_distress")
+        self.assertEqual(event_key("кредитор подал на банкротство", "SELL"), "credit_distress")
+        self.assertTrue(is_mechanical_dividend_event("акции упали после дивидендной отсечки"))
+        self.assertFalse(is_mechanical_dividend_event("акции закрыли дивидендный гэп"))
 
     def test_market_twits_public_page_parser(self):
         parser = TelegramChannelParser("MarketTwits")

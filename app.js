@@ -28,6 +28,13 @@ function renderUrgent(items) {
       <div class="urgent-copy">
         <h3>${escapeHtml(item.ticker)} · ${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.summary)}</p>
+        ${Number.isFinite(item.impactEstimatePct) ? `
+          <div class="signal-impact">
+            <span>сценарий ${pct(item.impactEstimatePct)}</span>
+            <span>уверенность ${item.impactConfidence}%</span>
+            <span>entity ${item.entityConfidence}%</span>
+          </div>
+        ` : ""}
         <div class="signal-tags">${(item.hashtags || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
       </div>
       <div class="urgent-source">
@@ -112,6 +119,29 @@ function renderHealth(items) {
   document.querySelector("#market-state").textContent = label;
 }
 
+function renderPipeline(metrics) {
+  const container = document.querySelector("#pipeline-metrics");
+  if (!metrics) {
+    container.innerHTML = `<div class="empty-state">Метрики появятся после следующего обновления данных.</div>`;
+    return;
+  }
+  const latency = metrics.latencyMs >= 1000
+    ? `${rub.format(metrics.latencyMs / 1000)} с`
+    : `${metrics.latencyMs} мс`;
+  const values = [
+    [metrics.fetched, "получено"],
+    [metrics.signals, "сигналов"],
+    [metrics.duplicatesMerged, "дублей слито"],
+    [`${Math.round(metrics.dedupRate * 100)}%`, "dedup-rate"],
+    [`${Math.round(metrics.entityLinkPrecision * 100)}%`, "entity precision"],
+    [`${Math.round(metrics.entityLinkRecall * 100)}%`, "entity recall"],
+    [latency, "время обработки"],
+  ];
+  container.innerHTML = values.map(([value, label]) => `
+    <div class="pipeline-metric"><b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span></div>
+  `).join("");
+}
+
 function render(data) {
   state.data = data;
   document.querySelector("#updated-at").textContent = freshnessLabel(data.generatedAt);
@@ -122,6 +152,7 @@ function render(data) {
   document.querySelector("#disclaimer").textContent = data.disclaimer;
   renderUrgent(data.urgent || []);
   renderHealth(data.sourceHealth || []);
+  renderPipeline(data.pipelineMetrics);
   renderRanking(state.type);
 }
 
