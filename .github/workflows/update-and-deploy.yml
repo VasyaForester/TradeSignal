@@ -9,10 +9,7 @@ on:
     - cron: "17 6,8,10,12,14,16,18,20 * * 1-5"
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-  deployments: write
+  contents: write
 
 concurrency:
   group: pages
@@ -22,9 +19,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment_retry.outputs.page_url || steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -40,54 +34,18 @@ jobs:
       - name: Validate snapshot
         run: python -m unittest discover -s tests -v
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
       - name: Assemble static site
         run: |
           mkdir _site
           cp index.html styles.css app.js _site/
           mkdir _site/data
           cp data/market-data.json _site/data/
+          touch _site/.nojekyll
 
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v3
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: _site
-
-      - name: Cancel stuck Pages deployments
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set +e
-          ids=$(gh api "repos/${{ github.repository }}/deployments?environment=github-pages&per_page=10" --jq '.[].id')
-          for id in $ids; do
-            state=$(gh api "repos/${{ github.repository }}/deployments/${id}/statuses" --jq '.[0].state // empty')
-            sha=$(gh api "repos/${{ github.repository }}/deployments/${id}" --jq '.sha')
-            echo "deployment ${id} sha=${sha:0:8} state=${state}"
-            case "$state" in
-              in_progress|queued|pending|waiting)
-                echo "Cancelling ${sha}"
-                gh api -X POST "repos/${{ github.repository }}/pages/deployments/${sha}/cancel" || true
-                ;;
-            esac
-          done
-          sleep 15
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        continue-on-error: true
-        uses: actions/deploy-pages@v4
-
-      - name: Wait before retry
-        if: steps.deployment.outcome == 'failure'
-        run: sleep 45
-
-      - name: Retry deploy to GitHub Pages
-        id: deployment_retry
-        if: steps.deployment.outcome == 'failure'
-        uses: actions/deploy-pages@v4
-
-      - name: Require successful deploy
-        if: steps.deployment.outcome != 'success' && steps.deployment_retry.outcome != 'success'
-        run: exit 1
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          force_orphan: true
+          enable_jekyll: false

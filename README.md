@@ -55,10 +55,10 @@ python -m http.server 8000
 ## GitHub Pages
 
 1. В репозитории откройте **Settings → Pages**.
-2. В **Build and deployment → Source** выберите **GitHub Actions**.
+2. В **Build and deployment → Source** выберите **Deploy from a branch**: ветка `gh-pages`, папка `/`.
 3. Запустите workflow **Update market data and deploy** вручную.
 
-Workflow также запускается каждые 2 часа в торговое время по будням и при push в `main`. Обновленный JSON публикуется в Pages как artifact; исходный файл в ветке при этом не коммитится автоматически.
+Workflow также запускается каждые 2 часа в торговое время по будням и при push в `main`. Сайт собирается в `_site` и публикуется в ветку `gh-pages` (исходники в `main` при этом не коммитятся автоматически).
 
 ## Лицензирование данных
 
