@@ -14,8 +14,7 @@ permissions:
   id-token: write
 
 concurrency:
-  # Never cancel an in-flight Pages deploy: overlapping push+schedule runs
-  # were aborting each other with "Deployment cancelled".
+  # Queue Pages deploys instead of cancelling them mid-flight.
   group: pages
   cancel-in-progress: false
 
@@ -56,10 +55,17 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      # wretry.action bundles wrapped outputs into a JSON string named "outputs".
+      url: ${{ fromJSON(steps.deployment.outputs.outputs).page_url }}
     runs-on: ubuntu-latest
     needs: update
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        # deploy-pages hard-caps timeout at 10m; stuck deployment_queued is a
+        # known transient Pages backend issue, so retry the whole step.
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: actions/deploy-pages@v4
+          attempt_limit: 3
+          attempt_delay: 30000
