@@ -10,8 +10,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -43,21 +41,8 @@ jobs:
           mkdir _site/data
           cp data/market-data.json _site/data/
 
-      # Branch deploy avoids flaky actions/deploy-pages "deployment_queued" /
-      # "in progress deployment" failures on the Pages Deployment API.
-      - name: Ensure Pages serves gh-pages branch
-        run: |
-          gh api --method PUT "repos/${{ github.repository }}/pages" \
-            -f build_type=legacy \
-            -f "source[branch]=gh-pages" \
-            -f "source[path]=/" || \
-          gh api --method POST "repos/${{ github.repository }}/pages" \
-            -f build_type=legacy \
-            -f "source[branch]=gh-pages" \
-            -f "source[path]=/"
-        env:
-          GH_TOKEN: ${{ github.token }}
-
+      # Publish via gh-pages branch. Repo Pages source must be:
+      # Settings → Pages → Deploy from a branch → gh-pages / (root)
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
