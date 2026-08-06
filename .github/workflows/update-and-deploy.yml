@@ -9,7 +9,9 @@ on:
     - cron: "17 6,8,10,12,14,16,18,20 * * 1-5"
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
@@ -19,6 +21,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -34,6 +39,9 @@ jobs:
       - name: Validate snapshot
         run: python -m unittest discover -s tests -v
 
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
       - name: Assemble static site
         run: |
           mkdir _site
@@ -42,10 +50,11 @@ jobs:
           cp data/market-data.json _site/data/
           touch _site/.nojekyll
 
-      - name: Publish to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_site
-          force_orphan: true
-          enable_jekyll: false
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
