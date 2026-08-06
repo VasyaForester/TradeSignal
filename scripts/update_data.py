@@ -97,17 +97,17 @@ def now_iso() -> str:
     return datetime.now(MOSCOW_TZ).replace(microsecond=0).isoformat()
 
 
-def request_bytes(url: str, attempts: int = 2) -> bytes:
+def request_bytes(url: str, attempts: int = 2, timeout: int = 8) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
     last_error: Exception | None = None
     for attempt in range(attempts):
         try:
-            with urllib.request.urlopen(req, timeout=12) as response:
+            with urllib.request.urlopen(req, timeout=timeout) as response:
                 return response.read()
         except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
             last_error = exc
             if attempt + 1 < attempts:
-                time.sleep(1.5 * (attempt + 1))
+                time.sleep(0.8 * (attempt + 1))
     raise RuntimeError(f"Не удалось загрузить {url}: {last_error}")
 
 
@@ -138,6 +138,8 @@ def market_price(security: dict[str, Any], market: dict[str, Any]) -> float:
 
 
 def fetch_board(market: str, board: str, securities: list[str] | None = None) -> list[dict[str, Any]]:
+    page_size = 100 if securities else 500
+    max_pages = 1 if securities else 4
     query = {
         "iss.meta": "off",
         "iss.only": "securities,marketdata",
@@ -149,13 +151,14 @@ def fetch_board(market: str, board: str, securities: list[str] | None = None) ->
             "SECID,LAST,MARKETPRICE,LCLOSEPRICE,LASTTOPREVPRICE,"
             "VALTODAY,VALTODAY_RUR,YIELD,EFFECTIVEYIELD,DURATION"
         ),
+        "limit": page_size,
     }
     if securities:
         query["securities"] = ",".join(securities)
     static: dict[str, dict[str, Any]] = {}
     dynamic: dict[str, dict[str, Any]] = {}
     start = 0
-    while True:
+    for _ in range(max_pages):
         page_query = {**query, "start": start}
         url = (
             f"{MOEX}/engines/stock/markets/{market}/boards/{board}/securities.json?"
@@ -166,9 +169,9 @@ def fetch_board(market: str, board: str, securities: list[str] | None = None) ->
         dynamic_page = rows(payload, "marketdata")
         static.update({item["SECID"]: item for item in static_page})
         dynamic.update({item["SECID"]: item for item in dynamic_page})
-        if securities or max(len(static_page), len(dynamic_page)) < 100:
+        if securities or max(len(static_page), len(dynamic_page)) < page_size:
             break
-        start += 100
+        start += page_size
     return [{**item, **dynamic.get(secid, {})} for secid, item in static.items()]
 
 
@@ -254,8 +257,17 @@ def bond_candidate(item: dict[str, Any], board: str) -> bool:
 def build_bonds(config: dict[str, Any]) -> list[dict[str, Any]]:
     rate_drop = max(0.0, number(config["macro"]["currentKeyRate"]) - number(config["macro"]["forecastKeyRate12m"]))
     candidates: list[dict[str, Any]] = []
+    board_rows: dict[str, list[dict[str, Any]]] = {}
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = {
+            executor.submit(fetch_board, "bonds", board): board
+            for board in ("TQOB", "TQCB")
+        }
+        for future in as_completed(futures):
+            board = futures[future]
+            board_rows[board] = future.result()
     for board in ("TQOB", "TQCB"):
-        for item in fetch_board("bonds", board):
+        for item in board_rows.get(board, []):
             if not bond_candidate(item, board):
                 continue
             ytm = number(item.get("YIELD") or item.get("EFFECTIVEYIELD"))
@@ -319,20 +331,30 @@ def build_bonds(config: dict[str, Any]) -> list[dict[str, Any]]:
 def daily_closes(secid: str) -> list[float]:
     start = (date.today() - timedelta(days=430)).isoformat()
     combined: list[tuple[str, float]] = []
-    for board in ("TQTF", "TQBR"):
+    # Funds moved to TQBR in June 2026; try it first and skip TQTF when history exists.
+    for board in ("TQBR", "TQTF"):
         url = (
             f"{MOEX}/engines/stock/markets/shares/boards/{board}/securities/"
             f"{urllib.parse.quote(secid)}/candles.json?"
-            + urllib.parse.urlencode({"from": start, "interval": 24, "iss.meta": "off"})
+            + urllib.parse.urlencode({
+                "from": start,
+                "interval": 24,
+                "iss.meta": "off",
+                "limit": 500,
+            })
         )
         try:
-            combined.extend(
+            candles = [
                 (str(item.get("begin")), number(item.get("close")))
                 for item in rows(get_json(url), "candles")
                 if number(item.get("close")) > 0
-            )
+            ]
         except RuntimeError:
             continue
+        if candles:
+            combined.extend(candles)
+            if board == "TQBR" and len(candles) >= 45:
+                break
     # Funds migrated from TQTF to TQBR in June 2026; deduplicate the boundary by date.
     return [value for _, value in sorted(dict(combined).items())]
 
@@ -364,9 +386,9 @@ def build_funds(config: dict[str, Any]) -> list[dict[str, Any]]:
     most_liquid = sorted(
         board, key=lambda item: number(item.get("VALTODAY_RUR") or item.get("VALTODAY")), reverse=True
     )
-    universe = (preferred + [item["SECID"] for item in most_liquid if item["SECID"] not in preferred])[:18]
+    universe = (preferred + [item["SECID"] for item in most_liquid if item["SECID"] not in preferred])[:12]
     histories: dict[str, list[float]] = {}
-    with ThreadPoolExecutor(max_workers=6) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         futures = {executor.submit(daily_closes, secid): secid for secid in universe}
         for future in as_completed(futures):
             secid = futures[future]
@@ -705,7 +727,7 @@ def build_urgent(
         health.append({"source": "Московская биржа", "status": "ok", "detail": f"{len(items)} сообщений"})
     except Exception as exc:
         health.append({"source": "Московская биржа", "status": "error", "detail": str(exc)[:140]})
-    with ThreadPoolExecutor(max_workers=6) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         futures = {
             executor.submit(rss_items, source, url): source
             for source, url in RSS_FEEDS
@@ -858,30 +880,46 @@ def previous_data() -> dict[str, Any]:
 
 
 def main() -> int:
+    started_at = time.perf_counter()
     config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
     previous = previous_data()
     status: list[dict[str, str]] = []
 
     def safe_build(name: str, builder, fallback_key: str):
+        section_started = time.perf_counter()
         try:
             value = builder()
             if not value:
                 raise RuntimeError("источник вернул пустой набор")
-            status.append({"source": name, "status": "ok", "detail": f"{len(value)} инструментов"})
+            elapsed_ms = round((time.perf_counter() - section_started) * 1000)
+            status.append({
+                "source": name,
+                "status": "ok",
+                "detail": f"{len(value)} инструментов · {elapsed_ms} мс",
+            })
+            print(f"{name}: {len(value)} · {elapsed_ms} мс", flush=True)
             return value
         except Exception as exc:
+            elapsed_ms = round((time.perf_counter() - section_started) * 1000)
             fallback = previous.get(fallback_key, [])
             status.append({
                 "source": name,
                 "status": "stale" if fallback else "error",
                 "detail": f"{str(exc)[:140]}; сохранен прошлый снимок" if fallback else str(exc)[:140],
             })
+            print(f"{name}: ошибка за {elapsed_ms} мс · {exc}", flush=True)
             return fallback
 
     stocks = safe_build("MOEX: акции", lambda: build_stocks(config), "stocks")
     bonds = safe_build("MOEX: облигации", lambda: build_bonds(config), "bonds")
     funds = safe_build("MOEX: фонды", lambda: build_funds(config), "funds")
+    urgent_started = time.perf_counter()
     urgent, feed_health, pipeline_metrics = build_urgent(stocks, bonds, funds)
+    print(
+        f"Срочные сигналы: {len(urgent)} · "
+        f"{round((time.perf_counter() - urgent_started) * 1000)} мс",
+        flush=True,
+    )
     if not urgent:
         urgent = [
             item for item in previous.get("urgent", [])
@@ -906,7 +944,8 @@ def main() -> int:
     }
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Снимок записан: {OUTPUT_PATH} ({payload['generatedAt']})")
+    total_ms = round((time.perf_counter() - started_at) * 1000)
+    print(f"Снимок записан: {OUTPUT_PATH} ({payload['generatedAt']}) · всего {total_ms} мс")
     failed = [item for item in status if item["status"] == "error"]
     return 1 if failed and not (stocks or bonds or funds) else 0
 
