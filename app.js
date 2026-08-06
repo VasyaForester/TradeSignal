@@ -47,7 +47,8 @@ function renderUrgent(items) {
 
 function typeNote(type) {
   if (type === "stocks") {
-    return "Ранжирование по полной ожидаемой доходности: целевая цена + прогнозный дивиденд. Наведите на строку, чтобы увидеть тезис и риск.";
+    return state.data.stockModel
+      || "Таргет считает модель TradeSignal по цене, импульсу, качеству бизнеса и свежим новостям. Наведите на строку, чтобы увидеть тезис, риск и драйверы.";
   }
   if (type === "bonds") {
     return "Сценарная доходность включает YTM и возможное изменение цены при снижении ставки. Продажа до погашения может дать убыток.";
@@ -55,8 +56,20 @@ function typeNote(type) {
   return state.data.fundModel;
 }
 
+function driverSummary(item) {
+  const drivers = item.targetDrivers || {};
+  const parts = [
+    ["импульс", drivers.impulse],
+    ["фундамент", drivers.fundamental],
+    ["новости", drivers.news],
+    ["макро", drivers.macro],
+  ].filter(([, value]) => Number.isFinite(value) && value !== 0);
+  if (!parts.length) return "";
+  return parts.map(([label, value]) => `${label} ${pct(value)}`).join(" · ");
+}
+
 function subtitle(item, type) {
-  if (type === "stocks") return `таргет ${price(item.targetPrice)} · дивиденд ${price(item.dividend12m)}`;
+  if (type === "stocks") return `модель ${price(item.targetPrice)} · дивиденд ${price(item.dividend12m)}`;
   if (type === "bonds") return `${item.kind} · погашение ${item.maturity}`;
   return `3 мес. ${pct(item.return3m)} · 12 мес. ${pct(item.return12m)}`;
 }
@@ -99,7 +112,7 @@ function renderRanking(type) {
         <b>${item.confidence}%</b>
       </div>
       <div class="details">
-        <div><b>Почему в списке</b>${escapeHtml(item.thesis)}</div>
+        <div><b>Почему в списке</b>${escapeHtml(item.thesis)}${type === "stocks" && driverSummary(item) ? `<span class="driver-line">${escapeHtml(driverSummary(item))}</span>` : ""}</div>
         <div><b>Ключевой риск</b>${escapeHtml(item.risks)}</div>
       </div>
     </article>
@@ -149,6 +162,8 @@ function render(data) {
   document.querySelector("#rate-target").textContent = `${rub.format(data.macro.forecastKeyRate12m)}%`;
   document.querySelector("#macro-note").textContent = data.macro.note;
   document.querySelector("#fund-method").textContent = data.fundModel;
+  const stockMethod = document.querySelector("#stock-method");
+  if (stockMethod) stockMethod.textContent = data.stockModel || typeNote("stocks");
   document.querySelector("#disclaimer").textContent = data.disclaimer;
   renderUrgent(data.urgent || []);
   renderHealth(data.sourceHealth || []);

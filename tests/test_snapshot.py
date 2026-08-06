@@ -5,6 +5,7 @@ from pathlib import Path
 
 from scripts.update_data import (
     TelegramChannelParser,
+    estimate_stock_target,
     evaluate_entity_linking,
     event_key,
     impact_estimate,
@@ -52,6 +53,18 @@ class SnapshotContractTest(unittest.TestCase):
                 self.assertTrue(item["risks"])
                 self.assertGreaterEqual(item["confidence"], 0)
                 self.assertLessEqual(item["confidence"], 100)
+
+    def test_stock_targets_come_from_tradesignal_model(self):
+        self.assertIn("stockModel", self.data)
+        for item in self.data["stocks"]:
+            self.assertEqual(item["targetModel"], "tradesignal-v1")
+            self.assertGreater(item["targetPrice"], 0)
+            self.assertGreater(item["price"], 0)
+            price_return = (item["targetPrice"] / item["price"] - 1) * 100
+            self.assertGreaterEqual(price_return, -35.5)
+            self.assertLessEqual(price_return, 55.5)
+            for key in ("impulse", "fundamental", "news", "macro"):
+                self.assertIn(key, item["targetDrivers"])
 
     def test_pipeline_quality_metrics(self):
         metrics = self.data["pipelineMetrics"]
@@ -119,7 +132,7 @@ class SnapshotContractTest(unittest.TestCase):
         self.assertEqual(
             related_instrument(
                 "Сбербанк обсуждал с Евротрансом варианты урегулирования",
-                [],
+                [{"secid": "SBER", "name": "Сбербанк"}],
                 [],
             )[0],
             "EUTR",
@@ -147,6 +160,41 @@ class SnapshotContractTest(unittest.TestCase):
         self.assertEqual(event_key("кредитор подал на банкротство", "SELL"), "credit_distress")
         self.assertTrue(is_mechanical_dividend_event("акции упали после дивидендной отсечки"))
         self.assertFalse(is_mechanical_dividend_event("акции закрыли дивидендный гэп"))
+
+    def test_estimate_stock_target_reacts_to_news(self):
+        closes = [100 + index * 0.2 for index in range(120)]
+        base = estimate_stock_target(
+            price=124,
+            closes=closes,
+            financial_trend=0.8,
+            dividend12m=10,
+            news_impact=0,
+            rate_drop=2,
+            sector="bank",
+        )
+        positive = estimate_stock_target(
+            price=124,
+            closes=closes,
+            financial_trend=0.8,
+            dividend12m=10,
+            news_impact=8,
+            rate_drop=2,
+            sector="bank",
+        )
+        negative = estimate_stock_target(
+            price=124,
+            closes=closes,
+            financial_trend=0.8,
+            dividend12m=10,
+            news_impact=-8,
+            rate_drop=2,
+            sector="bank",
+        )
+        self.assertGreater(positive["targetPrice"], base["targetPrice"])
+        self.assertLess(negative["targetPrice"], base["targetPrice"])
+        self.assertEqual(base["targetModel"], "tradesignal-v1")
+        self.assertGreaterEqual(base["priceReturn"], -35)
+        self.assertLessEqual(base["priceReturn"], 55)
 
     def test_market_twits_public_page_parser(self):
         parser = TelegramChannelParser("MarketTwits")

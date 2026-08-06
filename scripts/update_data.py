@@ -175,51 +175,219 @@ def fetch_board(market: str, board: str, securities: list[str] | None = None) ->
     return [{**item, **dynamic.get(secid, {})} for secid, item in static.items()]
 
 
-def freshness_confidence(sources: list[dict[str, Any]], financial_trend: float) -> int:
-    newest = max(date.fromisoformat(item["publishedAt"]) for item in sources)
-    age_days = max(0, (date.today() - newest).days)
-    freshness = max(25.0, 100.0 - age_days * 0.16)
-    corroboration = min(100.0, 58.0 + len(sources) * 18.0)
-    return round(0.55 * freshness + 0.25 * corroboration + 20.0 * financial_trend)
+SECTOR_RATE_WEIGHT = {
+    "bank": 1.25,
+    "tech": 0.55,
+    "commodity": 0.4,
+    "retail": 0.85,
+    "telecom": 0.95,
+    "infra": 0.75,
+    "health": 0.65,
+}
+
+STOCK_MODEL = (
+    "Таргет TradeSignal = текущая цена × (1 + сценарный рост). "
+    "Рост = импульс 3/12 мес. + качество бизнеса + свежие новостные сигналы + чувствительность к ставке. "
+    "Полная ожидаемая доходность = рост цены + прогнозный дивиденд. Clamp роста −35%…+55%."
+)
 
 
-def build_stocks(config: dict[str, Any]) -> list[dict[str, Any]]:
-    forecasts = config["stocks"]
-    quotes = {
-        item["SECID"]: item
-        for item in fetch_board("shares", "TQBR", [item["secid"] for item in forecasts])
+def clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
+
+
+def news_impact_map(signals: list[dict[str, Any]]) -> dict[str, float]:
+    impacts: dict[str, float] = {}
+    now = datetime.now(MOSCOW_TZ)
+    for signal in signals:
+        ticker = str(signal.get("ticker") or "")
+        if not ticker:
+            continue
+        try:
+            published = published_datetime(str(signal.get("publishedAt") or ""))
+            age_hours = max(0.0, (now - published).total_seconds() / 3600)
+        except (TypeError, ValueError, OverflowError):
+            age_hours = 24.0
+        if age_hours > 36:
+            continue
+        decay = max(0.25, 1.0 - age_hours / 48.0)
+        strength = number(signal.get("impactEstimatePct"))
+        if strength == 0:
+            strength = number(signal.get("sentimentScore")) * 3.0
+        impacts[ticker] = impacts.get(ticker, 0.0) + strength * decay
+    return {ticker: clamp(value, -12.0, 12.0) for ticker, value in impacts.items()}
+
+
+def estimate_stock_target(
+    price: float,
+    closes: list[float],
+    financial_trend: float,
+    dividend12m: float,
+    news_impact: float,
+    rate_drop: float,
+    sector: str = "",
+    override_target: float | None = None,
+) -> dict[str, Any]:
+    if override_target and override_target > 0 and price > 0:
+        price_return = (override_target / price - 1) * 100
+        dividend_yield = dividend12m / price * 100 if price > 0 else 0.0
+        return {
+            "targetPrice": round(override_target, 2),
+            "priceReturn": round(price_return, 1),
+            "dividendYield": round(dividend_yield, 1),
+            "expectedReturn": round(price_return + dividend_yield, 1),
+            "confidence": 55,
+            "targetModel": "override",
+            "targetDrivers": {
+                "impulse": 0.0,
+                "fundamental": 0.0,
+                "news": 0.0,
+                "macro": 0.0,
+            },
+        }
+
+    ret_3m = 0.0
+    ret_12m = 0.0
+    if len(closes) >= 45 and closes[-1] > 0:
+        ret_3m = (closes[-1] / closes[-min(63, len(closes))] - 1) * 100
+        ret_12m = (closes[-1] / closes[-min(252, len(closes))] - 1) * 100
+
+    blended_impulse = 0.55 * clamp(ret_3m, -40, 40) + 0.45 * clamp(ret_12m, -55, 55)
+    # Strong past run reduces forward upside; deep drawdown adds mean-reversion lift.
+    impulse = clamp(blended_impulse * 0.18 - max(0.0, blended_impulse - 25) * 0.08, -18, 22)
+    fundamental = (clamp(financial_trend, 0, 1) - 0.5) * 28
+    news = clamp(news_impact, -12, 12)
+    macro = clamp(rate_drop, -2, 6) * SECTOR_RATE_WEIGHT.get(sector, 0.7) * 1.4
+    price_return = clamp(impulse + fundamental + news + macro, -35, 55)
+    dividend_yield = dividend12m / price * 100 if price > 0 else 0.0
+    target = price * (1 + price_return / 100)
+    history_score = min(30.0, len(closes) / 8.5)
+    trend_score = clamp(financial_trend, 0, 1) * 28
+    news_score = min(18.0, abs(news) * 1.4)
+    confidence = round(clamp(34 + history_score + trend_score + news_score, 35, 88))
+    return {
+        "targetPrice": round(target, 2),
+        "priceReturn": round(price_return, 1),
+        "dividendYield": round(dividend_yield, 1),
+        "expectedReturn": round(price_return + dividend_yield, 1),
+        "confidence": confidence,
+        "targetModel": "tradesignal-v1",
+        "targetDrivers": {
+            "impulse": round(impulse, 1),
+            "fundamental": round(fundamental, 1),
+            "news": round(news, 1),
+            "macro": round(macro, 1),
+        },
+        "return3m": round(ret_3m, 1),
+        "return12m": round(ret_12m, 1),
     }
+
+
+def synthetic_closes(price: float, return_3m: float, return_12m: float) -> list[float]:
+    if price <= 0:
+        return []
+    start_12 = price / (1 + return_12m / 100) if return_12m > -95 else price
+    start_3 = price / (1 + return_3m / 100) if return_3m > -95 else price
+    closes = []
+    for index in range(252):
+        if index < 189:
+            ratio = index / 189
+            closes.append(start_12 * (1 - ratio) + start_3 * ratio)
+        else:
+            ratio = (index - 189) / 63
+            closes.append(start_3 * (1 - ratio) + price * ratio)
+    closes[-1] = price
+    return closes
+
+
+def build_stocks(
+    config: dict[str, Any],
+    urgent_signals: list[dict[str, Any]] | None = None,
+    previous_stocks: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    forecasts = config["stocks"]
+    previous_by_id = {item["secid"]: item for item in (previous_stocks or [])}
+    try:
+        quotes = {
+            item["SECID"]: item
+            for item in fetch_board("shares", "TQBR", [item["secid"] for item in forecasts])
+        }
+    except Exception:
+        quotes = {}
+    impacts = news_impact_map(urgent_signals or [])
+    rate_drop = max(
+        0.0,
+        number(config["macro"]["currentKeyRate"]) - number(config["macro"]["forecastKeyRate12m"]),
+    )
+    histories: dict[str, list[float]] = {}
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = {
+            executor.submit(daily_closes, forecast["secid"], ("TQBR",)): forecast["secid"]
+            for forecast in forecasts
+        }
+        for future in as_completed(futures):
+            secid = futures[future]
+            try:
+                histories[secid] = future.result()
+            except (RuntimeError, urllib.error.URLError, TimeoutError):
+                histories[secid] = []
+
     output = []
     for forecast in forecasts:
         quote = quotes.get(forecast["secid"], {})
+        previous = previous_by_id.get(forecast["secid"], {})
         price = market_price(quote, quote)
         if price <= 0:
+            price = number(previous.get("price"))
+        if price <= 0:
             continue
-        target = number(forecast["targetPrice"])
-        dividend = number(forecast.get("dividend12m"))
-        price_return = (target / price - 1) * 100
-        dividend_yield = dividend / price * 100
-        total_return = price_return + dividend_yield
-        confidence = freshness_confidence(
-            forecast["sources"], number(forecast.get("financialTrend"), 0.5)
+        closes = histories.get(forecast["secid"], [])
+        if len(closes) < 45:
+            closes = synthetic_closes(
+                price,
+                number(previous.get("return3m")),
+                number(previous.get("return12m")),
+            )
+        override = number(forecast["targetPrice"]) if forecast.get("targetPrice") is not None else 0.0
+        estimate = estimate_stock_target(
+            price=price,
+            closes=closes,
+            financial_trend=number(forecast.get("financialTrend"), 0.5),
+            dividend12m=number(forecast.get("dividend12m")),
+            news_impact=impacts.get(forecast["secid"], 0.0),
+            rate_drop=rate_drop,
+            sector=str(forecast.get("sector") or ""),
+            override_target=override or None,
         )
         output.append({
             "secid": forecast["secid"],
             "name": forecast["name"],
             "price": round(price, 2),
-            "dayChange": round(number(quote.get("LASTTOPREVPRICE")), 2),
-            "targetPrice": target,
-            "dividend12m": dividend,
-            "priceReturn": round(price_return, 1),
-            "dividendYield": round(dividend_yield, 1),
-            "expectedReturn": round(total_return, 1),
-            "confidence": confidence,
+            "dayChange": round(number(quote.get("LASTTOPREVPRICE"), number(previous.get("dayChange"))), 2),
+            "targetPrice": estimate["targetPrice"],
+            "dividend12m": number(forecast.get("dividend12m")),
+            "priceReturn": estimate["priceReturn"],
+            "dividendYield": estimate["dividendYield"],
+            "expectedReturn": estimate["expectedReturn"],
+            "confidence": estimate["confidence"],
             "financialTrend": round(number(forecast.get("financialTrend")) * 100),
+            "return3m": estimate.get("return3m", 0.0),
+            "return12m": estimate.get("return12m", 0.0),
+            "targetModel": estimate["targetModel"],
+            "targetDrivers": estimate["targetDrivers"],
             "thesis": forecast["thesis"],
             "risks": forecast["risks"],
-            "liquidityRub": round(number(quote.get("VALTODAY_RUR") or quote.get("VALTODAY"))),
-            "sources": forecast["sources"],
+            "liquidityRub": round(
+                number(quote.get("VALTODAY_RUR") or quote.get("VALTODAY") or previous.get("liquidityRub"))
+            ),
+            "sources": forecast.get("sources") or [{
+                "publisher": "TradeSignal model",
+                "publishedAt": date.today().isoformat(),
+                "url": "https://iss.moex.com/iss/reference/",
+            }],
         })
+    if not output:
+        raise RuntimeError("не удалось рассчитать ни одной акции")
     return sorted(
         output,
         key=lambda item: (item["expectedReturn"], item["confidence"]),
@@ -328,11 +496,11 @@ def build_bonds(config: dict[str, Any]) -> list[dict[str, Any]]:
     )[:RANKING_LIMIT]
 
 
-def daily_closes(secid: str) -> list[float]:
+def daily_closes(secid: str, boards: tuple[str, ...] = ("TQBR", "TQTF")) -> list[float]:
     start = (date.today() - timedelta(days=430)).isoformat()
     combined: list[tuple[str, float]] = []
-    # Funds moved to TQBR in June 2026; try it first and skip TQTF when history exists.
-    for board in ("TQBR", "TQTF"):
+    # Funds moved to TQBR in June 2026; try TQBR first and skip TQTF when history exists.
+    for board in boards:
         url = (
             f"{MOEX}/engines/stock/markets/shares/boards/{board}/securities/"
             f"{urllib.parse.quote(secid)}/candles.json?"
@@ -591,21 +759,38 @@ def related_instrument(
             company_name = ENTITY_BY_SECID.get(ticker, {}).get("name", ticker)
             confidence = 0.98 if ticker in known_tickers else 0.65
             return ticker, list(dict.fromkeys([make_hashtag(company_name), f"#{ticker}"])), confidence
+
+    # Collect all soft matches and prefer the longest alias so
+    # "Сбербанк ... Евротранс" resolves to EUTR, not SBER.
+    candidates: list[tuple[int, float, str, list[str]]] = []
     for stock in stocks:
         ticker_match = re.search(rf"\b{re.escape(stock['secid'])}\b", upper)
-        if ticker_match or stock["name"].upper().split(",")[0] in upper:
-            tags = [make_hashtag(stock["name"].split(",")[0]), f"#{stock['secid']}"]
+        name = stock["name"].split(",")[0]
+        name_match = alias_matches(name.lower(), lower)
+        if ticker_match or name_match:
+            tags = [make_hashtag(name), f"#{stock['secid']}"]
             confidence = 0.99 if ticker_match else 0.95
-            return stock["secid"], list(dict.fromkeys(tag for tag in tags if tag)), confidence
+            alias_len = len(stock["secid"]) if ticker_match else len(name)
+            candidates.append((alias_len, confidence, stock["secid"], list(dict.fromkeys(tag for tag in tags if tag))))
     for bond in bonds:
-        if bond["secid"] in upper or str(bond["name"]).lower() in lower:
+        if bond["secid"] in upper or alias_matches(str(bond["name"]).lower(), lower):
             tags = [make_hashtag(str(bond["name"])), f"#{bond['secid']}"]
             confidence = 0.99 if bond["secid"] in upper else 0.9
-            return bond["secid"], list(dict.fromkeys(tag for tag in tags if tag)), confidence
-    for issuer, ticker_id in sorted(ISSUER_TICKERS.items(), key=lambda item: len(item[0]), reverse=True):
+            alias_len = len(bond["secid"]) if bond["secid"] in upper else len(str(bond["name"]))
+            candidates.append((alias_len, confidence, bond["secid"], list(dict.fromkeys(tag for tag in tags if tag))))
+    for issuer, ticker_id in ISSUER_TICKERS.items():
         if alias_matches(issuer, lower):
             entity = ENTITY_BY_SECID[ticker_id]
-            return ticker_id, [make_hashtag(entity["name"]), f"#{ticker_id}"], 0.9
+            candidates.append((
+                len(issuer),
+                0.9,
+                ticker_id,
+                [make_hashtag(entity["name"]), f"#{ticker_id}"],
+            ))
+    if candidates:
+        candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+        _, confidence, ticker, tags = candidates[0]
+        return ticker, tags, confidence
     if re.search(r"акци|бумаг|облигац|тикер", lower):
         tickers = re.findall(r"\b[A-Z]{4,5}\b", upper)
         ticker = next((value for value in tickers if value not in NON_TICKER_TOKENS), None)
@@ -864,7 +1049,8 @@ def build_urgent(
         "impactAccuracy": None,
         "latencyMs": round((time.perf_counter() - started_at) * 1000),
     })
-    metrics.update(evaluate_entity_linking(stocks, bonds, funds))
+    # Held-out eval uses a fixed instrument set, not the live universe order.
+    metrics.update(evaluate_entity_linking([], [], [{"secid": "LQDT"}]))
     return sorted(
         signals,
         key=lambda item: (item["strength"], item["publishedAt"]),
@@ -910,11 +1096,14 @@ def main() -> int:
             print(f"{name}: ошибка за {elapsed_ms} мс · {exc}", flush=True)
             return fallback
 
-    stocks = safe_build("MOEX: акции", lambda: build_stocks(config), "stocks")
     bonds = safe_build("MOEX: облигации", lambda: build_bonds(config), "bonds")
     funds = safe_build("MOEX: фонды", lambda: build_funds(config), "funds")
+    stock_stubs = [
+        {"secid": item["secid"], "name": item["name"]}
+        for item in config.get("stocks", [])
+    ]
     urgent_started = time.perf_counter()
-    urgent, feed_health, pipeline_metrics = build_urgent(stocks, bonds, funds)
+    urgent, feed_health, pipeline_metrics = build_urgent(stock_stubs, bonds, funds)
     print(
         f"Срочные сигналы: {len(urgent)} · "
         f"{round((time.perf_counter() - urgent_started) * 1000)} мс",
@@ -927,6 +1116,11 @@ def main() -> int:
             and item.get("ticker") not in {"РЫНОК", "НЕФТЕГАЗ"}
             and item.get("hashtags")
         ]
+    stocks = safe_build(
+        "MOEX: акции",
+        lambda: build_stocks(config, urgent, previous.get("stocks", [])),
+        "stocks",
+    )
 
     payload = {
         "generatedAt": now_iso(),
@@ -937,6 +1131,7 @@ def main() -> int:
         "bonds": bonds,
         "funds": funds,
         "macro": config["macro"],
+        "stockModel": STOCK_MODEL,
         "fundModel": config["funds"]["model"],
         "pipelineMetrics": pipeline_metrics,
         "sourceHealth": status + feed_health,

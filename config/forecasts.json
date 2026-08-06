@@ -1,181 +1,228 @@
 {
-  "methodologyVersion": "1.1.0",
+  "methodologyVersion": "1.2.0",
   "macro": {
     "currentKeyRate": 14.0,
     "forecastKeyRate12m": 12.0,
-    "source": "https://www.aton.ru/strategy/",
-    "updatedAt": "2026-08-05",
-    "note": "Базовый сценарий АТОН; параметр используется только для сценарной оценки облигаций."
+    "source": "https://www.cbr.ru/",
+    "updatedAt": "2026-08-06",
+    "note": "Сценарное снижение ставки используется в модели акций и облигаций; не является прогнозом ЦБ."
   },
   "stocks": [
     {
       "secid": "SBER",
       "name": "Сбербанк",
-      "targetPrice": 390,
       "dividend12m": 37,
       "financialTrend": 0.86,
-      "thesis": "Высокая рентабельность капитала, устойчивые комиссионные доходы и дивидендный поток.",
+      "sector": "bank",
+      "thesis": "Высокая рентабельность капитала, устойчивые комиссионные доходы и дивидендный поток; кредитный риск отдельных заёмщиков учитывается новостной моделью.",
       "risks": "Кредитный цикл, регулирование и замедление экономики.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "TRNFP",
       "name": "Транснефть, ап",
-      "targetPrice": 1751,
       "dividend12m": 176,
       "financialTrend": 0.78,
+      "sector": "infra",
       "thesis": "Защитный инфраструктурный бизнес и высокий ожидаемый дивиденд.",
       "risks": "Тарифное регулирование, налоги и капитальные затраты.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "GMKN",
       "name": "Норникель",
-      "targetPrice": 165,
       "dividend12m": 7,
       "financialTrend": 0.58,
+      "sector": "commodity",
       "thesis": "Потенциал восстановления денежных потоков при нормализации цен на металлы.",
       "risks": "Цены на металлы, крепкий рубль и крупная инвестпрограмма.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "ENPG",
       "name": "Эн+",
-      "targetPrice": 550,
       "dividend12m": 0,
       "financialTrend": 0.62,
+      "sector": "commodity",
       "thesis": "Рост цен на алюминий и возможное ослабление рубля поддерживают прибыль.",
       "risks": "Высокий долг, санкции и цикличность алюминия.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "PLZL",
       "name": "Полюс",
-      "targetPrice": 3000,
       "dividend12m": 162,
       "financialTrend": 0.82,
+      "sector": "commodity",
       "thesis": "Сильная маржа и защитная экспозиция на золото.",
       "risks": "Коррекция золота, налоги и капиталоемкость.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "PHOR",
       "name": "ФосАгро",
-      "targetPrice": 8500,
       "dividend12m": 671,
       "financialTrend": 0.74,
+      "sector": "commodity",
       "thesis": "Низкая себестоимость и устойчивый мировой спрос на удобрения.",
       "risks": "Экспортные ограничения, рубль и цены на удобрения.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "YDEX",
       "name": "Яндекс",
-      "targetPrice": 7000,
       "dividend12m": 220,
-      "financialTrend": 0.94,
+      "financialTrend": 0.9,
+      "sector": "tech",
       "thesis": "Рост поиска, рекламы, e-commerce и финтеха при расширении маржи.",
       "risks": "Высокая оценка, конкуренция и регуляторные изменения.",
       "sources": [
-        {"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"},
-        {"publisher": "БКС / РБК", "publishedAt": "2025-12-17", "url": "https://www.rbc.ru/quote/news/article/694281b29a79478003b35f48", "targetPrice": 6200}
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
       ]
     },
     {
       "secid": "OZON",
       "name": "Ozon",
-      "targetPrice": 6650,
-      "dividend12m": 290,
-      "financialTrend": 0.91,
-      "thesis": "Быстрый рост оборота, эффект масштаба, финтех и реклама.",
-      "risks": "Исполнение прогноза, конкуренция и стоимость фондирования.",
+      "dividend12m": 0,
+      "financialTrend": 0.72,
+      "sector": "tech",
+      "thesis": "Рост оборота и финтех остаются драйверами, но свежие санкционные ограничения по Ozon Банку снижают оценку роста и дивидендный сценарий обнулён.",
+      "risks": "Санкции, стоимость фондирования, конкуренция и исполнение прибыли.",
       "sources": [
-        {"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"},
-        {"publisher": "БКС / РБК", "publishedAt": "2025-12-17", "url": "https://www.rbc.ru/quote/news/article/694281b29a79478003b35f48", "targetPrice": 6500}
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
       ]
     },
     {
       "secid": "HEAD",
       "name": "HeadHunter",
-      "targetPrice": 3860,
       "dividend12m": 450,
       "financialTrend": 0.79,
+      "sector": "tech",
       "thesis": "Лидер HR-tech с высокой маржой и сильной генерацией денежных средств.",
       "risks": "Охлаждение рынка труда и снижение найма.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "CNRU",
       "name": "Циан",
-      "targetPrice": 770,
-      "dividend12m": 200,
-      "financialTrend": 0.72,
-      "thesis": "Рост монетизации и потенциально крупная выплата из накопленного кэша.",
-      "risks": "Слабый рынок ипотеки; специальный дивиденд не гарантирован.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "dividend12m": 80,
+      "financialTrend": 0.68,
+      "sector": "tech",
+      "thesis": "Монетизация объявлений сохраняется; крупный специальный дивиденд больше не закладывается в базовый сценарий.",
+      "risks": "Слабый рынок ипотеки и волатильность рекламного спроса.",
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "MTSS",
       "name": "МТС",
-      "targetPrice": 300,
       "dividend12m": 35,
       "financialTrend": 0.55,
+      "sector": "telecom",
       "thesis": "Стабильная телеком-выручка и высокая дивидендная доходность.",
       "risks": "Долговая нагрузка и высокая ставка.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "RTKM",
       "name": "Ростелеком",
-      "targetPrice": 80,
       "dividend12m": 2.7,
       "financialTrend": 0.57,
+      "sector": "telecom",
       "thesis": "Защитная выручка и рост цифровых сервисов.",
       "risks": "Долг, капзатраты и государственное регулирование.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "X5",
       "name": "X5",
-      "targetPrice": 3750,
       "dividend12m": 530,
       "financialTrend": 0.9,
+      "sector": "retail",
       "thesis": "Лидер продуктового ретейла, рост дискаунтеров и сильный денежный поток.",
       "risks": "Инфляция издержек, конкуренция и регулирование цен.",
       "sources": [
-        {"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"},
-        {"publisher": "БКС / РБК", "publishedAt": "2025-12-17", "url": "https://www.rbc.ru/quote/news/article/694281b29a79478003b35f48", "targetPrice": 4100}
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
       ]
     },
     {
       "secid": "LENT",
       "name": "Лента",
-      "targetPrice": 2340,
       "dividend12m": 70,
       "financialTrend": 0.83,
+      "sector": "retail",
       "thesis": "Ускорение роста, интеграция приобретений и улучшение маржинальности.",
       "risks": "Интеграция активов и давление на маржу.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "HNFG",
       "name": "Henderson",
-      "targetPrice": 720,
       "dividend12m": 30,
       "financialTrend": 0.81,
+      "sector": "retail",
       "thesis": "Расширение сети и рост продаж на квадратный метр.",
       "risks": "Потребительский спрос и валютная себестоимость.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     },
     {
       "secid": "MDMG",
       "name": "Мать и дитя",
-      "targetPrice": 1600,
       "dividend12m": 100,
       "financialTrend": 0.84,
+      "sector": "health",
       "thesis": "Защитный спрос на медицину, расширение сети и низкая долговая нагрузка.",
       "risks": "Темпы открытия клиник и дефицит персонала.",
-      "sources": [{"publisher": "АТОН", "publishedAt": "2025-11-14", "url": "https://www.aton.ru/upload/research/Strategy_2026.pdf"}]
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
+    },
+    {
+      "secid": "NVTK",
+      "name": "НОВАТЭК",
+      "dividend12m": 60,
+      "financialTrend": 0.64,
+      "sector": "commodity",
+      "thesis": "СПГ и газовый бизнес остаются длинным трендом; санкционные новости по дочерним структурам снижают краткосрочный апсайд через новостной слой модели.",
+      "risks": "Санкции, проекты СПГ и цены на энергоносители.",
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
+    },
+    {
+      "secid": "AGRO",
+      "name": "Русагро",
+      "dividend12m": 40,
+      "financialTrend": 0.6,
+      "sector": "commodity",
+      "thesis": "Агробизнес с дивидендным потоком; механические гэпы после отсечки не считаются позитивным катализатором.",
+      "risks": "Цены на сырьё, урожай и корпоративные события.",
+      "sources": [
+        {"publisher": "TradeSignal priors", "publishedAt": "2026-08-06", "url": "https://iss.moex.com/iss/reference/"}
+      ]
     }
   ],
   "funds": {

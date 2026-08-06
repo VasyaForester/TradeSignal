@@ -129,6 +129,7 @@ h2 { font-size: clamp(28px, 4vw, 43px); letter-spacing: -.045em; margin-bottom: 
 .details { display: none; grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 2px; grid-template-columns: 1fr 1fr; gap: 24px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .rank-card:hover .details { display: grid; }
 .details b { color: var(--text); display: block; margin-bottom: 3px; }
+.driver-line { display: block; margin-top: 7px; color: var(--green); font-size: 11px; }
 
 .context-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 80px; }
 .context-card { padding: 28px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; }
