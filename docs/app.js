@@ -33,6 +33,8 @@ function renderUrgent(items) {
             <span>сценарий ${pct(item.impactEstimatePct)}</span>
             <span>уверенность ${item.impactConfidence}%</span>
             <span>entity ${item.entityConfidence}%</span>
+            ${item.eventType ? `<span>${escapeHtml(item.eventType)}</span>` : ""}
+            ${Number.isFinite(item.signalScore) ? `<span>score ${rub.format(item.signalScore)}</span>` : ""}
           </div>
         ` : ""}
         <div class="signal-tags">${(item.hashtags || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
