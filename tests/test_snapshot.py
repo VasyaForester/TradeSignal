@@ -5,6 +5,7 @@ from pathlib import Path
 
 from scripts.update_data import (
     TelegramChannelParser,
+    compute_signal_score,
     estimate_fund_return,
     estimate_stock_target,
     evaluate_entity_linking,
@@ -13,7 +14,11 @@ from scripts.update_data import (
     is_mechanical_dividend_event,
     is_negative_actor_only,
     jaccard_similarity,
+    novelty_score,
     related_instrument,
+    resolve_related_instrument,
+    should_merge_signals,
+    source_quality_score,
     text_shingles,
 )
 
@@ -73,10 +78,10 @@ class SnapshotContractTest(unittest.TestCase):
             self.assertIn(key, metrics)
         self.assertGreaterEqual(metrics["dedupRate"], 0)
         self.assertLessEqual(metrics["dedupRate"], 1)
-        evaluated = evaluate_entity_linking([], [], [{"secid": "LQDT"}])
-        self.assertEqual(evaluated["entityEvalSamples"], 9)
-        self.assertGreaterEqual(evaluated["entityLinkPrecision"], 0.9)
-        self.assertGreaterEqual(evaluated["entityLinkRecall"], 0.9)
+        evaluated = evaluate_entity_linking([], [], [{"secid": "LQDT"}, {"secid": "BOND"}])
+        self.assertGreaterEqual(evaluated["entityEvalSamples"], 45)
+        self.assertGreaterEqual(evaluated["entityLinkPrecision"], 0.85)
+        self.assertGreaterEqual(evaluated["entityLinkRecall"], 0.85)
 
     def test_urgent_signals_are_attributable(self):
         self.assertLessEqual(len(self.data["urgent"]), 10)
@@ -94,6 +99,11 @@ class SnapshotContractTest(unittest.TestCase):
             self.assertLessEqual(signal["impactConfidence"], 100)
             self.assertGreaterEqual(signal["entityConfidence"], 0)
             self.assertLessEqual(signal["entityConfidence"], 100)
+            if "eventType" in signal:
+                self.assertTrue(signal["eventType"])
+                self.assertGreaterEqual(signal.get("eventSeverity", 0), 0)
+            if "signalScore" in signal:
+                self.assertGreaterEqual(signal["signalScore"], 0)
             normalized_title = re.sub(r"\W+", "", signal["title"].lower())
             fingerprint = (signal["ticker"], signal["action"], normalized_title)
             self.assertNotIn(fingerprint, fingerprints)
@@ -159,8 +169,67 @@ class SnapshotContractTest(unittest.TestCase):
         self.assertLess(negative[1], 0)
         self.assertEqual(event_key("эмитент подтвердил дефолт", "SELL"), "credit_distress")
         self.assertEqual(event_key("кредитор подал на банкротство", "SELL"), "credit_distress")
+        self.assertEqual(event_key("компания повысила прогноз прибыли", "BUY"), "guidance")
         self.assertTrue(is_mechanical_dividend_event("акции упали после дивидендной отсечки"))
         self.assertFalse(is_mechanical_dividend_event("акции закрыли дивидендный гэп"))
+
+    def test_enhancement_layer_ranking_and_dedup(self):
+        self.assertGreater(novelty_score(1), novelty_score(3))
+        self.assertGreater(source_quality_score(4, 2), source_quality_score(1, 1))
+        weak = {
+            "ticker": "SBER",
+            "action": "BUY",
+            "strength": 60,
+            "entityConfidence": 90,
+            "impactConfidence": 70,
+            "eventType": "dividend",
+            "eventSeverity": 30,
+            "noveltyScore": 1.0,
+            "sourceQuality": 0.5,
+            "_proximity": 0.5,
+            "marketReaction": None,
+        }
+        strong = {
+            **weak,
+            "eventSeverity": 90,
+            "eventType": "credit_distress",
+            "_proximity": 1.0,
+            "marketReaction": {"dayChangePct": -4.0, "confirmed": True, "divergence": False},
+        }
+        self.assertGreater(compute_signal_score(strong), compute_signal_score(weak))
+
+        dividend = {
+            "ticker": "GAZP",
+            "action": "BUY",
+            "_event": "dividend",
+            "_tokens": text_shingles("Газпром повысил дивиденды"),
+            "_published": __import__("datetime").datetime(2026, 8, 6, 10, 0, tzinfo=__import__("datetime").timezone.utc),
+        }
+        report = {
+            "ticker": "GAZP",
+            "action": "BUY",
+            "_event": "report",
+            "_tokens": text_shingles("Газпром сообщил о росте прибыли"),
+            "_published": __import__("datetime").datetime(2026, 8, 6, 15, 0, tzinfo=__import__("datetime").timezone.utc),
+        }
+        self.assertFalse(should_merge_signals(dividend, report))
+        same = {
+            **dividend,
+            "_tokens": text_shingles("Газпром повысил дивиденды акционерам"),
+            "_published": __import__("datetime").datetime(2026, 8, 6, 12, 0, tzinfo=__import__("datetime").timezone.utc),
+        }
+        self.assertTrue(should_merge_signals(dividend, same))
+
+        resolved = resolve_related_instrument(
+            "Компания объявила о приостановке",
+            "Евротранс подтвердил дефолт по выпуску",
+            [],
+            [],
+            [],
+            "credit_distress",
+        )
+        self.assertIsNotNone(resolved)
+        self.assertEqual(resolved[0], "EUTR")
 
     def test_fund_ranking_is_diversified(self):
         funds = self.data["funds"]

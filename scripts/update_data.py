@@ -92,6 +92,49 @@ NEGATIVE_WORDS = {
     "обвал": 60, "рухнул": 48,
 }
 
+# Additive taxonomy for ranking/dedup. Old strength/keyword detector stays intact.
+EVENT_TAXONOMY = {
+    "credit_distress": ("дефолт", "банкрот", "реструктуризац", "просроч"),
+    "license_revocation": ("отзыв лицензии",),
+    "sanctions": ("санкци",),
+    "trading_halt": ("прекращение торгов", "дискретный аукцион", "приостанов"),
+    "accident": ("авар", "пожар"),
+    "legal": ("арест", "обыск", "расследован", "задержан", "обвинен"),
+    "guidance": (
+        "повысил прогноз", "понизил прогноз", "сократил прогноз",
+        "повысила прогноз", "понизила прогноз", "сократила прогноз",
+        "profit warning",
+    ),
+    "rating": ("повысил рейтинг", "понизил рейтинг"),
+    "contract": ("новый контракт", "заключил соглашение"),
+    "production": ("начал производство", "увеличил производство"),
+    "buyback": ("выкуп", "байбэк"),
+    "dividend": ("дивиденд", "рекомендовал выплат", "отказ от дивиденд"),
+    "report": ("рост прибыли", "увеличил прибыль", "снижение прибыли", "падение прибыли",
+               "рост выручк", "падение выручки", "сильнее ожиданий", "слабее ожиданий", "отчет"),
+    "corporate_action": ("сделк", "оферт", "поглощен"),
+}
+
+EVENT_SEVERITY = {
+    "credit_distress": 90,
+    "license_revocation": 90,
+    "sanctions": 80,
+    "trading_halt": 75,
+    "accident": 70,
+    "legal": 55,
+    "guidance": 55,
+    "rating": 50,
+    "buyback": 40,
+    "contract": 35,
+    "production": 35,
+    "dividend": 30,
+    "corporate_action": 35,
+    "report": 25,
+    "other": 20,
+}
+
+WEAK_EVENT_TYPES = {"other", "buy", "sell"}
+
 
 def now_iso() -> str:
     return datetime.now(MOSCOW_TZ).replace(microsecond=0).isoformat()
@@ -852,7 +895,10 @@ def alias_matches(alias: str, text: str) -> bool:
     if not re.search(pattern, text, flags=re.IGNORECASE):
         return False
     if alias in AMBIGUOUS_ALIASES:
-        context = ("акци", "компан", "эмитент", "дивид", "выруч", "прибыл", "отчет", "ритейл")
+        context = (
+            "акци", "компан", "эмитент", "дивид", "выруч", "прибыл", "отчет",
+            "ритейл", "производ", "золот", "добыч", "групп",
+        )
         return any(marker in text for marker in context)
     return True
 
@@ -875,19 +921,24 @@ def is_negative_actor_only(title: str, ticker: str) -> bool:
     )
 
 
-def related_instrument(
+def collect_entity_candidates(
     text: str,
     stocks: list[dict[str, Any]],
     bonds: list[dict[str, Any]],
     funds: list[dict[str, Any]] | None = None,
-) -> tuple[str, list[str], float] | None:
+) -> list[tuple[int, float, str, list[str], str]]:
+    """Return candidates as (alias_len, confidence, ticker, tags, matched_alias)."""
     upper = text.upper()
     lower = text.lower()
     known_tickers = {stock["secid"] for stock in stocks} | set(ISSUER_TICKERS.values())
     fund_tickers = {fund["secid"] for fund in (funds or [])}
+    candidates: list[tuple[int, float, str, list[str], str]] = []
+
     isin = re.search(r"\bRU[A-Z0-9]{10}\b", upper)
     if isin:
-        return isin.group(0), [f"#{isin.group(0)}"], 0.99
+        value = isin.group(0)
+        candidates.append((len(value), 0.99, value, [f"#{value}"], value.lower()))
+
     tagged_tickers = re.findall(r"#([A-Z]{4,5})\b", upper)
     for ticker in tagged_tickers:
         if ticker in fund_tickers or ticker in NON_TICKER_TOKENS:
@@ -895,11 +946,9 @@ def related_instrument(
         if ticker in known_tickers or "🇷🇺" in text:
             company_name = ENTITY_BY_SECID.get(ticker, {}).get("name", ticker)
             confidence = 0.98 if ticker in known_tickers else 0.65
-            return ticker, list(dict.fromkeys([make_hashtag(company_name), f"#{ticker}"])), confidence
+            tags = list(dict.fromkeys([make_hashtag(company_name), f"#{ticker}"]))
+            candidates.append((len(ticker), confidence, ticker, tags, f"#{ticker.lower()}"))
 
-    # Collect all soft matches and prefer the longest alias so
-    # "Сбербанк ... Евротранс" resolves to EUTR, not SBER.
-    candidates: list[tuple[int, float, str, list[str]]] = []
     for stock in stocks:
         ticker_match = re.search(rf"\b{re.escape(stock['secid'])}\b", upper)
         name = stock["name"].split(",")[0]
@@ -907,14 +956,19 @@ def related_instrument(
         if ticker_match or name_match:
             tags = [make_hashtag(name), f"#{stock['secid']}"]
             confidence = 0.99 if ticker_match else 0.95
-            alias_len = len(stock["secid"]) if ticker_match else len(name)
-            candidates.append((alias_len, confidence, stock["secid"], list(dict.fromkeys(tag for tag in tags if tag))))
+            alias = stock["secid"] if ticker_match else name
+            alias_len = len(alias)
+            candidates.append(
+                (alias_len, confidence, stock["secid"], list(dict.fromkeys(tag for tag in tags if tag)), alias.lower())
+            )
     for bond in bonds:
         if bond["secid"] in upper or alias_matches(str(bond["name"]).lower(), lower):
             tags = [make_hashtag(str(bond["name"])), f"#{bond['secid']}"]
             confidence = 0.99 if bond["secid"] in upper else 0.9
-            alias_len = len(bond["secid"]) if bond["secid"] in upper else len(str(bond["name"]))
-            candidates.append((alias_len, confidence, bond["secid"], list(dict.fromkeys(tag for tag in tags if tag))))
+            alias = bond["secid"] if bond["secid"] in upper else str(bond["name"])
+            candidates.append(
+                (len(alias), confidence, bond["secid"], list(dict.fromkeys(tag for tag in tags if tag)), alias.lower())
+            )
     for issuer, ticker_id in ISSUER_TICKERS.items():
         if alias_matches(issuer, lower):
             entity = ENTITY_BY_SECID[ticker_id]
@@ -923,17 +977,150 @@ def related_instrument(
                 0.9,
                 ticker_id,
                 [make_hashtag(entity["name"]), f"#{ticker_id}"],
+                issuer,
             ))
-    if candidates:
-        candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
-        _, confidence, ticker, tags = candidates[0]
-        return ticker, tags, confidence
     if re.search(r"акци|бумаг|облигац|тикер", lower):
         tickers = re.findall(r"\b[A-Z]{4,5}\b", upper)
         ticker = next((value for value in tickers if value not in NON_TICKER_TOKENS), None)
-        if ticker:
-            return ticker, [f"#{ticker}"], 0.6
-    return None
+        if ticker and not any(item[2] == ticker for item in candidates):
+            candidates.append((len(ticker), 0.6, ticker, [f"#{ticker}"], ticker.lower()))
+    return candidates
+
+
+def related_instrument(
+    text: str,
+    stocks: list[dict[str, Any]],
+    bonds: list[dict[str, Any]],
+    funds: list[dict[str, Any]] | None = None,
+) -> tuple[str, list[str], float] | None:
+    candidates = collect_entity_candidates(text, stocks, bonds, funds)
+    if not candidates:
+        return None
+    # Prefer the longest alias so "Сбербанк ... Евротранс" resolves to EUTR, not SBER.
+    candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    _, confidence, ticker, tags, _ = candidates[0]
+    return ticker, tags, confidence
+
+
+def event_marker_spans(text: str) -> list[tuple[int, str]]:
+    spans: list[tuple[int, str]] = []
+    for event_type, markers in EVENT_TAXONOMY.items():
+        for marker in markers:
+            start = 0
+            while True:
+                index = text.find(marker, start)
+                if index < 0:
+                    break
+                spans.append((index, event_type))
+                start = index + len(marker)
+    return spans
+
+
+def alias_positions(text: str, alias: str) -> list[int]:
+    positions: list[int] = []
+    if not alias:
+        return positions
+    start = 0
+    needle = alias.lower()
+    while True:
+        index = text.find(needle, start)
+        if index < 0:
+            break
+        positions.append(index)
+        start = index + len(needle)
+    return positions
+
+
+def entity_event_proximity(text: str, alias: str, event_type: str) -> float:
+    """1.0 = entity next to event marker; 0.2 = far / missing."""
+    lower = text.lower()
+    entity_positions = alias_positions(lower, alias.lower())
+    if not entity_positions:
+        return 0.35
+    marker_positions = [
+        index for index, marker_type in event_marker_spans(lower)
+        if marker_type == event_type or event_type in WEAK_EVENT_TYPES
+    ]
+    if not marker_positions:
+        marker_positions = [index for index, _ in event_marker_spans(lower)]
+    if not marker_positions:
+        return 0.55
+    distance = min(abs(entity - marker) for entity in entity_positions for marker in marker_positions)
+    if distance <= 24:
+        return 1.0
+    if distance <= 60:
+        return 0.85
+    if distance <= 120:
+        return 0.65
+    if distance <= 220:
+        return 0.45
+    return 0.25
+
+
+def resolve_related_instrument(
+    title: str,
+    description: str,
+    stocks: list[dict[str, Any]],
+    bonds: list[dict[str, Any]],
+    funds: list[dict[str, Any]] | None,
+    event_type: str,
+) -> tuple[str, list[str], float, float] | None:
+    """Title-first linking with description fallback and proximity re-rank.
+
+    Returns ticker, tags, confidence, proximity (0..1).
+    """
+    title_hit = related_instrument(title, stocks, bonds, funds)
+    instrument = title_hit
+    used_text = title
+    if instrument is None or instrument[2] < 0.9:
+        combined = f"{title} {description}".strip()
+        combined_hit = related_instrument(combined, stocks, bonds, funds)
+        if combined_hit is not None and (instrument is None or combined_hit[2] >= instrument[2]):
+            instrument = combined_hit
+            used_text = combined
+    if instrument is None:
+        return None
+
+    candidates = collect_entity_candidates(used_text, stocks, bonds, funds)
+    by_ticker: dict[str, tuple[int, float, str, list[str], str]] = {}
+    for candidate in candidates:
+        current = by_ticker.get(candidate[2])
+        if current is None or candidate[0] > current[0] or (
+            candidate[0] == current[0] and candidate[1] > current[1]
+        ):
+            by_ticker[candidate[2]] = candidate
+    strong = [
+        item for item in by_ticker.values()
+        if item[1] >= 0.9 and not str(item[2]).startswith("RU")
+    ]
+    alias = next((item[4] for item in candidates if item[2] == instrument[0]), instrument[0])
+    if len(strong) >= 2:
+        ranked = sorted(
+            (
+                (
+                    entity_event_proximity(used_text, item[4], event_type),
+                    item[0],
+                    item[1],
+                    item[2],
+                    item[3],
+                    item[4],
+                )
+                for item in strong
+            ),
+            reverse=True,
+        )
+        best, second = ranked[0], ranked[1]
+        if best[0] >= second[0] + 0.15:
+            instrument = (best[3], best[4], best[2])
+            alias = best[5]
+        elif abs(best[1] - second[1]) <= 2 and best[0] < 0.75:
+            # Two peers in one headline without a clear event anchor.
+            return None
+
+    proximity = entity_event_proximity(used_text, alias, event_type)
+    if title_hit is not None and title_hit[0] == instrument[0]:
+        proximity = min(1.0, proximity + 0.08)
+    return instrument[0], instrument[1], instrument[2], proximity
 
 
 def evaluate_entity_linking(
@@ -965,16 +1152,7 @@ def event_key(
     text: str,
     direction: str,
 ) -> str:
-    event_groups = {
-        "credit_distress": ("дефолт", "банкрот", "реструктуризац", "просроч"),
-        "legal": ("арест", "обыск", "расследован", "задержан", "обвинен"),
-        "trading_restriction": ("приостанов", "прекращение торгов", "дискретный аукцион", "режим д"),
-        "sanctions": ("санкци",),
-        "report": ("прибыл", "выруч", "отчет", "результат"),
-        "dividend": ("дивиденд",),
-        "corporate_action": ("сделк", "оферт", "поглощен", "выкуп"),
-    }
-    for group, markers in event_groups.items():
+    for group, markers in EVENT_TAXONOMY.items():
         if any(marker in text for marker in markers):
             return group
     dictionary = NEGATIVE_WORDS if direction == "SELL" else POSITIVE_WORDS
@@ -987,6 +1165,83 @@ def is_mechanical_dividend_event(text: str) -> bool:
         re.search(r"дивидендн\w*(?:\s+\w+){0,2}\s+(?:гэп|отсеч)", text)
         and "закрыл" not in text
     )
+
+
+def should_merge_signals(
+    existing: dict[str, Any],
+    candidate: dict[str, Any],
+) -> bool:
+    if existing["ticker"] != candidate["ticker"] or existing["action"] != candidate["action"]:
+        return False
+    same_event = existing["_event"] == candidate["_event"]
+    similar = jaccard_similarity(existing["_tokens"], candidate["_tokens"]) >= 0.52
+    weak_event = existing["_event"] in WEAK_EVENT_TYPES or candidate["_event"] in WEAK_EVENT_TYPES
+    within_window = abs((existing["_published"] - candidate["_published"]).total_seconds()) <= 129_600
+    if similar and same_event:
+        return True
+    if similar and not weak_event:
+        # High textual overlap but taxonomy disagreed — still merge only if both non-weak? Prefer not.
+        return False
+    if same_event and within_window and not weak_event:
+        return True
+    return False
+
+
+def novelty_score(source_count: int) -> float:
+    # First print = fully novel; extra sources are confirmation, not a new catalyst.
+    return round(max(0.35, 1.0 - 0.22 * max(0, source_count - 1)), 3)
+
+
+def source_quality_score(priority: int, source_count: int) -> float:
+    base = priority / 4
+    confirmation = min(0.18, 0.08 * max(0, source_count - 1))
+    return round(min(1.0, base + confirmation), 3)
+
+
+def market_reaction_for(
+    ticker: str,
+    action: str,
+    day_changes: dict[str, float],
+) -> dict[str, Any] | None:
+    if ticker not in day_changes:
+        return None
+    day_change = day_changes[ticker]
+    confirmed = (action == "BUY" and day_change >= 1.5) or (action == "SELL" and day_change <= -1.5)
+    divergence = (action == "BUY" and day_change <= -1.5) or (action == "SELL" and day_change >= 1.5)
+    return {
+        "dayChangePct": round(day_change, 2),
+        "confirmed": confirmed,
+        "divergence": divergence,
+    }
+
+
+def compute_signal_score(signal: dict[str, Any]) -> float:
+    severity = float(signal.get("eventSeverity", EVENT_SEVERITY.get(signal.get("eventType", "other"), 20)))
+    entity = float(signal.get("entityConfidence", 50))
+    impact_conf = float(signal.get("impactConfidence", 50))
+    source_q = float(signal.get("sourceQuality", 0.25)) * 100
+    novelty = float(signal.get("noveltyScore", 1.0)) * 100
+    proximity = float(signal.get("_proximity", 0.55))
+    strength = float(signal.get("strength", 50))
+    market = signal.get("marketReaction") or {}
+    market_term = 50.0
+    if market:
+        if market.get("confirmed"):
+            market_term = 72.0
+        elif market.get("divergence"):
+            market_term = 58.0
+        else:
+            market_term = 50.0 + max(-8.0, min(8.0, float(market.get("dayChangePct", 0)) * 0.4))
+    score = (
+        0.30 * severity
+        + 0.20 * entity
+        + 0.15 * impact_conf
+        + 0.10 * source_q
+        + 0.10 * novelty
+        + 0.10 * market_term
+        + 0.05 * strength
+    )
+    return round(score * (0.75 + 0.25 * proximity), 2)
 
 
 STOP_WORDS = {
@@ -1039,8 +1294,10 @@ def build_urgent(
     stocks: list[dict[str, Any]],
     bonds: list[dict[str, Any]],
     funds: list[dict[str, Any]],
+    day_changes: dict[str, float] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, str]], dict[str, Any]]:
     started_at = time.perf_counter()
+    day_changes = day_changes or {}
     health = []
     news: list[dict[str, str]] = []
     try:
@@ -1094,24 +1351,39 @@ def build_urgent(
         if is_mechanical_dividend_event(text):
             metrics["lowImpact"] += 1
             continue
-        instrument = related_instrument(item["title"], stocks, bonds, funds)
-        if instrument is None:
+        direction = "SELL" if negative > positive else "BUY"
+        event = event_key(text, direction)
+        event_type = event if event in EVENT_SEVERITY else "other"
+        try:
+            resolved = resolve_related_instrument(
+                item["title"],
+                item.get("description", ""),
+                stocks,
+                bonds,
+                funds,
+                event_type,
+            )
+        except Exception:
+            # Enhancement must never kill the detector: fall back to title-only link.
+            base = related_instrument(item["title"], stocks, bonds, funds)
+            resolved = (*base, 0.55) if base else None
+        if resolved is None:
             metrics["unlinked"] += 1
             continue
-        ticker, hashtags, entity_confidence = instrument
-        direction = "SELL" if negative > positive else "BUY"
+        ticker, hashtags, entity_confidence, proximity = resolved
         if direction == "SELL" and is_negative_actor_only(item["title"], ticker):
             metrics["unlinked"] += 1
             continue
         source = {"publisher": item["source"], "url": item["url"]}
         priority = SOURCE_PRIORITY.get(item["source"], 1)
-        event = event_key(text, direction)
         sentiment, impact, impact_confidence = impact_estimate(
             direction,
             strength,
             entity_confidence,
             priority,
         )
+        severity = EVENT_SEVERITY.get(event_type, EVENT_SEVERITY["other"])
+        market_reaction = market_reaction_for(ticker, direction, day_changes)
         candidate = {
             "ticker": ticker,
             "hashtags": hashtags,
@@ -1122,6 +1394,11 @@ def build_urgent(
             "impactConfidence": impact_confidence,
             "entityConfidence": round(entity_confidence * 100),
             "impactModel": "rules-v1",
+            "eventType": event_type,
+            "eventSeverity": severity,
+            "noveltyScore": 1.0,
+            "sourceQuality": source_quality_score(priority, 1),
+            "marketReaction": market_reaction,
             "title": item["title"],
             "summary": (
                 "Негативное событие: сначала проверьте позицию и первоисточник."
@@ -1134,23 +1411,14 @@ def build_urgent(
             "sources": [source],
             "sourceCount": 1,
             "_priority": priority,
-            "_event": event,
+            "_event": event_type,
             "_published": published,
             "_tokens": text_shingles(item["title"]),
+            "_proximity": proximity,
         }
+        candidate["signalScore"] = compute_signal_score(candidate)
         existing = next(
-            (
-                signal for signal in signal_clusters
-                if signal["ticker"] == ticker
-                and signal["action"] == direction
-                and (
-                    jaccard_similarity(signal["_tokens"], candidate["_tokens"]) >= 0.52
-                    or (
-                        signal["_event"] == event
-                        and abs((signal["_published"] - published).total_seconds()) <= 129_600
-                    )
-                )
-            ),
+            (signal for signal in signal_clusters if should_merge_signals(signal, candidate)),
             None,
         )
         if existing is None:
@@ -1162,6 +1430,18 @@ def build_urgent(
             existing["sourceCount"] = len(existing["sources"])
         existing["strength"] = max(existing["strength"], candidate["strength"])
         existing["impactConfidence"] = min(97, max(existing["impactConfidence"], candidate["impactConfidence"]) + 4)
+        existing["eventSeverity"] = max(existing.get("eventSeverity", 0), candidate["eventSeverity"])
+        existing["_proximity"] = max(existing.get("_proximity", 0), candidate["_proximity"])
+        existing["noveltyScore"] = novelty_score(existing["sourceCount"])
+        existing["sourceQuality"] = source_quality_score(
+            max(existing["_priority"], candidate["_priority"]),
+            existing["sourceCount"],
+        )
+        if candidate.get("marketReaction") and (
+            existing.get("marketReaction") is None
+            or abs(candidate["marketReaction"]["dayChangePct"]) >= abs(existing["marketReaction"]["dayChangePct"])
+        ):
+            existing["marketReaction"] = candidate["marketReaction"]
         if (
             candidate["_priority"] > existing["_priority"]
             or (
@@ -1172,12 +1452,17 @@ def build_urgent(
             for field in (
                 "title", "summary", "publishedAt", "source", "_priority",
                 "_published", "sentimentScore", "impactEstimatePct", "entityConfidence",
+                "eventType", "eventSeverity",
             ):
                 existing[field] = candidate[field]
+        existing["signalScore"] = compute_signal_score(existing)
 
     signals = signal_clusters
     for signal in signals:
-        for internal_field in ("_priority", "_event", "_published", "_tokens"):
+        signal["noveltyScore"] = novelty_score(signal.get("sourceCount", 1))
+        signal["sourceQuality"] = source_quality_score(signal.get("_priority", 1), signal.get("sourceCount", 1))
+        signal["signalScore"] = compute_signal_score(signal)
+        for internal_field in ("_priority", "_event", "_published", "_tokens", "_proximity"):
             signal.pop(internal_field, None)
     matched_documents = len(signals) + metrics["duplicatesMerged"]
     metrics.update({
@@ -1187,12 +1472,23 @@ def build_urgent(
         "latencyMs": round((time.perf_counter() - started_at) * 1000),
     })
     # Held-out eval uses a fixed instrument set, not the live universe order.
-    metrics.update(evaluate_entity_linking([], [], [{"secid": "LQDT"}]))
+    metrics.update(evaluate_entity_linking([], [], [{"secid": "LQDT"}, {"secid": "BOND"}]))
     return sorted(
         signals,
-        key=lambda item: (item["strength"], item["publishedAt"]),
+        key=lambda item: (item.get("signalScore", item["strength"]), item["publishedAt"]),
         reverse=True,
     )[:URGENT_LIMIT], health, metrics
+
+
+def previous_day_changes(previous: dict[str, Any]) -> dict[str, float]:
+    changes: dict[str, float] = {}
+    for section in ("stocks", "bonds", "funds"):
+        for item in previous.get(section, []):
+            ticker = item.get("secid") or item.get("ticker")
+            value = item.get("dayChange")
+            if ticker and isinstance(value, (int, float)):
+                changes[str(ticker)] = float(value)
+    return changes
 
 
 def previous_data() -> dict[str, Any]:
@@ -1244,7 +1540,12 @@ def main() -> int:
         for item in config.get("stocks", [])
     ]
     urgent_started = time.perf_counter()
-    urgent, feed_health, pipeline_metrics = build_urgent(stock_stubs, bonds, funds)
+    urgent, feed_health, pipeline_metrics = build_urgent(
+        stock_stubs,
+        bonds,
+        funds,
+        previous_day_changes(previous),
+    )
     print(
         f"Срочные сигналы: {len(urgent)} · "
         f"{round((time.perf_counter() - urgent_started) * 1000)} мс",
