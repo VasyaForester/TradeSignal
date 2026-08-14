@@ -36,6 +36,35 @@
       </div>
     </section>
 
+    <section class="brief-section" aria-labelledby="brief-title">
+      <div class="brief-heading">
+        <div>
+          <p class="eyebrow">ОЦЕНКА РЫНКА · СЕССИЯ</p>
+          <h2 id="brief-title">Индекс МосБиржи</h2>
+        </div>
+        <div class="brief-index" id="brief-index">
+          <strong id="imoex-value">—</strong>
+          <span id="imoex-change">—</span>
+        </div>
+      </div>
+      <p class="brief-stance" id="brief-stance"></p>
+      <div class="brief-grid">
+        <article>
+          <b>Почему</b>
+          <p id="brief-why">Собираем индекс и ширину рынка…</p>
+        </article>
+        <article>
+          <b>Горизонт</b>
+          <p id="brief-outlook">—</p>
+        </article>
+        <article>
+          <b>Длинные позиции</b>
+          <p id="brief-longs">—</p>
+          <div class="signal-tags" id="brief-tickers"></div>
+        </article>
+      </div>
+    </section>
+
     <section class="urgent-section" aria-labelledby="urgent-title">
       <div class="urgent-heading">
         <div>
@@ -46,6 +75,20 @@
       </div>
       <div id="urgent-list" class="urgent-list">
         <div class="empty-state">Проверяем свежие события…</div>
+      </div>
+    </section>
+
+    <section class="scalp-section" aria-labelledby="scalp-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">СКАЛЬП · 1–3 СЕССИИ</p>
+          <h2 id="scalp-title">Отскок после просадки</h2>
+        </div>
+        <div class="signal-count scalp-count"><b id="scalp-count">0</b><span>идей<br>на отскок</span></div>
+      </div>
+      <p class="scalp-note">Бумаги, которые просели сильнее рынка, вместе с рынком или на нефундаментальном шуме. Это не долгосрочная идея и не команда купить.</p>
+      <div id="scalp-list" class="urgent-list">
+        <div class="empty-state">Ищем аномальные просадки…</div>
       </div>
     </section>
 
@@ -109,8 +152,16 @@
       <p id="fund-method"></p>
     </div>
     <div class="method-block">
+      <b>Оценка рынка</b>
+      <p>Индекс МосБиржи (IMOEX) и суточное изменение — с Московской биржи. Текст «почему / горизонт / длинные» собирается правилами: ход индекса, доля бумаг в минусе, ставка и тип свежих новостей. Это не прогноз и не призыв открыть позицию.</p>
+    </div>
+    <div class="method-block">
       <b>Срочные сигналы</b>
       <p>Компании связываются с тикерами по явным кодам, ISIN и базе алиасов. Похожие заголовки внутри одной компании объединяются. Sentiment и сценарная реакция цены рассчитаны прозрачной правиловой моделью, а не являются прогнозом гарантированной доходности.</p>
+    </div>
+    <div class="method-block">
+      <b>Скальп · отскок</b>
+      <p>Ищем бумаги, которые за сессию просели сильнее медианы вселенной, вместе с общим спадом или на нефундаментальной новости (арест, иск, шум). Фундаментальный негатив — дефолт, санкции, halt, profit warning — в этот список не попадает.</p>
     </div>
     <p class="dialog-warning">Любой сигнал — повод для проверки, а не команда на сделку. Учитывайте горизонт, ликвидность и допустимый убыток.</p>
   </dialog>

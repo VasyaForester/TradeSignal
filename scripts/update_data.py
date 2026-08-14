@@ -31,6 +31,17 @@ MOSCOW_TZ = timezone(timedelta(hours=3))
 MOEX = "https://iss.moex.com/iss"
 RANKING_LIMIT = 10
 URGENT_LIMIT = 10
+SCALP_LIMIT = 8
+FUNDAMENTAL_SCALP_BLOCK = {
+    "credit_distress",
+    "license_revocation",
+    "sanctions",
+    "trading_halt",
+    "accident",
+    "guidance",
+    "report",
+}
+NONFUNDAMENTAL_EVENTS = {"legal", "other"}
 RSS_FEEDS = [
     ("Банк России", "https://www.cbr.ru/rss/RssPress"),
     ("Интерфакс", "https://www.interfax.ru/rss"),
@@ -218,6 +229,41 @@ def fetch_board(market: str, board: str, securities: list[str] | None = None) ->
     return [{**item, **dynamic.get(secid, {})} for secid, item in static.items()]
 
 
+def fetch_imoex() -> dict[str, Any]:
+    url = (
+        f"{MOEX}/engines/stock/markets/index/securities/IMOEX.json?"
+        + urllib.parse.urlencode({
+            "iss.meta": "off",
+            "iss.only": "securities,marketdata",
+            "securities.columns": "SECID,SHORTNAME,PREVPRICE",
+            "marketdata.columns": (
+                "SECID,CURRENTVALUE,LASTVALUE,LASTCHANGEPRC,OPENVALUE,UPDATETIME"
+            ),
+        })
+    )
+    payload = get_json(url)
+    static = next((item for item in rows(payload, "securities") if item.get("SECID") == "IMOEX"), {})
+    dynamic = next((item for item in rows(payload, "marketdata") if item.get("SECID") == "IMOEX"), {})
+    item = {**static, **dynamic}
+    value = number(item.get("CURRENTVALUE") or item.get("LASTVALUE") or item.get("PREVPRICE"))
+    prev = number(item.get("PREVPRICE") or item.get("OPENVALUE"))
+    change = number(item.get("LASTCHANGEPRC"))
+    if abs(change) < 0.001 and prev > 0 and value > 0:
+        change = (value / prev - 1) * 100
+    if value <= 0:
+        raise RuntimeError("IMOEX не вернул текущее значение")
+    return {
+        "index": "IMOEX",
+        "indexName": str(item.get("SHORTNAME") or "Индекс МосБиржи"),
+        "value": round(value, 2),
+        "dayChange": round(change, 2),
+        "source": {
+            "publisher": "Московская биржа",
+            "url": "https://www.moex.com/ru/index/IMOEX",
+        },
+    }
+
+
 SECTOR_RATE_WEIGHT = {
     "bank": 1.25,
     "tech": 0.55,
@@ -347,6 +393,7 @@ def build_stocks(
     config: dict[str, Any],
     urgent_signals: list[dict[str, Any]] | None = None,
     previous_stocks: list[dict[str, Any]] | None = None,
+    limit: int | None = RANKING_LIMIT,
 ) -> list[dict[str, Any]]:
     forecasts = config["stocks"]
     previous_by_id = {item["secid"]: item for item in (previous_stocks or [])}
@@ -431,11 +478,280 @@ def build_stocks(
         })
     if not output:
         raise RuntimeError("не удалось рассчитать ни одной акции")
-    return sorted(
+    ranked = sorted(
         output,
         key=lambda item: (item["expectedReturn"], item["confidence"]),
         reverse=True,
-    )[:RANKING_LIMIT]
+    )
+    if limit is None:
+        return ranked
+    return ranked[:limit]
+
+
+def session_move(stock: dict[str, Any], previous: dict[str, Any] | None = None) -> float:
+    """Last session / snapshot move, preferring the deeper drop."""
+    quote_move = number(stock.get("dayChange"))
+    moves = [quote_move]
+    prev_price = number((previous or {}).get("price"))
+    price = number(stock.get("price"))
+    if prev_price > 0 and price > 0:
+        moves.append((price / prev_price - 1) * 100)
+    return round(min(moves), 2)
+
+
+def scalp_news_for(ticker: str, urgent: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [item for item in urgent if str(item.get("ticker") or "") == ticker]
+
+
+def is_fundamental_scalp_block(news: list[dict[str, Any]]) -> bool:
+    for item in news:
+        event = str(item.get("eventType") or "other")
+        if event in FUNDAMENTAL_SCALP_BLOCK and item.get("action") == "SELL":
+            return True
+        if event == "trading_halt":
+            return True
+    return False
+
+
+def scalp_catalyst(
+    move: float,
+    excess: float,
+    market_median: float,
+    news: list[dict[str, Any]],
+) -> tuple[str, str]:
+    legal = next(
+        (item for item in news if item.get("eventType") in NONFUNDAMENTAL_EVENTS and item.get("action") == "SELL"),
+        None,
+    )
+    if legal is not None:
+        title = str(legal.get("title") or "нефундаментальная новость")
+        return "nonfundamental_news", f"Нефундаментальный негатив: {title}"
+    if market_median <= -0.8 and move <= market_median - 0.2:
+        return "market_drawdown", "Бумага просела вместе с рынком, без явного фундаментального удара."
+    if excess >= 1.5:
+        return "relative_weakness", "Краткосрочная конъюнктура: просадка сильнее медианы рынка."
+    if move <= -2.0:
+        return "session_washout", "Резкая сессионная просадка без сильного корпоративного сигнала."
+    return "session_washout", "Краткосрочная просадка без подтвержденного фундамента."
+
+
+def scalp_score(move: float, excess: float, catalyst: str, liquidity: float) -> float:
+    base = 38 + min(28.0, abs(min(move, 0)) * 6.5) + min(22.0, max(0.0, excess) * 7.0)
+    if catalyst == "nonfundamental_news":
+        base += 10
+    elif catalyst == "relative_weakness":
+        base += 6
+    elif catalyst == "market_drawdown":
+        base += 4
+    if liquidity >= 50_000_000:
+        base += 4
+    elif liquidity < 3_000_000:
+        base -= 8
+    return round(clamp(base, 20, 96), 1)
+
+
+def build_scalp_signals(
+    stocks: list[dict[str, Any]],
+    urgent: list[dict[str, Any]] | None = None,
+    previous_stocks: list[dict[str, Any]] | None = None,
+    limit: int = SCALP_LIMIT,
+) -> list[dict[str, Any]]:
+    if not stocks:
+        return []
+    previous_by_id = {item.get("secid"): item for item in (previous_stocks or [])}
+    moves = [session_move(item, previous_by_id.get(item.get("secid"))) for item in stocks]
+    market_median = round(statistics.median(moves), 2) if moves else 0.0
+    candidates: list[dict[str, Any]] = []
+    for stock, move in zip(stocks, moves):
+        ticker = str(stock.get("secid") or "")
+        if not ticker:
+            continue
+        news = scalp_news_for(ticker, urgent or [])
+        if is_fundamental_scalp_block(news):
+            continue
+        liquidity = number(stock.get("liquidityRub"))
+        if liquidity and liquidity < 2_000_000:
+            continue
+        excess = round(market_median - move, 2)
+        has_legal = any(
+            item.get("eventType") in NONFUNDAMENTAL_EVENTS and item.get("action") == "SELL"
+            for item in news
+        )
+        wide_market = market_median <= -0.8 and move <= min(-1.2, market_median - 0.2)
+        relative = excess >= 1.5 and move <= -1.2
+        washout = move <= -2.4
+        legal_drop = has_legal and move <= -1.5
+        if not (wide_market or relative or washout or legal_drop):
+            continue
+        catalyst, summary = scalp_catalyst(move, excess, market_median, news)
+        score = scalp_score(move, excess, catalyst, liquidity)
+        entity = ENTITY_BY_SECID.get(ticker, {})
+        name = str(stock.get("name") or entity.get("name") or ticker)
+        candidates.append({
+            "ticker": ticker,
+            "name": name,
+            "hashtags": list(dict.fromkeys([make_hashtag(name), f"#{ticker}"])),
+            "action": "BUY",
+            "horizon": "1–3 сессии",
+            "price": number(stock.get("price")),
+            "dayChange": move,
+            "marketChange": market_median,
+            "excessDrop": excess,
+            "catalyst": catalyst,
+            "strength": round(score),
+            "signalScore": score,
+            "title": f"{ticker} просела на {abs(move):.1f}%",
+            "summary": summary,
+            "source": {
+                "publisher": "MOEX · сессия",
+                "url": f"https://www.moex.com/ru/issue.aspx?code={urllib.parse.quote(ticker)}",
+            },
+        })
+    return sorted(
+        candidates,
+        key=lambda item: (item["signalScore"], -item["dayChange"]),
+        reverse=True,
+    )[:limit]
+
+
+def market_stance(day_change: float) -> str:
+    if day_change >= 0.4:
+        return "растет"
+    if day_change <= -0.4:
+        return "падает"
+    return "боковик"
+
+
+def long_candidate_tickers(
+    stocks: list[dict[str, Any]],
+    urgent: list[dict[str, Any]],
+    limit: int = 3,
+) -> list[dict[str, str]]:
+    blocked = {
+        str(item.get("ticker") or "")
+        for item in urgent
+        if item.get("action") == "SELL" and str(item.get("eventType") or "") in FUNDAMENTAL_SCALP_BLOCK
+    }
+    ranked = [
+        item for item in stocks
+        if item.get("secid") not in blocked
+        and number(item.get("expectedReturn")) >= 6
+        and number(item.get("confidence")) >= 48
+    ]
+    ranked.sort(key=lambda item: (number(item.get("expectedReturn")), number(item.get("confidence"))), reverse=True)
+    return [
+        {"secid": str(item["secid"]), "name": str(item.get("name") or item["secid"])}
+        for item in ranked[:limit]
+    ]
+
+
+def build_market_brief(
+    index: dict[str, Any],
+    stocks: list[dict[str, Any]],
+    urgent: list[dict[str, Any]] | None = None,
+    macro: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    urgent = urgent or []
+    macro = macro or {}
+    day_change = number(index.get("dayChange"))
+    stance = market_stance(day_change)
+    moves = [number(item.get("dayChange")) for item in stocks]
+    down_share = round(sum(1 for move in moves if move < 0) / len(moves), 2) if moves else 0.0
+    median_move = round(statistics.median(moves), 2) if moves else 0.0
+    severe = [
+        item for item in urgent
+        if item.get("action") == "SELL" and str(item.get("eventType") or "") in FUNDAMENTAL_SCALP_BLOCK
+    ]
+    legal = [
+        item for item in urgent
+        if item.get("action") == "SELL" and str(item.get("eventType") or "") in NONFUNDAMENTAL_EVENTS
+    ]
+    reasons: list[str] = []
+    if down_share >= 0.65:
+        reasons.append(f"спад широкий: {round(down_share * 100)}% бумаг вселенной в минусе")
+    elif down_share <= 0.35 and moves:
+        reasons.append(f"большинство бумаг в плюсе ({round((1 - down_share) * 100)}%)")
+    else:
+        reasons.append(f"медиана вселенной {median_move:+.1f}% при индексе {day_change:+.1f}%")
+    if severe:
+        title = str(severe[0].get("title") or severe[0].get("ticker") or "фундаментальный негатив")
+        reasons.append(f"в ленте есть тяжелый негатив ({title})")
+    elif legal:
+        title = str(legal[0].get("title") or "нефундаментальный шум")
+        reasons.append(f"есть шум без удара по бизнесу: {title}")
+    rate = number(macro.get("currentKeyRate"))
+    if rate >= 13:
+        reasons.append(f"ключевая ставка {rate:.1f}% по-прежнему давит на оценку акций")
+    why = " ".join(
+        f"{part[0].upper()}{part[1:]}{'' if part.endswith('.') else '.'}"
+        for part in reasons[:3]
+        if part
+    ) or "Дневное движение индекса пока без явного единого драйвера."
+
+    fundamental_drag = bool(severe) or day_change <= -2.0
+    if fundamental_drag:
+        horizon = "не только сессия"
+        outlook = (
+            "Это уже не чистый внутридневной шум: негатив или глубокая просадка "
+            "могут держаться дольше одной сессии. Долгосрочный тренд по одному дню не переписываем."
+        )
+    elif abs(day_change) < 1.2:
+        horizon = "краткосрочно"
+        outlook = (
+            "Пока это сессионная конъюнктура, а не смена долгосрочной перспективы. "
+            "Горизонт 12 месяцев смотрите в блоке лучших идей, не в дневном проценте IMOEX."
+        )
+    else:
+        horizon = "краткосрочно"
+        outlook = (
+            "Импульс дня сильный, но для долгосрочного вывода его недостаточно. "
+            "Не путайте суточный ход индекса с новым циклом рынка."
+        )
+
+    longs = long_candidate_tickers(stocks, urgent)
+    names = ", ".join(item["secid"] for item in longs) if longs else "список 12‑мес. идей ниже"
+    if stance == "падает" and fundamental_drag:
+        long_verdict = "не разгонять"
+        long_advice = (
+            f"Новые длинные сегодня лучше не наращивать широко. "
+            f"Если горизонт именно 12 месяцев, точечно смотреть {names} — и только без плеча."
+        )
+    elif stance == "падает":
+        long_verdict = "точечно"
+        long_advice = (
+            f"Длинные можно набирать аккуратно на просадке, не в весь рынок: {names}. "
+            f"Это не сигнал усреднять слабые бумаги и не идея для скальпа."
+        )
+    elif stance == "растет":
+        long_verdict = "не догонять"
+        long_advice = (
+            f"Индекс уже в плюсе — не догонять дневной импульс. "
+            f"Длинные держать в лучших бумагах модели: {names}."
+        )
+    else:
+        long_verdict = "точечно"
+        long_advice = (
+            f"Рынок без явного дневного тренда. Длинные — только в отдельных бумагах, не в индексе целиком: {names}."
+        )
+
+    return {
+        "index": str(index.get("index") or "IMOEX"),
+        "indexName": str(index.get("indexName") or "Индекс МосБиржи"),
+        "value": round(number(index.get("value")), 2),
+        "dayChange": round(day_change, 2),
+        "stance": stance,
+        "horizon": horizon,
+        "longVerdict": long_verdict,
+        "why": why,
+        "outlook": outlook,
+        "longAdvice": long_advice,
+        "longTickers": longs,
+        "breadthDown": down_share,
+        "source": index.get("source") or {
+            "publisher": "Московская биржа",
+            "url": "https://www.moex.com/ru/index/IMOEX",
+        },
+    }
 
 
 def parse_date(value: Any) -> date | None:
@@ -1558,17 +1874,57 @@ def main() -> int:
             and item.get("ticker") not in {"РЫНОК", "НЕФТЕГАЗ"}
             and item.get("hashtags")
         ]
-    stocks = safe_build(
+    stocks_universe = safe_build(
         "MOEX: акции",
-        lambda: build_stocks(config, urgent, previous.get("stocks", [])),
+        lambda: build_stocks(config, urgent, previous.get("stocks", []), limit=None),
         "stocks",
     )
+    stocks = stocks_universe[:RANKING_LIMIT]
+    scalp = build_scalp_signals(stocks_universe, urgent, previous.get("stocks", []))
+    print(f"Скальп-отскок: {len(scalp)}", flush=True)
+    if not scalp:
+        scalp = [
+            item for item in previous.get("scalp", [])
+            if item.get("ticker") and item.get("action") == "BUY"
+        ][:SCALP_LIMIT]
+    try:
+        imoex = fetch_imoex()
+        status.append({
+            "source": "MOEX: IMOEX",
+            "status": "ok",
+            "detail": f"{imoex['value']:.0f} · {imoex['dayChange']:+.2f}%",
+        })
+        print(f"IMOEX: {imoex['value']} · {imoex['dayChange']:+.2f}%", flush=True)
+    except Exception as exc:
+        fallback_index = (previous.get("marketBrief") or {})
+        imoex = {
+            "index": "IMOEX",
+            "indexName": fallback_index.get("indexName") or "Индекс МосБиржи",
+            "value": number(fallback_index.get("value")),
+            "dayChange": number(
+                fallback_index.get("dayChange"),
+                statistics.median([number(item.get("dayChange")) for item in stocks_universe]) if stocks_universe else 0.0,
+            ),
+            "source": (fallback_index.get("source") or {
+                "publisher": "Московская биржа",
+                "url": "https://www.moex.com/ru/index/IMOEX",
+            }),
+        }
+        status.append({
+            "source": "MOEX: IMOEX",
+            "status": "stale" if fallback_index.get("value") else "error",
+            "detail": str(exc)[:140],
+        })
+        print(f"IMOEX: ошибка · {exc}", flush=True)
+    market_brief = build_market_brief(imoex, stocks_universe, urgent, config.get("macro", {}))
 
     payload = {
         "generatedAt": now_iso(),
         "methodologyVersion": config["methodologyVersion"],
         "market": "Московская биржа",
+        "marketBrief": market_brief,
         "urgent": urgent,
+        "scalp": scalp,
         "stocks": stocks,
         "bonds": bonds,
         "funds": funds,

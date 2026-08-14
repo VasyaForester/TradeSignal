@@ -5,6 +5,8 @@ from pathlib import Path
 
 from scripts.update_data import (
     TelegramChannelParser,
+    build_market_brief,
+    build_scalp_signals,
     compute_signal_score,
     estimate_fund_return,
     estimate_stock_target,
@@ -14,6 +16,7 @@ from scripts.update_data import (
     is_mechanical_dividend_event,
     is_negative_actor_only,
     jaccard_similarity,
+    market_stance,
     novelty_score,
     related_instrument,
     resolve_related_instrument,
@@ -33,7 +36,7 @@ class SnapshotContractTest(unittest.TestCase):
 
     def test_required_sections_exist(self):
         for key in (
-            "generatedAt", "urgent", "stocks", "bonds", "funds",
+            "generatedAt", "urgent", "scalp", "marketBrief", "stocks", "bonds", "funds",
             "sourceHealth", "pipelineMetrics",
         ):
             self.assertIn(key, self.data)
@@ -108,6 +111,73 @@ class SnapshotContractTest(unittest.TestCase):
             fingerprint = (signal["ticker"], signal["action"], normalized_title)
             self.assertNotIn(fingerprint, fingerprints)
             fingerprints.add(fingerprint)
+
+    def test_scalp_signals_are_bounce_candidates(self):
+        items = self.data.get("scalp") or []
+        self.assertLessEqual(len(items), 8)
+        seen = set()
+        for signal in items:
+            self.assertEqual(signal["action"], "BUY")
+            self.assertTrue(signal["ticker"])
+            self.assertNotIn(signal["ticker"], seen)
+            seen.add(signal["ticker"])
+            self.assertLessEqual(signal["dayChange"], -1.0)
+            self.assertTrue(signal["summary"])
+            self.assertTrue(signal["source"]["url"].startswith("http"))
+            self.assertIn(signal.get("catalyst"), {
+                "nonfundamental_news", "market_drawdown", "relative_weakness", "session_washout",
+            })
+
+    def test_scalp_model_skips_fundamental_distress(self):
+        universe = [
+            {"secid": "SBER", "name": "Сбербанк", "price": 300, "dayChange": -3.2, "liquidityRub": 8_000_000_000},
+            {"secid": "GAZP", "name": "Газпром", "price": 120, "dayChange": -0.4, "liquidityRub": 4_000_000_000},
+            {"secid": "YDEX", "name": "Яндекс", "price": 4000, "dayChange": -1.0, "liquidityRub": 2_000_000_000},
+            {"secid": "EUTR", "name": "ЕвроТранс", "price": 90, "dayChange": -6.5, "liquidityRub": 80_000_000},
+        ]
+        blocked = build_scalp_signals(universe, [
+            {"ticker": "EUTR", "action": "SELL", "eventType": "credit_distress", "title": "дефолт"},
+        ])
+        self.assertFalse(any(item["ticker"] == "EUTR" for item in blocked))
+        self.assertTrue(any(item["ticker"] == "SBER" for item in blocked))
+
+        legal = build_scalp_signals(universe, [
+            {"ticker": "SBER", "action": "SELL", "eventType": "legal", "title": "Арест крупного акционера"},
+        ])
+        sber = next(item for item in legal if item["ticker"] == "SBER")
+        self.assertEqual(sber["catalyst"], "nonfundamental_news")
+        self.assertIn("Арест", sber["summary"])
+
+    def test_market_brief_reads_index_and_avoids_chasing(self):
+        self.assertEqual(market_stance(-0.9), "падает")
+        self.assertEqual(market_stance(0.05), "боковик")
+        self.assertEqual(market_stance(0.8), "растет")
+        stocks = [
+            {"secid": "SBER", "name": "Сбербанк", "expectedReturn": 18, "confidence": 70, "dayChange": -1.2},
+            {"secid": "PLZL", "name": "Полюс", "expectedReturn": 14, "confidence": 65, "dayChange": -0.9},
+            {"secid": "YDEX", "name": "Яндекс", "expectedReturn": 9, "confidence": 55, "dayChange": -1.0},
+        ]
+        falling = build_market_brief(
+            {"index": "IMOEX", "indexName": "Индекс МосБиржи", "value": 2710.4, "dayChange": -0.84},
+            stocks,
+            [],
+            {"currentKeyRate": 14.0},
+        )
+        self.assertEqual(falling["stance"], "падает")
+        self.assertEqual(falling["horizon"], "краткосрочно")
+        self.assertEqual(falling["longVerdict"], "точечно")
+        self.assertEqual(falling["value"], 2710.4)
+        self.assertEqual(falling["dayChange"], -0.84)
+        self.assertTrue(falling["longTickers"])
+        shock = build_market_brief(
+            {"index": "IMOEX", "value": 2650, "dayChange": -2.5},
+            stocks,
+            [{"ticker": "SBER", "action": "SELL", "eventType": "sanctions", "title": "новые санкции"}],
+            {"currentKeyRate": 14.0},
+        )
+        self.assertEqual(shock["longVerdict"], "не разгонять")
+        self.assertNotIn("SBER", {item["secid"] for item in shock["longTickers"]})
+        self.assertIn("санкции", shock["why"].lower())
 
     def test_only_specific_instruments_are_detected(self):
         self.assertIsNone(related_instrument("Российский рынок сегодня снизился", [], []))
