@@ -63,6 +63,31 @@ h2 { font-size: clamp(28px, 4vw, 43px); letter-spacing: -.045em; margin-bottom: 
 .hero-meta span, .hero-meta small { color: var(--muted); font-size: 10px; letter-spacing: .1em; }
 .hero-meta strong { font-size: 19px; }
 
+.brief-section {
+  margin: 0 0 16px;
+  background: linear-gradient(120deg, rgba(75,118,255,.12), rgba(20,25,31,.92) 40%);
+  border: 1px solid rgba(75,118,255,.22);
+  border-radius: 22px;
+  padding: 28px 32px 26px;
+}
+.brief-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 14px; }
+.brief-index { text-align: right; }
+.brief-index strong { display: block; font-size: clamp(32px, 5vw, 44px); letter-spacing: -.04em; }
+.brief-index span { font-size: 18px; font-weight: 800; }
+.brief-index span.up { color: var(--green); }
+.brief-index span.down { color: var(--red); }
+.brief-index span.flat { color: var(--amber); }
+.brief-stance { margin: 0 0 18px; font-size: 15px; font-weight: 700; }
+.brief-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.brief-grid article {
+  background: rgba(8,11,15,.5);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+.brief-grid b { display: block; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.brief-grid p { margin: 0; color: var(--text); font-size: 13px; line-height: 1.55; }
+
 .urgent-section {
   background: linear-gradient(120deg, rgba(255,93,108,.1), rgba(20,25,31,.9) 38%);
   border: 1px solid rgba(255,93,108,.23);
@@ -97,6 +122,19 @@ h2 { font-size: clamp(28px, 4vw, 43px); letter-spacing: -.045em; margin-bottom: 
 .urgent-source { text-align: right; }
 .urgent-source b { display: block; font-size: 20px; color: var(--red); }
 .urgent-source a { color: var(--muted); font-size: 10px; }
+
+.scalp-section {
+  margin-top: 16px;
+  background: linear-gradient(120deg, rgba(88,246,169,.08), rgba(20,25,31,.9) 42%);
+  border: 1px solid rgba(88,246,169,.22);
+  border-radius: 22px;
+  padding: 32px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.18);
+}
+.scalp-note { color: var(--muted); font-size: 13px; line-height: 1.65; max-width: 760px; margin: -12px 0 22px; }
+.scalp-count b { color: var(--green); }
+.scalp-card .urgent-source b { color: var(--green); }
+.scalp-card .signal-tags span { color: var(--green); }
 .empty-state { color: var(--muted); padding: 22px; border: 1px dashed var(--line); border-radius: 12px; text-align: center; }
 
 .ideas-section { padding: 100px 0 60px; }
@@ -177,6 +215,11 @@ dialog::backdrop { background: rgba(0,0,0,.72); backdrop-filter: blur(8px); }
   .hero { padding-top: 48px; }
   .hero-copy { font-size: 14px; }
   .urgent-section { padding: 22px 18px; }
+  .scalp-section { padding: 22px 18px; }
+  .brief-section { padding: 22px 18px; }
+  .brief-heading { align-items: flex-start; flex-direction: column; }
+  .brief-index { text-align: left; }
+  .brief-grid { grid-template-columns: 1fr; }
   .urgent-card { grid-template-columns: 70px 1fr; gap: 13px; }
   .urgent-source { grid-column: 2; text-align: left; display: flex; gap: 8px; align-items: center; }
   .urgent-source b { font-size: 14px; }
