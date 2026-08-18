@@ -15,6 +15,232 @@ function freshnessLabel(dateString) {
   });
 }
 
+function labeledChange(value) {
+  if (!Number.isFinite(value)) return { text: "нет хода", cls: "flat" };
+  if (value > 0.15) return { text: `рост ${pct(value)}`, cls: "up" };
+  if (value < -0.15) return { text: `падение ${pct(value)}`, cls: "down" };
+  return { text: `без изменений ${pct(value)}`, cls: "flat" };
+}
+
+const REACTION_LABEL = {
+  confirmed: "подтверждено",
+  underreaction: "слабая реакция",
+  overreaction: "переоценка",
+  anomaly_down: "позитив, цена вниз",
+  anomaly_up: "негатив, цена вверх",
+  divergence: "расхождение",
+  none: "нет хода",
+};
+
+function emptyBlock(text) {
+  return `<div class="empty-state">${escapeHtml(text)}</div>`;
+}
+
+function renderTape(tape) {
+  const root = document.querySelector("#market-tape");
+  if (!root) return;
+  const items = [
+    ["IMOEX", tape?.imoex],
+    ["USD/RUB", tape?.usd],
+    ["RGBI", tape?.rgbi],
+  ];
+  root.innerHTML = items.map(([label, quote]) => {
+    const value = Number(quote?.value);
+    const change = labeledChange(Number(quote?.dayChange));
+    return `
+      <article class="tape-item">
+        <span>${escapeHtml(label)}</span>
+        <b>${Number.isFinite(value) && value > 0 ? rub.format(value) : "—"}</b>
+        <small class="${change.cls}">${escapeHtml(change.text)}</small>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderPulse(pulse, regime) {
+  const root = document.querySelector("#pulse-grid");
+  if (!root) return;
+  const catalyst = pulse?.catalyst;
+  const mover = pulse?.mover;
+  const anomaly = pulse?.anomaly;
+  const cards = [
+    {
+      eyebrow: "КАТАЛИЗАТОР",
+      title: catalyst ? `${catalyst.ticker} · ${catalyst.title}` : "Нет сильного события",
+      note: catalyst
+        ? `сценарий ${pct(catalyst.expectedImpactPct)} · факт ${pct(catalyst.marketReactionPct)} · ${REACTION_LABEL[catalyst.reaction] || catalyst.reaction}`
+        : "Срочная лента пуста или события слабые.",
+    },
+    {
+      eyebrow: "ДВИЖЕНИЕ",
+      title: mover ? `${mover.ticker} ${pct(mover.dayChange)}` : "Нет котировок",
+      note: mover ? (mover.name || "Лидеры дня по абсолютному ходу.") : "Вселенная акций недоступна.",
+    },
+    {
+      eyebrow: "АНОМАЛИЯ",
+      title: anomaly ? `${anomaly.ticker} · ${anomaly.label}` : "Расхождений нет",
+      note: anomaly
+        ? `сценарий ${pct(anomaly.expectedImpactPct)} · факт ${pct(anomaly.marketReactionPct)}`
+        : "Новости и цена смотрят в одну сторону.",
+    },
+  ];
+  const regimeNote = regime
+    ? `<p class="pulse-regime">Режим: ${escapeHtml(regime.label || regime.id)}. Лучше: ${(regime.best || []).join(", ")}. Избегать: ${(regime.avoid || []).join(", ")}.</p>`
+    : "";
+  root.innerHTML = cards.map((card) => `
+    <article class="pulse-card">
+      <p class="eyebrow">${escapeHtml(card.eyebrow)}</p>
+      <h3>${escapeHtml(card.title)}</h3>
+      <p>${escapeHtml(card.note)}</p>
+    </article>
+  `).join("") + regimeNote;
+}
+
+function renderDelta(delta) {
+  const root = document.querySelector("#delta-list");
+  if (!root) return;
+  if (!delta) {
+    root.innerHTML = emptyBlock("Сравнение со прошлым снимком появится после второго обновления.");
+    return;
+  }
+  const lines = [];
+  if (delta.previousAt) {
+    lines.push(`Предыдущий снимок: ${freshnessLabel(delta.previousAt)}. IMOEX ${pct(delta.imoexFrom)} → ${pct(delta.imoexTo)}.`);
+  }
+  (delta.newSignals || []).forEach((item) => {
+    lines.push(`Новый сигнал: ${item.ticker} · ${item.title}`);
+  });
+  (delta.flips || []).forEach((item) => {
+    lines.push(`Смена действия: ${item.ticker} ${item.from} → ${item.to}`);
+  });
+  (delta.confidenceChanges || []).forEach((item) => {
+    lines.push(`Уверенность ${item.ticker}: ${item.from}% → ${item.to}%`);
+  });
+  (delta.enteredTop10 || []).forEach((ticker) => lines.push(`Вошёл в топ-10: ${ticker}`));
+  (delta.leftTop10 || []).forEach((ticker) => lines.push(`Вышел из топ-10: ${ticker}`));
+  root.innerHTML = lines.length
+    ? lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")
+    : emptyBlock("С прошлого снимка состав сигналов не изменился.");
+}
+
+function renderDrivers(drivers) {
+  const root = document.querySelector("#driver-list");
+  if (!root) return;
+  if (!drivers?.length) {
+    root.innerHTML = emptyBlock("Явной цепочки «новость → бумага → сектор» сейчас нет.");
+    return;
+  }
+  root.innerHTML = drivers.map((item) => `
+    <article class="driver-card">
+      <h3>${escapeHtml(item.title)}</h3>
+      <p>${escapeHtml(item.note || "")}</p>
+      <div class="driver-sides">
+        ${(item.positive || []).length ? `<span class="up">в плюс: ${(item.positive || []).map(escapeHtml).join(", ")}</span>` : ""}
+        ${(item.negative || []).length ? `<span class="down">в минус: ${(item.negative || []).map(escapeHtml).join(", ")}</span>` : ""}
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderCatalysts(items) {
+  const root = document.querySelector("#catalyst-list");
+  if (!root) return;
+  if (!items?.length) {
+    root.innerHTML = emptyBlock("Нет событий, по которым можно сравнить сценарий и фактический ход.");
+    return;
+  }
+  root.innerHTML = items.map((item) => `
+    <article class="urgent-card">
+      <span class="action ${(item.action || "BUY").toLowerCase()}">${item.action === "SELL" ? "СНИЗИТЬ" : "СМОТРЕТЬ"}</span>
+      <div class="urgent-copy">
+        <h3>${escapeHtml(item.ticker)} · ${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.summary || "")}</p>
+        <div class="signal-impact">
+          <span>сценарий ${pct(item.expectedImpactPct)}</span>
+          <span>факт ${pct(item.marketReactionPct)}</span>
+          <span>${escapeHtml(REACTION_LABEL[item.reaction] || item.reaction)}</span>
+          ${item.horizon ? `<span>${escapeHtml(item.horizon)}</span>` : ""}
+          ${item.official ? "<span>официальный источник</span>" : ""}
+        </div>
+      </div>
+      <div class="urgent-source">
+        <b>${escapeHtml(String(item.strength))}</b>
+        <a href="${escapeHtml(item.source?.url || "#")}" target="_blank" rel="noreferrer">${escapeHtml(item.source?.publisher || "источник")} ↗</a>
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderAnomalies(items) {
+  const root = document.querySelector("#anomaly-list");
+  if (!root) return;
+  if (!items?.length) {
+    root.innerHTML = emptyBlock("Странной реакции рынка на новости сейчас не видно.");
+    return;
+  }
+  root.innerHTML = items.map((item) => `
+    <article class="urgent-card">
+      <span class="action ${item.kind === "anomaly_up" || item.kind === "underreaction" ? "buy" : "sell"}">${escapeHtml(String(item.kind || "mover").replace(/_/g, " "))}</span>
+      <div class="urgent-copy">
+        <h3>${escapeHtml(item.ticker)} · ${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.label || "")}</p>
+        <div class="signal-impact">
+          <span>сценарий ${pct(item.expectedImpactPct)}</span>
+          <span>факт ${pct(item.marketReactionPct)}</span>
+        </div>
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderSectors(items) {
+  const root = document.querySelector("#sector-list");
+  if (!root) return;
+  if (!items?.length) {
+    root.innerHTML = emptyBlock("Сектора появятся после снимка акций.");
+    return;
+  }
+  root.innerHTML = items.map((item) => {
+    const change = labeledChange(Number(item.dayChange));
+    const members = (item.members || []).slice(0, 4).map((row) => `#${row.secid}`).join(" ");
+    return `
+      <article class="sector-card">
+        <div>
+          <b>${escapeHtml(item.label || item.id)}</b>
+          <span class="${change.cls}">${escapeHtml(change.text)}</span>
+        </div>
+        <p>${escapeHtml(item.why || "")}</p>
+        <small>${escapeHtml(members)}</small>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderAccuracy(stats) {
+  const root = document.querySelector("#accuracy-metrics");
+  const note = document.querySelector("#accuracy-note");
+  if (!root) return;
+  if (!stats || !Number.isFinite(stats.n) || stats.n < 8) {
+    root.innerHTML = "";
+    if (note) {
+      note.textContent = stats?.pending
+        ? `В очереди ${stats.pending} сигналов. Hit rate покажем после 8 закрытых T+1д.`
+        : "Hit rate появится, когда накопится история T+1д.";
+    }
+    return;
+  }
+  const values = [
+    [`${Math.round(stats.hitRate * 100)}%`, "hit rate T+1д"],
+    [pct(stats.avgReturn), "средний ход"],
+    [stats.n, "закрытых сигналов"],
+    [stats.highConfidenceHitRate != null ? `${Math.round(stats.highConfidenceHitRate * 100)}%` : "—", "высокая уверенность"],
+  ];
+  root.innerHTML = values.map(([value, label]) => `
+    <div class="pipeline-metric"><b>${escapeHtml(String(value))}</b><span>${escapeHtml(label)}</span></div>
+  `).join("");
+  if (note) note.textContent = "Доля сигналов, у которых цена на следующий день пошла в сторону действия BUY/SELL.";
+}
+
 function renderMarketBrief(brief) {
   const valueEl = document.querySelector("#imoex-value");
   const changeEl = document.querySelector("#imoex-change");
@@ -31,10 +257,10 @@ function renderMarketBrief(brief) {
     document.querySelector("#brief-longs").textContent = "Смотрите блок лучших идей на 12 месяцев.";
     return;
   }
-  const change = Number(brief.dayChange);
+  const change = labeledChange(Number(brief.dayChange));
   valueEl.textContent = rub.format(brief.value);
-  changeEl.textContent = pct(change);
-  changeEl.className = change > 0.15 ? "up" : change < -0.15 ? "down" : "flat";
+  changeEl.textContent = change.text;
+  changeEl.className = change.cls;
   const stanceLabel = brief.stance === "растет"
     ? "Рынок растет"
     : brief.stance === "падает"
@@ -145,9 +371,18 @@ function subtitle(item, type) {
 }
 
 function secondaryMetric(item, type) {
-  if (type === "stocks") return `<b>${price(item.price)}</b><small>сейчас · день ${pct(item.dayChange)}</small>`;
+  if (type === "stocks") {
+    const change = labeledChange(Number(item.dayChange));
+    return `<b>${price(item.price)}</b><small>сейчас · ${escapeHtml(change.text)}</small>`;
+  }
   if (type === "bonds") return `<b>${rub.format(item.price)}%</b><small>от номинала</small>`;
-  return `<b>${price(item.price)}</b><small>день ${pct(item.dayChange)}</small>`;
+  const change = labeledChange(Number(item.dayChange));
+  return `<b>${price(item.price)}</b><small>${escapeHtml(change.text)}</small>`;
+}
+
+function stanceBadge(item, type) {
+  if (type !== "stocks" || !item.stance) return "";
+  return `<span class="stance ${escapeHtml(item.stance.toLowerCase())}">${escapeHtml(item.stance)}</span>`;
 }
 
 function expectationMetric(item, type) {
@@ -171,7 +406,7 @@ function renderRanking(type) {
         <span class="rank-number">0${index + 1}</span>
         <span class="ticker-icon">${escapeHtml(item.secid.slice(0, 4))}</span>
         <span class="instrument-name">
-          <b>${escapeHtml(item.name)}</b>
+          <b>${escapeHtml(item.name)} ${stanceBadge(item, type)}</b>
           <span>${escapeHtml(subtitle(item, type))}</span>
         </span>
       </div>
@@ -235,9 +470,17 @@ function render(data) {
   const stockMethod = document.querySelector("#stock-method");
   if (stockMethod) stockMethod.textContent = data.stockModel || typeNote("stocks");
   document.querySelector("#disclaimer").textContent = data.disclaimer;
+  renderTape(data.marketTape);
   renderMarketBrief(data.marketBrief);
+  renderPulse(data.marketPulse, data.marketRegime);
+  renderDelta(data.sinceLastUpdate);
+  renderDrivers(data.drivers);
+  renderCatalysts(data.catalysts);
+  renderAnomalies(data.anomalies);
   renderUrgent(data.urgent || []);
   renderScalp(data.scalp || []);
+  renderSectors(data.sectors);
+  renderAccuracy(data.signalPerformance);
   renderHealth(data.sourceHealth || []);
   renderPipeline(data.pipelineMetrics);
   renderRanking(state.type);

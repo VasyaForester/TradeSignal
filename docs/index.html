@@ -27,7 +27,7 @@
       <div>
         <p class="eyebrow">МОСКОВСКАЯ БИРЖА · СИСТЕМНЫЙ ВЗГЛЯД</p>
         <h1>Решения на фактах.<br><span>Не на шуме.</span></h1>
-        <p class="hero-copy">Сводим котировки, прогнозы аналитиков и рыночные тенденции в один понятный сигнал.</p>
+        <p class="hero-copy">Событие → влияние на бумагу → реакция рынка. Ищем, где рынок ещё не успел или отреагировал странно.</p>
       </div>
       <div class="hero-meta">
         <span>СНИМОК РЫНКА</span>
@@ -35,6 +35,8 @@
         <small>МСК · котировки MOEX могут быть задержаны ≥15 минут</small>
       </div>
     </section>
+
+    <div class="tape" id="market-tape" aria-label="Котировки сессии"></div>
 
     <section class="brief-section" aria-labelledby="brief-title">
       <div class="brief-heading">
@@ -65,6 +67,56 @@
       </div>
     </section>
 
+    <section class="pulse-section" aria-labelledby="pulse-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">MARKET PULSE</p>
+          <h2 id="pulse-title">Что важно сейчас</h2>
+        </div>
+      </div>
+      <div class="pulse-grid" id="pulse-grid"></div>
+    </section>
+
+    <section class="delta-section" aria-labelledby="delta-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">С ПРОШЛОГО СНИМКА</p>
+          <h2 id="delta-title">Что изменилось</h2>
+        </div>
+      </div>
+      <div id="delta-list" class="delta-list"></div>
+    </section>
+
+    <section class="driver-section" aria-labelledby="driver-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">ПОЧЕМУ СЕГОДНЯ</p>
+          <h2 id="driver-title">Что движет рынком</h2>
+        </div>
+      </div>
+      <div id="driver-list" class="driver-list"></div>
+    </section>
+
+    <section class="catalyst-section" aria-labelledby="catalyst-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">КАТАЛИЗАТОРЫ</p>
+          <h2 id="catalyst-title">Событие и реакция</h2>
+        </div>
+      </div>
+      <div id="catalyst-list" class="urgent-list"></div>
+    </section>
+
+    <section class="anomaly-section" aria-labelledby="anomaly-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">АНОМАЛИИ</p>
+          <h2 id="anomaly-title">Рынок отреагировал странно</h2>
+        </div>
+      </div>
+      <div id="anomaly-list" class="urgent-list"></div>
+    </section>
+
     <section class="urgent-section" aria-labelledby="urgent-title">
       <div class="urgent-heading">
         <div>
@@ -90,6 +142,16 @@
       <div id="scalp-list" class="urgent-list">
         <div class="empty-state">Ищем аномальные просадки…</div>
       </div>
+    </section>
+
+    <section class="sector-section" aria-labelledby="sector-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">СЕКТОРА</p>
+          <h2 id="sector-title">Где ход дня</h2>
+        </div>
+      </div>
+      <div id="sector-list" class="sector-list"></div>
     </section>
 
     <section class="ideas-section">
@@ -120,6 +182,11 @@
           <div><span>Через 12 мес.</span><strong id="rate-target">—</strong></div>
         </div>
         <p id="macro-note"></p>
+      </article>
+      <article class="context-card">
+        <p class="eyebrow">ТОЧНОСТЬ СИГНАЛОВ</p>
+        <div id="accuracy-metrics" class="pipeline-metrics"></div>
+        <p id="accuracy-note" class="accuracy-note">Hit rate появится, когда накопится история T+1д.</p>
       </article>
       <article class="context-card">
         <p class="eyebrow">КАЧЕСТВО ДАННЫХ</p>
@@ -158,6 +225,10 @@
     <div class="method-block">
       <b>Срочные сигналы</b>
       <p>Компании связываются с тикерами по явным кодам, ISIN и базе алиасов. Похожие заголовки внутри одной компании объединяются. Sentiment и сценарная реакция цены рассчитаны прозрачной правиловой моделью, а не являются прогнозом гарантированной доходности.</p>
+    </div>
+    <div class="method-block">
+      <b>Катализаторы и аномалии</b>
+      <p>Срочный сигнал сравнивается с фактическим дневным ходом бумаги. Underreaction — сильное событие при слабой цене. Аномалия — новость и цена смотрят в разные стороны. Hit rate считается по истории снимков, без отдельной базы.</p>
     </div>
     <div class="method-block">
       <b>Скальп · отскок</b>
