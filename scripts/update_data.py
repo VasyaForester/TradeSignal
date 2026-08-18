@@ -229,9 +229,9 @@ def fetch_board(market: str, board: str, securities: list[str] | None = None) ->
     return [{**item, **dynamic.get(secid, {})} for secid, item in static.items()]
 
 
-def fetch_imoex() -> dict[str, Any]:
+def fetch_index_quote(secid: str, fallback_name: str, page: str) -> dict[str, Any]:
     url = (
-        f"{MOEX}/engines/stock/markets/index/securities/IMOEX.json?"
+        f"{MOEX}/engines/stock/markets/index/securities/{urllib.parse.quote(secid)}.json?"
         + urllib.parse.urlencode({
             "iss.meta": "off",
             "iss.only": "securities,marketdata",
@@ -242,8 +242,8 @@ def fetch_imoex() -> dict[str, Any]:
         })
     )
     payload = get_json(url)
-    static = next((item for item in rows(payload, "securities") if item.get("SECID") == "IMOEX"), {})
-    dynamic = next((item for item in rows(payload, "marketdata") if item.get("SECID") == "IMOEX"), {})
+    static = next((item for item in rows(payload, "securities") if item.get("SECID") == secid), {})
+    dynamic = next((item for item in rows(payload, "marketdata") if item.get("SECID") == secid), {})
     item = {**static, **dynamic}
     value = number(item.get("CURRENTVALUE") or item.get("LASTVALUE") or item.get("PREVPRICE"))
     prev = number(item.get("PREVPRICE") or item.get("OPENVALUE"))
@@ -251,17 +251,71 @@ def fetch_imoex() -> dict[str, Any]:
     if abs(change) < 0.001 and prev > 0 and value > 0:
         change = (value / prev - 1) * 100
     if value <= 0:
-        raise RuntimeError("IMOEX не вернул текущее значение")
+        raise RuntimeError(f"{secid} не вернул текущее значение")
     return {
-        "index": "IMOEX",
-        "indexName": str(item.get("SHORTNAME") or "Индекс МосБиржи"),
+        "secid": secid,
+        "name": str(item.get("SHORTNAME") or fallback_name),
         "value": round(value, 2),
         "dayChange": round(change, 2),
-        "source": {
-            "publisher": "Московская биржа",
-            "url": "https://www.moex.com/ru/index/IMOEX",
-        },
+        "url": f"https://www.moex.com/ru/index/{secid}",
     }
+
+
+def fetch_imoex() -> dict[str, Any]:
+    quote = fetch_index_quote("IMOEX", "Индекс МосБиржи", "IMOEX")
+    return {
+        "index": "IMOEX",
+        "indexName": quote["name"],
+        "value": quote["value"],
+        "dayChange": quote["dayChange"],
+        "source": {"publisher": "Московская биржа", "url": quote["url"]},
+    }
+
+
+def fetch_usd_rub() -> dict[str, Any]:
+    url = (
+        f"{MOEX}/engines/currency/markets/selt/boards/CETS/securities/USD000UTSTOM.json?"
+        + urllib.parse.urlencode({
+            "iss.meta": "off",
+            "iss.only": "securities,marketdata",
+            "securities.columns": "SECID,SHORTNAME,PREVPRICE",
+            "marketdata.columns": "SECID,LAST,LASTCHANGEPRC,CHANGE",
+        })
+    )
+    payload = get_json(url)
+    static = next((item for item in rows(payload, "securities")), {})
+    dynamic = next((item for item in rows(payload, "marketdata")), {})
+    item = {**static, **dynamic}
+    value = number(item.get("LAST") or item.get("PREVPRICE"))
+    prev = number(item.get("PREVPRICE"))
+    change = number(item.get("LASTCHANGEPRC") or item.get("CHANGE"))
+    if abs(change) < 0.001 and prev > 0 and value > 0:
+        change = (value / prev - 1) * 100
+    if value <= 0:
+        raise RuntimeError("USD/RUB не вернулся")
+    return {
+        "secid": "USD",
+        "name": "USD/RUB",
+        "value": round(value, 2),
+        "dayChange": round(change, 2),
+        "url": "https://www.moex.com/ru/derivatives/currency-rate.aspx?currency=USD/RUB",
+    }
+
+
+def fetch_market_tape(previous: dict[str, Any] | None = None) -> dict[str, Any]:
+    previous = previous or {}
+    tape = dict(previous.get("marketTape") or {})
+    jobs = {
+        "imoex": lambda: fetch_index_quote("IMOEX", "Индекс МосБиржи", "IMOEX"),
+        "rgbi": lambda: fetch_index_quote("RGBI", "Индекс гособлигаций", "RGBI"),
+        "usd": fetch_usd_rub,
+    }
+    for key, loader in jobs.items():
+        try:
+            tape[key] = loader()
+        except Exception:
+            tape.setdefault(key, previous.get("marketTape", {}).get(key) or {"secid": key, "name": key, "value": 0, "dayChange": 0})
+    return tape
 
 
 SECTOR_RATE_WEIGHT = {
@@ -273,6 +327,27 @@ SECTOR_RATE_WEIGHT = {
     "infra": 0.75,
     "health": 0.65,
 }
+SECTOR_LABEL = {
+    "bank": "Банки",
+    "tech": "Технологии",
+    "commodity": "Сырьё",
+    "retail": "Ритейл",
+    "telecom": "Телеком",
+    "infra": "Инфраструктура",
+    "health": "Здравоохранение",
+}
+CATALYST_HORIZON = {
+    "dividend": "1–5 дней",
+    "buyback": "1–5 дней",
+    "report": "1–3 дня",
+    "guidance": "1–5 дней",
+    "sanctions": "1–10 дней",
+    "credit_distress": "1–10 дней",
+    "legal": "1–3 дня",
+    "trading_halt": "внутри дня",
+    "corporate_action": "1–5 дней",
+}
+LEDGER_LIMIT = 180
 
 STOCK_MODEL = (
     "Таргет TradeSignal = текущая цена × (1 + сценарный рост). "
@@ -465,6 +540,7 @@ def build_stocks(
             "return12m": estimate.get("return12m", 0.0),
             "targetModel": estimate["targetModel"],
             "targetDrivers": estimate["targetDrivers"],
+            "sector": str(forecast.get("sector") or ""),
             "thesis": forecast["thesis"],
             "risks": forecast["risks"],
             "liquidityRub": round(
@@ -752,6 +828,387 @@ def build_market_brief(
             "url": "https://www.moex.com/ru/index/IMOEX",
         },
     }
+
+
+def stock_by_ticker(stocks: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    return {str(item.get("secid") or item.get("ticker") or ""): item for item in stocks if item.get("secid") or item.get("ticker")}
+
+
+def signal_fingerprint(signal: dict[str, Any]) -> str:
+    title = re.sub(r"\W+", "", str(signal.get("title") or "").lower())[:80]
+    return f"{signal.get('ticker')}|{signal.get('action')}|{title}"
+
+
+def reaction_gap(expected: float, actual: float) -> float:
+    return round(expected - actual, 2)
+
+
+def classify_reaction(expected: float, actual: float) -> str:
+    if expected == 0 and actual == 0:
+        return "none"
+    if expected > 0.8 and actual <= -1.0:
+        return "anomaly_down"
+    if expected < -0.8 and actual >= 1.0:
+        return "anomaly_up"
+    if abs(expected) >= 2.5 and abs(actual) < max(0.6, abs(expected) * 0.35):
+        return "underreaction"
+    if abs(actual) > abs(expected) * 1.6 and abs(actual) >= 1.5:
+        return "overreaction"
+    if (expected >= 0 and actual >= 0) or (expected <= 0 and actual <= 0):
+        return "confirmed"
+    return "divergence"
+
+
+def build_catalysts(
+    urgent: list[dict[str, Any]],
+    stocks: list[dict[str, Any]],
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    quotes = stock_by_ticker(stocks)
+    catalysts = []
+    for signal in urgent:
+        ticker = str(signal.get("ticker") or "")
+        quote = quotes.get(ticker, {})
+        expected = number(signal.get("impactEstimatePct"))
+        actual = number(quote.get("dayChange"))
+        reaction = classify_reaction(expected, actual)
+        gap = reaction_gap(expected, actual)
+        official = number(signal.get("sourceQuality"), 0) >= 0.95 or SOURCE_PRIORITY.get(
+            str((signal.get("source") or {}).get("publisher") or ""), 1
+        ) >= 4
+        strength = clamp(
+            abs(expected) * 0.9
+            + number(signal.get("impactConfidence")) * 0.04
+            + (8 if official else 0)
+            + (6 if reaction == "underreaction" else 0),
+            1,
+            10,
+        )
+        catalysts.append({
+            "ticker": ticker,
+            "name": str(quote.get("name") or ENTITY_BY_SECID.get(ticker, {}).get("name") or ticker),
+            "action": signal.get("action") or "BUY",
+            "eventType": signal.get("eventType") or "other",
+            "title": signal.get("title") or "",
+            "summary": signal.get("summary") or "",
+            "expectedImpactPct": expected,
+            "marketReactionPct": actual,
+            "gapPct": gap,
+            "reaction": reaction,
+            "horizon": CATALYST_HORIZON.get(str(signal.get("eventType") or ""), "1–3 дня"),
+            "confidence": int(signal.get("impactConfidence") or 0),
+            "sourceQuality": number(signal.get("sourceQuality")),
+            "official": official,
+            "strength": round(strength, 1),
+            "source": signal.get("source") or {},
+        })
+    return sorted(catalysts, key=lambda item: (item["strength"], abs(item["expectedImpactPct"])), reverse=True)[:limit]
+
+
+def build_anomalies(
+    catalysts: list[dict[str, Any]],
+    stocks: list[dict[str, Any]],
+    limit: int = 6,
+) -> list[dict[str, Any]]:
+    items = []
+    for item in catalysts:
+        kind = item["reaction"]
+        if kind not in {"anomaly_down", "anomaly_up", "underreaction", "overreaction", "divergence"}:
+            continue
+        if kind == "anomaly_down":
+            label = "позитив в новостях, бумага падает"
+        elif kind == "anomaly_up":
+            label = "негатив в новостях, бумага растёт"
+        elif kind == "underreaction":
+            label = "сильный катализатор, слабая реакция рынка"
+        elif kind == "overreaction":
+            label = "движение сильнее сценарного impact"
+        else:
+            label = "новость и цена смотрят в разные стороны"
+        items.append({
+            "ticker": item["ticker"],
+            "title": item["title"],
+            "kind": kind,
+            "label": label,
+            "expectedImpactPct": item["expectedImpactPct"],
+            "marketReactionPct": item["marketReactionPct"],
+            "eventType": item["eventType"],
+        })
+    if not items:
+        quotes = sorted(stocks, key=lambda stock: abs(number(stock.get("dayChange"))), reverse=True)
+        for stock in quotes[:2]:
+            items.append({
+                "ticker": stock.get("secid"),
+                "title": f"{stock.get('secid')} {number(stock.get('dayChange')):+.1f}% без свежего катализатора в ленте",
+                "kind": "mover",
+                "label": "сильное движение без явного события в снимке",
+                "expectedImpactPct": 0,
+                "marketReactionPct": number(stock.get("dayChange")),
+                "eventType": "other",
+            })
+    return items[:limit]
+
+
+def build_sectors(stocks: list[dict[str, Any]], urgent: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for stock in stocks:
+        grouped.setdefault(str(stock.get("sector") or "other"), []).append(stock)
+    news_by_ticker = {str(item.get("ticker") or ""): item for item in urgent}
+    sectors = []
+    for sector, names in grouped.items():
+        moves = [number(item.get("dayChange")) for item in names]
+        avg = round(sum(moves) / len(moves), 2) if moves else 0.0
+        why = "Движение внутри сектора без единого заголовка в срочной ленте."
+        for item in names:
+            news = news_by_ticker.get(str(item.get("secid") or ""))
+            if news:
+                why = f"{news.get('ticker')}: {news.get('title')}"
+                break
+        sectors.append({
+            "id": sector,
+            "label": SECTOR_LABEL.get(sector, sector),
+            "dayChange": avg,
+            "members": [
+                {"secid": item["secid"], "dayChange": number(item.get("dayChange"))}
+                for item in sorted(names, key=lambda row: number(row.get("dayChange")))
+            ],
+            "why": why,
+        })
+    return sorted(sectors, key=lambda item: item["dayChange"])
+
+
+def classify_idea(stock: dict[str, Any], catalysts: list[dict[str, Any]]) -> str:
+    ticker = str(stock.get("secid") or "")
+    related = [item for item in catalysts if item.get("ticker") == ticker]
+    expected = number(stock.get("expectedReturn"))
+    news = number((stock.get("targetDrivers") or {}).get("news"))
+    negative = any(
+        item.get("action") == "SELL" and item.get("eventType") in FUNDAMENTAL_SCALP_BLOCK
+        for item in related
+    )
+    strong_buy = any(item.get("action") == "BUY" and item.get("strength", 0) >= 6 for item in related)
+    if negative or expected < 0:
+        return "AVOID"
+    if expected >= 12 and (strong_buy or news > 0):
+        return "BUY"
+    return "WATCH"
+
+
+def apply_idea_stances(
+    stocks: list[dict[str, Any]],
+    catalysts: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    for stock in stocks:
+        stock["stance"] = classify_idea(stock, catalysts)
+    return stocks
+
+
+def build_market_regime(
+    brief: dict[str, Any],
+    stocks: list[dict[str, Any]],
+) -> dict[str, Any]:
+    day_change = number(brief.get("dayChange"))
+    down = number(brief.get("breadthDown"))
+    if day_change >= 0.5 and down <= 0.4:
+        regime = "BULL"
+        label = "бычий"
+        best = ["дивиденды", "импульс", "откуп просадки"]
+        avoid = ["широкие шорты", "паника в качественных именах"]
+    elif day_change <= -0.5 and down >= 0.6:
+        regime = "BEAR"
+        label = "медвежий"
+        best = ["защита в деньгах/облигациях", "короткий горизонт", "не усреднять слабые"]
+        avoid = ["догонять отскок всего рынка"]
+    else:
+        regime = "SIDEWAYS"
+        label = "боковик"
+        best = ["точечные катализаторы", "относительная сила"]
+        avoid = ["ставки на широкий тренд дня"]
+    return {
+        "id": regime,
+        "label": label,
+        "best": best,
+        "avoid": avoid,
+        "note": brief.get("outlook") or "",
+    }
+
+
+def build_market_pulse(
+    catalysts: list[dict[str, Any]],
+    anomalies: list[dict[str, Any]],
+    stocks: list[dict[str, Any]],
+) -> dict[str, Any]:
+    biggest_catalyst = catalysts[0] if catalysts else None
+    movers = sorted(stocks, key=lambda item: number(item.get("dayChange")), reverse=True)
+    biggest_mover = movers[0] if movers else None
+    biggest_anomaly = anomalies[0] if anomalies else None
+    return {
+        "catalyst": biggest_catalyst,
+        "mover": None if not biggest_mover else {
+            "ticker": biggest_mover.get("secid"),
+            "name": biggest_mover.get("name"),
+            "dayChange": number(biggest_mover.get("dayChange")),
+        },
+        "anomaly": biggest_anomaly,
+    }
+
+
+def build_since_last_update(
+    previous: dict[str, Any],
+    urgent: list[dict[str, Any]],
+    stocks: list[dict[str, Any]],
+    brief: dict[str, Any],
+) -> dict[str, Any]:
+    prev_urgent = previous.get("urgent") or []
+    prev_ids = {signal_fingerprint(item) for item in prev_urgent}
+    new_signals = [
+        {"ticker": item.get("ticker"), "title": item.get("title"), "action": item.get("action")}
+        for item in urgent
+        if signal_fingerprint(item) not in prev_ids
+    ]
+    prev_conf = {str(item.get("ticker") or ""): int(item.get("impactConfidence") or 0) for item in prev_urgent}
+    conf_changes = []
+    for item in urgent:
+        ticker = str(item.get("ticker") or "")
+        before = prev_conf.get(ticker)
+        now = int(item.get("impactConfidence") or 0)
+        if before is not None and abs(now - before) >= 8:
+            conf_changes.append({"ticker": ticker, "from": before, "to": now})
+    prev_action = {str(item.get("ticker") or ""): item.get("action") for item in prev_urgent}
+    flips = []
+    for item in urgent:
+        ticker = str(item.get("ticker") or "")
+        if ticker in prev_action and prev_action[ticker] != item.get("action"):
+            flips.append({"ticker": ticker, "from": prev_action[ticker], "to": item.get("action")})
+    prev_top = [item.get("secid") for item in previous.get("stocks") or []]
+    now_top = [item.get("secid") for item in stocks[:RANKING_LIMIT]]
+    prev_brief = previous.get("marketBrief") or {}
+    return {
+        "newSignals": new_signals[:8],
+        "confidenceChanges": conf_changes[:6],
+        "flips": flips[:6],
+        "enteredTop10": [ticker for ticker in now_top if ticker not in prev_top][:5],
+        "leftTop10": [ticker for ticker in prev_top if ticker not in now_top][:5],
+        "imoexFrom": number(prev_brief.get("dayChange")),
+        "imoexTo": number(brief.get("dayChange")),
+        "previousAt": previous.get("generatedAt") or "",
+    }
+
+
+def update_signal_ledger(
+    previous: dict[str, Any],
+    urgent: list[dict[str, Any]],
+    stocks: list[dict[str, Any]],
+    now: datetime | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    now = now or datetime.now(MOSCOW_TZ)
+    quotes = stock_by_ticker(stocks)
+    ledger = list(previous.get("signalLedger") or [])
+    known = {item.get("id") for item in ledger}
+    for signal in urgent:
+        fingerprint = signal_fingerprint(signal)
+        quote = quotes.get(str(signal.get("ticker") or ""), {})
+        if fingerprint in known:
+            continue
+        ledger.append({
+            "id": fingerprint,
+            "ticker": signal.get("ticker"),
+            "action": signal.get("action"),
+            "eventType": signal.get("eventType") or "other",
+            "emittedAt": signal.get("publishedAt") or now.isoformat(),
+            "priceAtEmit": number(quote.get("price")),
+            "expectedImpactPct": number(signal.get("impactEstimatePct")),
+            "confidence": int(signal.get("impactConfidence") or 0),
+            "return1d": None,
+            "hit1d": None,
+        })
+        known.add(fingerprint)
+    for entry in ledger:
+        if entry.get("return1d") is not None:
+            continue
+        try:
+            emitted = published_datetime(str(entry.get("emittedAt") or ""))
+        except (TypeError, ValueError, OverflowError):
+            continue
+        age_hours = (now - emitted).total_seconds() / 3600
+        if age_hours < 20:
+            continue
+        quote = quotes.get(str(entry.get("ticker") or ""), {})
+        price_now = number(quote.get("price"))
+        price_then = number(entry.get("priceAtEmit"))
+        if price_now <= 0 or price_then <= 0:
+            continue
+        ret = round((price_now / price_then - 1) * 100, 2)
+        entry["return1d"] = ret
+        if entry.get("action") == "BUY":
+            entry["hit1d"] = ret > 0
+        elif entry.get("action") == "SELL":
+            entry["hit1d"] = ret < 0
+        else:
+            entry["hit1d"] = None
+    ledger = ledger[-LEDGER_LIMIT:]
+    scored = [item for item in ledger if item.get("hit1d") is not None]
+    by_event: dict[str, list[dict[str, Any]]] = {}
+    for item in scored:
+        by_event.setdefault(str(item.get("eventType") or "other"), []).append(item)
+    event_stats = []
+    for event, rows_ in by_event.items():
+        hits = sum(1 for item in rows_ if item.get("hit1d"))
+        avg = round(sum(number(item.get("return1d")) for item in rows_) / len(rows_), 2)
+        event_stats.append({
+            "eventType": event,
+            "n": len(rows_),
+            "hitRate": round(hits / len(rows_), 3),
+            "avgReturn": avg,
+        })
+    event_stats.sort(key=lambda item: item["n"], reverse=True)
+    high = [item for item in scored if int(item.get("confidence") or 0) >= 80]
+    stats = {
+        "n": len(scored),
+        "pending": sum(1 for item in ledger if item.get("hit1d") is None),
+        "hitRate": round(sum(1 for item in scored if item.get("hit1d")) / len(scored), 3) if scored else None,
+        "avgReturn": round(sum(number(item.get("return1d")) for item in scored) / len(scored), 2) if scored else None,
+        "highConfidenceHitRate": round(sum(1 for item in high if item.get("hit1d")) / len(high), 3) if high else None,
+        "byEvent": event_stats[:8],
+    }
+    return ledger, stats
+
+
+def build_drivers(stocks: list[dict[str, Any]], urgent: list[dict[str, Any]], tape: dict[str, Any]) -> list[dict[str, Any]]:
+    drivers = []
+    usd = tape.get("usd") or {}
+    if number(usd.get("dayChange")):
+        banks = [item["secid"] for item in stocks if item.get("sector") == "bank"][:4]
+        oil = [item["secid"] for item in stocks if item.get("sector") == "commodity"][:4]
+        usd_up = number(usd.get("dayChange")) > 0
+        drivers.append({
+            "title": f"USD/RUB {number(usd.get('dayChange')):+.1f}%",
+            "positive": oil if usd_up else banks,
+            "negative": banks if usd_up else oil,
+            "note": "Крепкий доллар обычно давит на банки и помогает экспортёрам, слабый — наоборот.",
+        })
+    for signal in urgent[:3]:
+        ticker = str(signal.get("ticker") or "")
+        peers = [
+            item["secid"] for item in stocks
+            if item.get("sector") == next((row.get("sector") for row in stocks if row.get("secid") == ticker), "")
+            and item.get("secid") != ticker
+        ][:3]
+        if signal.get("action") == "SELL":
+            drivers.append({
+                "title": str(signal.get("title") or ticker),
+                "positive": [],
+                "negative": [ticker, *peers],
+                "note": "Цепочка: новость → эмитент → сектор.",
+            })
+        else:
+            drivers.append({
+                "title": str(signal.get("title") or ticker),
+                "positive": [ticker, *peers],
+                "negative": [],
+                "note": "Цепочка: новость → эмитент → сектор.",
+            })
+    return drivers[:4]
 
 
 def parse_date(value: Any) -> date | None:
@@ -1220,11 +1677,7 @@ def alias_matches(alias: str, text: str) -> bool:
 
 
 def is_negative_actor_only(title: str, ticker: str) -> bool:
-    aliases = [
-        alias.lower()
-        for alias, alias_ticker in ISSUER_TICKERS.items()
-        if alias_ticker == ticker
-    ]
+    aliases = issuer_aliases(ticker)
     lowered = title.lower()
     actor_actions = r"(?:инициир\w*|намерен\w*|обрат\w*|подал\w*)"
     negative_events = r"(?:банкрот\w*|иск\w*)"
@@ -1235,6 +1688,54 @@ def is_negative_actor_only(title: str, ticker: str) -> bool:
         )
         for alias in aliases
     )
+
+
+def issuer_aliases(ticker: str) -> list[str]:
+    names = [
+        alias.lower()
+        for alias, alias_ticker in ISSUER_TICKERS.items()
+        if alias_ticker == ticker
+    ]
+    names.append(ticker.lower())
+    return list(dict.fromkeys(alias for alias in names if alias))
+
+
+MACRO_COMMENTARY_TOPICS = (
+    "бюджет", "дефицит", "профицит", "ввп", "инфляц", "ключев",
+    "банк россии", "цб рф", "рубл", "доллар", "нефть", "баррел",
+    "отсечен", "бюджетн правил", "экономик", "санкци против рф",
+    "цена отсечения",
+)
+ISSUER_OWN_TOPICS = (
+    "дивиденд", "прибыл", "выручк", "байбэк", "выкуп", "отчет",
+    "добыч", "производств", "кредитн портфел", "комиссион",
+    "достаточн", "резерв", "npl", "оферт", "сделк", "лиценз",
+)
+ANALYST_SPEECH = (
+    r"(?:понизил\w*|повысил\w*|ухудшил\w*|улучшил\w*|сохранил\w*|пересмотрел\w*)\s+прогноз",
+    r"(?:ожидает|ожидают|прогнозирует|прогнозируют|оценивает)\b",
+    r"прогноз\s+(?:по|дефицит|бюджет|ввп|инфляц|нефть|курс)",
+)
+
+
+def is_macro_analyst_commentary(text: str, ticker: str) -> bool:
+    """True when the issuer is the author of a macro view, not the news object."""
+    lowered = text.lower()
+    if not any(topic in lowered for topic in MACRO_COMMENTARY_TOPICS):
+        return False
+    if any(topic in lowered for topic in ISSUER_OWN_TOPICS):
+        return False
+    aliases = sorted(issuer_aliases(ticker), key=len, reverse=True)
+    speech = "|".join(ANALYST_SPEECH)
+    for alias in aliases:
+        token = re.escape(alias)
+        if re.search(rf"{token}.{{0,50}}(?:{speech})", lowered):
+            return True
+        if re.search(rf"(?:аналитик\w*|экономист\w*)\s+{token}", lowered):
+            return True
+        if re.search(rf"{token}\s*[:—–-]\s+.{{0,90}}(?:бюджет|дефицит|инфляц|ввп|нефть|рубл|отсечен)", lowered):
+            return True
+    return False
 
 
 def collect_entity_candidates(
@@ -1687,7 +2188,8 @@ def build_urgent(
             metrics["unlinked"] += 1
             continue
         ticker, hashtags, entity_confidence, proximity = resolved
-        if direction == "SELL" and is_negative_actor_only(item["title"], ticker):
+        combined_text = f"{item['title']} {item.get('description', '')}"
+        if is_negative_actor_only(item["title"], ticker) or is_macro_analyst_commentary(combined_text, ticker):
             metrics["unlinked"] += 1
             continue
         source = {"publisher": item["source"], "url": item["url"]}
@@ -1808,10 +2310,14 @@ def previous_day_changes(previous: dict[str, Any]) -> dict[str, float]:
 
 
 def previous_data() -> dict[str, Any]:
-    try:
-        return json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {}
+    for path in (OUTPUT_PATH, ROOT / "docs" / "data" / "market-data.json"):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            if payload:
+                return payload
+        except (FileNotFoundError, json.JSONDecodeError):
+            continue
+    return {}
 
 
 def main() -> int:
@@ -1879,7 +2385,6 @@ def main() -> int:
         lambda: build_stocks(config, urgent, previous.get("stocks", []), limit=None),
         "stocks",
     )
-    stocks = stocks_universe[:RANKING_LIMIT]
     scalp = build_scalp_signals(stocks_universe, urgent, previous.get("stocks", []))
     print(f"Скальп-отскок: {len(scalp)}", flush=True)
     if not scalp:
@@ -1887,16 +2392,27 @@ def main() -> int:
             item for item in previous.get("scalp", [])
             if item.get("ticker") and item.get("action") == "BUY"
         ][:SCALP_LIMIT]
-    try:
-        imoex = fetch_imoex()
+    tape = fetch_market_tape(previous)
+    imoex_quote = tape.get("imoex") or {}
+    if number(imoex_quote.get("value")) > 0:
+        imoex = {
+            "index": "IMOEX",
+            "indexName": imoex_quote.get("name") or "Индекс МосБиржи",
+            "value": number(imoex_quote.get("value")),
+            "dayChange": number(imoex_quote.get("dayChange")),
+            "source": {
+                "publisher": "Московская биржа",
+                "url": imoex_quote.get("url") or "https://www.moex.com/ru/index/IMOEX",
+            },
+        }
         status.append({
             "source": "MOEX: IMOEX",
             "status": "ok",
             "detail": f"{imoex['value']:.0f} · {imoex['dayChange']:+.2f}%",
         })
         print(f"IMOEX: {imoex['value']} · {imoex['dayChange']:+.2f}%", flush=True)
-    except Exception as exc:
-        fallback_index = (previous.get("marketBrief") or {})
+    else:
+        fallback_index = previous.get("marketBrief") or {}
         imoex = {
             "index": "IMOEX",
             "indexName": fallback_index.get("indexName") or "Индекс МосБиржи",
@@ -1905,24 +2421,54 @@ def main() -> int:
                 fallback_index.get("dayChange"),
                 statistics.median([number(item.get("dayChange")) for item in stocks_universe]) if stocks_universe else 0.0,
             ),
-            "source": (fallback_index.get("source") or {
+            "source": fallback_index.get("source") or {
                 "publisher": "Московская биржа",
                 "url": "https://www.moex.com/ru/index/IMOEX",
-            }),
+            },
         }
         status.append({
             "source": "MOEX: IMOEX",
             "status": "stale" if fallback_index.get("value") else "error",
-            "detail": str(exc)[:140],
+            "detail": "лента индексов недоступна",
         })
-        print(f"IMOEX: ошибка · {exc}", flush=True)
     market_brief = build_market_brief(imoex, stocks_universe, urgent, config.get("macro", {}))
+    if number((tape.get("imoex") or {}).get("value")) <= 0 and number(imoex.get("value")) > 0:
+        tape["imoex"] = {
+            "secid": "IMOEX",
+            "name": imoex.get("indexName") or "Индекс МосБиржи",
+            "value": number(imoex.get("value")),
+            "dayChange": number(imoex.get("dayChange")),
+            "url": (imoex.get("source") or {}).get("url") or "https://www.moex.com/ru/index/IMOEX",
+        }
+    catalysts = build_catalysts(urgent, stocks_universe)
+    anomalies = build_anomalies(catalysts, stocks_universe)
+    sectors = build_sectors(stocks_universe, urgent)
+    apply_idea_stances(stocks_universe, catalysts)
+    stocks = stocks_universe[:RANKING_LIMIT]
+    regime = build_market_regime(market_brief, stocks_universe)
+    pulse = build_market_pulse(catalysts, anomalies, stocks_universe)
+    since = build_since_last_update(previous, urgent, stocks, market_brief)
+    ledger, performance = update_signal_ledger(previous, urgent, stocks_universe)
+    drivers = build_drivers(stocks_universe, urgent, tape)
+    print(
+        f"Катализаторы: {len(catalysts)} · аномалии: {len(anomalies)} · "
+        f"ledger hit {performance.get('n') or 0}",
+        flush=True,
+    )
 
     payload = {
         "generatedAt": now_iso(),
         "methodologyVersion": config["methodologyVersion"],
         "market": "Московская биржа",
+        "marketTape": tape,
         "marketBrief": market_brief,
+        "marketRegime": regime,
+        "marketPulse": pulse,
+        "sinceLastUpdate": since,
+        "drivers": drivers,
+        "catalysts": catalysts,
+        "anomalies": anomalies,
+        "sectors": sectors,
         "urgent": urgent,
         "scalp": scalp,
         "stocks": stocks,
@@ -1931,6 +2477,8 @@ def main() -> int:
         "macro": config["macro"],
         "stockModel": STOCK_MODEL,
         "fundModel": config["funds"]["model"],
+        "signalLedger": ledger,
+        "signalPerformance": performance,
         "pipelineMetrics": pipeline_metrics,
         "sourceHealth": status + feed_health,
         "disclaimer": "Информация не является индивидуальной инвестиционной рекомендацией. Прогнозы и дивиденды не гарантированы.",

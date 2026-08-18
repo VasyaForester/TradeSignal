@@ -1,18 +1,23 @@
 import json
 import re
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from scripts.update_data import (
     TelegramChannelParser,
+    build_catalysts,
     build_market_brief,
     build_scalp_signals,
+    classify_idea,
+    classify_reaction,
     compute_signal_score,
     estimate_fund_return,
     estimate_stock_target,
     evaluate_entity_linking,
     event_key,
     impact_estimate,
+    is_macro_analyst_commentary,
     is_mechanical_dividend_event,
     is_negative_actor_only,
     jaccard_similarity,
@@ -23,6 +28,7 @@ from scripts.update_data import (
     should_merge_signals,
     source_quality_score,
     text_shingles,
+    update_signal_ledger,
 )
 
 
@@ -40,6 +46,17 @@ class SnapshotContractTest(unittest.TestCase):
             "sourceHealth", "pipelineMetrics",
         ):
             self.assertIn(key, self.data)
+
+    def test_intelligence_sections_when_present(self):
+        if "catalysts" not in self.data:
+            self.skipTest("снимок ещё без слоя катализаторов")
+        for key in (
+            "marketTape", "catalysts", "anomalies", "sectors", "marketRegime",
+            "marketPulse", "sinceLastUpdate", "signalPerformance", "drivers",
+        ):
+            self.assertIn(key, self.data)
+        for stock in self.data["stocks"]:
+            self.assertIn(stock.get("stance"), {"BUY", "WATCH", "AVOID", None})
 
     def test_rankings_are_top_ten_and_sorted(self):
         for key in ("stocks", "bonds", "funds"):
@@ -224,6 +241,30 @@ class SnapshotContractTest(unittest.TestCase):
                 "SBER",
             )
         )
+        budget_forecast = (
+            "🇷🇺#бюджет #россия #прогноз Сбер понизил прогноз дефицита бюджета РФ "
+            "на 2026 год до 7 трлн руб с 7.5 трлн руб, ожидает цену отсечения "
+            "в новом бюджетном правиле в $50 за баррель нефти"
+        )
+        self.assertTrue(is_macro_analyst_commentary(budget_forecast, "SBER"))
+        self.assertTrue(
+            is_macro_analyst_commentary(
+                "ВТБ ожидает инфляцию в РФ около 6% и курс рубля 90 за доллар",
+                "VTBR",
+            )
+        )
+        self.assertFalse(
+            is_macro_analyst_commentary("Сбербанк рекомендовал дивиденды", "SBER")
+        )
+        self.assertFalse(
+            is_macro_analyst_commentary(
+                "Аналитики повысили оценку Сбербанка",
+                "SBER",
+            )
+        )
+        self.assertFalse(
+            is_macro_analyst_commentary("Роснефть повысила прогноз добычи", "ROSN")
+        )
 
     def test_similarity_and_impact_models(self):
         first = text_shingles("Сбербанк рекомендовал дивиденды за 2025 год")
@@ -367,6 +408,82 @@ class SnapshotContractTest(unittest.TestCase):
         self.assertEqual(len(items), 1)
         self.assertIn("#SBER", items[0]["description"])
         self.assertEqual(items[0]["url"], "https://t.me/markettwits/42")
+
+
+class IntelligenceLayerTest(unittest.TestCase):
+    def test_classify_reaction_underreaction_and_anomaly(self):
+        self.assertEqual(classify_reaction(5.0, 0.2), "underreaction")
+        self.assertEqual(classify_reaction(2.0, -1.5), "anomaly_down")
+        self.assertEqual(classify_reaction(-2.0, 1.5), "anomaly_up")
+        self.assertEqual(classify_reaction(2.0, 1.5), "confirmed")
+        self.assertEqual(classify_reaction(2.0, 4.0), "overreaction")
+
+    def test_build_catalysts_flags_underreaction(self):
+        urgent = [{
+            "ticker": "SBER",
+            "title": "Сбер рекомендовал дивиденды",
+            "summary": "Совет директоров",
+            "action": "BUY",
+            "eventType": "dividend",
+            "impactEstimatePct": 4.0,
+            "impactConfidence": 80,
+            "sourceQuality": 1.0,
+            "source": {"publisher": "Московская биржа", "url": "https://www.moex.com/"},
+        }]
+        stocks = [{"secid": "SBER", "name": "Сбербанк", "dayChange": 0.3}]
+        items = build_catalysts(urgent, stocks)
+        self.assertEqual(items[0]["reaction"], "underreaction")
+        self.assertGreater(items[0]["strength"], 5)
+        self.assertTrue(items[0]["official"])
+
+    def test_update_signal_ledger_scores_hit_after_day(self):
+        moscow = timezone(timedelta(hours=3))
+        now = datetime(2026, 8, 18, 12, tzinfo=moscow)
+        emitted = now - timedelta(hours=24)
+        urgent = [{
+            "ticker": "SBER",
+            "action": "BUY",
+            "eventType": "dividend",
+            "publishedAt": emitted.isoformat(),
+            "title": "дивиденды",
+            "impactEstimatePct": 2,
+            "impactConfidence": 80,
+        }]
+        ledger, _ = update_signal_ledger(
+            {"signalLedger": []},
+            urgent,
+            [{"secid": "SBER", "price": 100}],
+            now=emitted,
+        )
+        ledger, stats = update_signal_ledger(
+            {"signalLedger": ledger},
+            urgent,
+            [{"secid": "SBER", "price": 103}],
+            now=now,
+        )
+        self.assertEqual(len(ledger), 1)
+        self.assertEqual(ledger[0]["return1d"], 3.0)
+        self.assertTrue(ledger[0]["hit1d"])
+        self.assertEqual(stats["n"], 1)
+        self.assertEqual(stats["hitRate"], 1.0)
+
+    def test_classify_idea_buy_watch_avoid(self):
+        self.assertEqual(classify_idea({"secid": "X", "expectedReturn": -2, "targetDrivers": {}}, []), "AVOID")
+        self.assertEqual(classify_idea({"secid": "Y", "expectedReturn": 8, "targetDrivers": {"news": 0}}, []), "WATCH")
+        self.assertEqual(
+            classify_idea(
+                {"secid": "SBER", "expectedReturn": 15, "targetDrivers": {"news": 1}},
+                [{"ticker": "SBER", "action": "BUY", "strength": 7, "eventType": "dividend"}],
+            ),
+            "BUY",
+        )
+        self.assertEqual(
+            classify_idea(
+                {"secid": "GAZP", "expectedReturn": 20, "targetDrivers": {"news": 1}},
+                [{"ticker": "GAZP", "action": "SELL", "strength": 8, "eventType": "sanctions"}],
+            ),
+            "AVOID",
+        )
 
 
 if __name__ == "__main__":
