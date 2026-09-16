@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-16T19:56:02+03:00",
+  "generatedAt": "2026-09-17T00:19:47+03:00",
   "methodologyVersion": "1.2.0",
   "market": "Московская биржа",
   "marketTape": {
@@ -33,7 +33,7 @@
     "longVerdict": "не догонять",
     "why": "Большинство бумаг в плюсе (80%). Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
     "outlook": "Импульс дня сильный, но для долгосрочного вывода его недостаточно. Не путайте суточный ход индекса с новым циклом рынка.",
-    "longAdvice": "Индекс уже в плюсе — не догонять дневной импульс. Длинные держать в лучших бумагах модели: X5, HEAD, MTSS.",
+    "longAdvice": "Индекс уже в плюсе — не догонять дневной импульс. Длинные держать в лучших бумагах модели: X5, HEAD, SBER.",
     "longTickers": [
       {
         "secid": "X5",
@@ -44,8 +44,8 @@
         "name": "HeadHunter"
       },
       {
-        "secid": "MTSS",
-        "name": "МТС"
+        "secid": "SBER",
+        "name": "Сбербанк"
       }
     ],
     "breadthDown": 0.2,
@@ -74,20 +74,20 @@
       "name": "МТС",
       "action": "BUY",
       "eventType": "buyback",
-      "title": "МТС планирует выплатить дивиденды в январе 2027 года без байбэка",
+      "title": "Дивидендный звоночек // МТС пустит часть средств на выкуп акций",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
       "expectedImpactPct": 3.5,
       "marketReactionPct": 1.09,
       "gapPct": 2.41,
       "reaction": "underreaction",
       "horizon": "1–5 дней",
-      "confidence": 96,
-      "sourceQuality": 0.58,
+      "confidence": 92,
+      "sourceQuality": 0.5,
       "official": false,
       "strength": 10,
       "source": {
-        "publisher": "Ведомости",
-        "url": "https://www.vedomosti.ru/investments/news/2026/09/16/1229347-mts-dividendi"
+        "publisher": "Коммерсантъ",
+        "url": "https://www.kommersant.ru/doc/8956492"
       }
     },
     "mover": {
@@ -97,7 +97,7 @@
     },
     "anomaly": {
       "ticker": "MTSS",
-      "title": "МТС планирует выплатить дивиденды в январе 2027 года без байбэка",
+      "title": "Дивидендный звоночек // МТС пустит часть средств на выкуп акций",
       "kind": "underreaction",
       "label": "сильный катализатор, слабая реакция рынка",
       "expectedImpactPct": 3.5,
@@ -109,12 +109,7 @@
     "newSignals": [
       {
         "ticker": "MTSS",
-        "title": "МТС планирует выплатить дивиденды в январе 2027 года без байбэка",
-        "action": "BUY"
-      },
-      {
-        "ticker": "MTSS",
-        "title": "Что будет с дивидендами МТС при новой политике и есть ли идея в акциях",
+        "title": "Дивидендный звоночек // МТС пустит часть средств на выкуп акций",
         "action": "BUY"
       }
     ],
@@ -128,15 +123,7 @@
   },
   "drivers": [
     {
-      "title": "МТС планирует выплатить дивиденды в январе 2027 года без байбэка",
-      "positive": [
-        "MTSS"
-      ],
-      "negative": [],
-      "note": "Цепочка: новость → эмитент → сектор."
-    },
-    {
-      "title": "Что будет с дивидендами МТС при новой политике и есть ли идея в акциях",
+      "title": "Дивидендный звоночек // МТС пустит часть средств на выкуп акций",
       "positive": [
         "MTSS"
       ],
@@ -150,48 +137,27 @@
       "name": "МТС",
       "action": "BUY",
       "eventType": "buyback",
-      "title": "МТС планирует выплатить дивиденды в январе 2027 года без байбэка",
+      "title": "Дивидендный звоночек // МТС пустит часть средств на выкуп акций",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
       "expectedImpactPct": 3.5,
       "marketReactionPct": 1.09,
       "gapPct": 2.41,
       "reaction": "underreaction",
       "horizon": "1–5 дней",
-      "confidence": 96,
-      "sourceQuality": 0.58,
+      "confidence": 92,
+      "sourceQuality": 0.5,
       "official": false,
       "strength": 10,
       "source": {
-        "publisher": "Ведомости",
-        "url": "https://www.vedomosti.ru/investments/news/2026/09/16/1229347-mts-dividendi"
-      }
-    },
-    {
-      "ticker": "MTSS",
-      "name": "МТС",
-      "action": "BUY",
-      "eventType": "dividend",
-      "title": "Что будет с дивидендами МТС при новой политике и есть ли идея в акциях",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 1.7,
-      "marketReactionPct": 1.09,
-      "gapPct": 0.61,
-      "reaction": "confirmed",
-      "horizon": "1–5 дней",
-      "confidence": 74,
-      "sourceQuality": 0.5,
-      "official": false,
-      "strength": 4.5,
-      "source": {
-        "publisher": "РБК",
-        "url": "https://www.rbc.ru/radio/16/09/2026/6aaac85b9a7947301fd362c4"
+        "publisher": "Коммерсантъ",
+        "url": "https://www.kommersant.ru/doc/8956492"
       }
     }
   ],
   "anomalies": [
     {
       "ticker": "MTSS",
-      "title": "МТС планирует выплатить дивиденды в январе 2027 года без байбэка",
+      "title": "Дивидендный звоночек // МТС пустит часть средств на выкуп акций",
       "kind": "underreaction",
       "label": "сильный катализатор, слабая реакция рынка",
       "expectedImpactPct": 3.5,
@@ -238,7 +204,7 @@
           "dayChange": 1.09
         }
       ],
-      "why": "MTSS: Что будет с дивидендами МТС при новой политике и есть ли идея в акциях"
+      "why": "MTSS: Дивидендный звоночек // МТС пустит часть средств на выкуп акций"
     },
     {
       "id": "bank",
@@ -308,54 +274,11 @@
       "strength": 90,
       "sentimentScore": 0.93,
       "impactEstimatePct": 3.5,
-      "impactConfidence": 96,
+      "impactConfidence": 92,
       "entityConfidence": 95,
       "impactModel": "rules-v1",
       "eventType": "buyback",
       "eventSeverity": 40,
-      "noveltyScore": 0.78,
-      "sourceQuality": 0.58,
-      "marketReaction": {
-        "dayChangePct": 1.09,
-        "confirmed": false,
-        "divergence": false
-      },
-      "title": "МТС планирует выплатить дивиденды в январе 2027 года без байбэка",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "Wed, 16 Sep 2026 16:28:06 +0300",
-      "expiresAt": "2026-09-17T19:54:02.292578+03:00",
-      "source": {
-        "publisher": "Ведомости",
-        "url": "https://www.vedomosti.ru/investments/news/2026/09/16/1229347-mts-dividendi"
-      },
-      "sources": [
-        {
-          "publisher": "Ведомости",
-          "url": "https://www.vedomosti.ru/investments/news/2026/09/16/1229347-mts-dividendi"
-        },
-        {
-          "publisher": "MarketTwits",
-          "url": "https://t.me/markettwits/385082"
-        }
-      ],
-      "sourceCount": 2,
-      "signalScore": 68.54
-    },
-    {
-      "ticker": "MTSS",
-      "hashtags": [
-        "#МТС",
-        "#MTSS"
-      ],
-      "action": "BUY",
-      "strength": 66,
-      "sentimentScore": 0.4,
-      "impactEstimatePct": 1.7,
-      "impactConfidence": 74,
-      "entityConfidence": 95,
-      "impactModel": "rules-v1",
-      "eventType": "dividend",
-      "eventSeverity": 30,
       "noveltyScore": 1.0,
       "sourceQuality": 0.5,
       "marketReaction": {
@@ -363,22 +286,22 @@
         "confirmed": false,
         "divergence": false
       },
-      "title": "Что будет с дивидендами МТС при новой политике и есть ли идея в акциях",
+      "title": "Дивидендный звоночек // МТС пустит часть средств на выкуп акций",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "Wed, 16 Sep 2026 19:52:57 +0300",
-      "expiresAt": "2026-09-18T19:54:02.301763+03:00",
+      "publishedAt": "Wed, 16 Sep 2026 21:10:48 +0300",
+      "expiresAt": "2026-09-18T00:17:46.102965+03:00",
       "source": {
-        "publisher": "РБК",
-        "url": "https://www.rbc.ru/radio/16/09/2026/6aaac85b9a7947301fd362c4"
+        "publisher": "Коммерсантъ",
+        "url": "https://www.kommersant.ru/doc/8956492"
       },
       "sources": [
         {
-          "publisher": "РБК",
-          "url": "https://www.rbc.ru/radio/16/09/2026/6aaac85b9a7947301fd362c4"
+          "publisher": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/8956492"
         }
       ],
       "sourceCount": 1,
-      "signalScore": 62.44
+      "signalScore": 68.13
     }
   ],
   "scalp": [
@@ -476,40 +399,6 @@
       "stance": "WATCH"
     },
     {
-      "secid": "MTSS",
-      "name": "МТС",
-      "price": 180.95,
-      "dayChange": 1.09,
-      "targetPrice": 191.96,
-      "dividend12m": 35.0,
-      "priceReturn": 6.1,
-      "dividendYield": 19.3,
-      "expectedReturn": 25.4,
-      "confidence": 86,
-      "financialTrend": 55,
-      "return3m": -20.1,
-      "return12m": -11.5,
-      "targetModel": "tradesignal-v1",
-      "targetDrivers": {
-        "impulse": -2.9,
-        "fundamental": 1.4,
-        "news": 4.9,
-        "macro": 2.7
-      },
-      "sector": "telecom",
-      "thesis": "Стабильная телеком-выручка и высокая дивидендная доходность.",
-      "risks": "Долговая нагрузка и высокая ставка.",
-      "liquidityRub": 464196433,
-      "sources": [
-        {
-          "publisher": "TradeSignal priors",
-          "publishedAt": "2026-08-06",
-          "url": "https://iss.moex.com/iss/reference/"
-        }
-      ],
-      "stance": "BUY"
-    },
-    {
       "secid": "SBER",
       "name": "Сбербанк",
       "price": 274.54,
@@ -542,6 +431,40 @@
         }
       ],
       "stance": "WATCH"
+    },
+    {
+      "secid": "MTSS",
+      "name": "МТС",
+      "price": 180.95,
+      "dayChange": 1.09,
+      "targetPrice": 188.93,
+      "dividend12m": 35.0,
+      "priceReturn": 4.4,
+      "dividendYield": 19.3,
+      "expectedReturn": 23.8,
+      "confidence": 84,
+      "financialTrend": 55,
+      "return3m": -20.1,
+      "return12m": -11.5,
+      "targetModel": "tradesignal-v1",
+      "targetDrivers": {
+        "impulse": -2.9,
+        "fundamental": 1.4,
+        "news": 3.3,
+        "macro": 2.7
+      },
+      "sector": "telecom",
+      "thesis": "Стабильная телеком-выручка и высокая дивидендная доходность.",
+      "risks": "Долговая нагрузка и высокая ставка.",
+      "liquidityRub": 464196433,
+      "sources": [
+        {
+          "publisher": "TradeSignal priors",
+          "publishedAt": "2026-08-06",
+          "url": "https://iss.moex.com/iss/reference/"
+        }
+      ],
+      "stance": "BUY"
     },
     {
       "secid": "TRNFP",
@@ -1163,48 +1086,36 @@
       "hit1d": null
     },
     {
-      "id": "MTSS|BUY|мтспланируетвыплатитьдивидендывянваре2027годабезбайбэка",
+      "id": "MTSS|BUY|дивидендныйзвоночекмтспуститчастьсредствнавыкупакций",
       "ticker": "MTSS",
       "action": "BUY",
       "eventType": "buyback",
-      "emittedAt": "Wed, 16 Sep 2026 16:28:06 +0300",
+      "emittedAt": "Wed, 16 Sep 2026 21:10:48 +0300",
       "priceAtEmit": 180.95,
       "expectedImpactPct": 3.5,
-      "confidence": 96,
-      "return1d": null,
-      "hit1d": null
-    },
-    {
-      "id": "MTSS|BUY|чтобудетсдивидендамимтсприновойполитикеиестьлиидеявакциях",
-      "ticker": "MTSS",
-      "action": "BUY",
-      "eventType": "dividend",
-      "emittedAt": "Wed, 16 Sep 2026 19:52:57 +0300",
-      "priceAtEmit": 180.95,
-      "expectedImpactPct": 1.7,
-      "confidence": 74,
+      "confidence": 92,
       "return1d": null,
       "hit1d": null
     }
   ],
   "signalPerformance": {
     "n": 0,
-    "pending": 7,
+    "pending": 6,
     "hitRate": null,
     "avgReturn": null,
     "highConfidenceHitRate": null,
     "byEvent": []
   },
   "pipelineMetrics": {
-    "fetched": 158,
+    "fetched": 168,
     "expired": 13,
-    "lowImpact": 125,
-    "unlinked": 17,
-    "duplicatesMerged": 1,
-    "signals": 2,
-    "dedupRate": 0.333,
+    "lowImpact": 132,
+    "unlinked": 22,
+    "duplicatesMerged": 0,
+    "signals": 1,
+    "dedupRate": 0.0,
     "impactAccuracy": null,
-    "latencyMs": 34944,
+    "latencyMs": 34951,
     "entityLinkPrecision": 1.0,
     "entityLinkRecall": 1.0,
     "entityEvalSamples": 50
@@ -1218,12 +1129,12 @@
     {
       "source": "MOEX: фонды",
       "status": "ok",
-      "detail": "10 инструментов · 17268 мс"
+      "detail": "10 инструментов · 17414 мс"
     },
     {
       "source": "MOEX: акции",
       "status": "ok",
-      "detail": "10 инструментов · 69300 мс"
+      "detail": "10 инструментов · 69372 мс"
     },
     {
       "source": "MOEX: IMOEX",
@@ -1241,19 +1152,19 @@
       "detail": "10 сообщений"
     },
     {
+      "source": "Интерфакс",
+      "status": "ok",
+      "detail": "25 сообщений"
+    },
+    {
       "source": "Коммерсантъ",
       "status": "ok",
-      "detail": "20 сообщений"
+      "detail": "30 сообщений"
     },
     {
       "source": "Ведомости",
       "status": "ok",
       "detail": "40 сообщений"
-    },
-    {
-      "source": "Интерфакс",
-      "status": "ok",
-      "detail": "25 сообщений"
     },
     {
       "source": "Банк России",
@@ -1276,14 +1187,14 @@
       "detail": "Не удалось загрузить https://www.rosneft.ru/press/releases/rss/: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: "
     },
     {
-      "source": "Финам: компании",
-      "status": "error",
-      "detail": "Не удалось загрузить https://www.finam.ru/analysis/conews/rsspoint/: <urlopen error timed out>"
-    },
-    {
       "source": "Финам: облигации",
       "status": "error",
       "detail": "Не удалось загрузить https://bonds.finam.ru/news/today/rss.asp: <urlopen error timed out>"
+    },
+    {
+      "source": "Финам: компании",
+      "status": "error",
+      "detail": "Не удалось загрузить https://www.finam.ru/analysis/conews/rsspoint/: <urlopen error timed out>"
     },
     {
       "source": "Газпром",
