@@ -193,6 +193,56 @@ function renderAnomalies(items) {
   `).join("");
 }
 
+function cutoffLabel(dateString) {
+  const date = new Date(`${dateString}T00:00:00+03:00`);
+  if (Number.isNaN(date.getTime())) return dateString || "—";
+  return date.toLocaleDateString("ru-RU", {
+    day: "numeric", month: "long", timeZone: "Europe/Moscow",
+  });
+}
+
+function renderDividendCalendar(items) {
+  const list = document.querySelector("#dividend-calendar");
+  const counter = document.querySelector("#dividend-count");
+  const section = document.querySelector(".dividend-section");
+  if (counter) counter.textContent = items.length;
+  section?.classList.toggle("is-empty", !items.length);
+  if (!list) return;
+  if (!items.length) {
+    list.innerHTML = emptyBlock("На ближайшие 60 дней нет объявленных или рекомендованных отсечек.");
+    return;
+  }
+  list.innerHTML = items.map((item) => {
+    const yieldPct = Number(item.yieldPct);
+    const payout = Number(item.dividendRub);
+    const href = item.source?.url || `https://www.moex.com/ru/issue.aspx?code=${encodeURIComponent(item.secid || "")}`;
+    return `
+      <article class="dividend-row">
+        <div class="instrument">
+          <div class="ticker-icon">${escapeHtml(String(item.secid || "").slice(0, 4))}</div>
+          <div class="instrument-name">
+            <b>${escapeHtml(item.secid || "")}</b>
+            <span>${escapeHtml(item.name || "")}${item.status === "recommended" ? " · рекомендованы" : item.status === "announced" ? " · объявлены" : ""}</span>
+            <a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(item.source?.publisher || "Московская биржа")} ↗</a>
+          </div>
+        </div>
+        <div class="metric">
+          <b>${escapeHtml(cutoffLabel(item.cutoffDate))}</b>
+          <small>закрытие реестра</small>
+        </div>
+        <div class="metric">
+          <b>${Number.isFinite(payout) ? `${rub.format(payout)} ₽` : "—"}</b>
+          <small>на акцию</small>
+        </div>
+        <div class="metric expected">
+          <b>${Number.isFinite(yieldPct) ? `${rub.format(yieldPct)}%` : "—"}</b>
+          <small>к цене</small>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
 function renderSectors(items) {
   const root = document.querySelector("#sector-list");
   if (!root) return;
@@ -348,6 +398,9 @@ function typeNote(type) {
   if (type === "bonds") {
     return "Сценарная доходность включает YTM и возможное изменение цены при снижении ставки. Продажа до погашения может дать убыток.";
   }
+  if (type === "couponBonds") {
+    return "Номинальный купон с Московской биржи, не сценарий на 12 месяцев и не YTM. Высокий купон обычно платит за кредитный риск.";
+  }
   return state.data.fundModel;
 }
 
@@ -365,7 +418,7 @@ function driverSummary(item) {
 
 function subtitle(item, type) {
   if (type === "stocks") return `модель ${price(item.targetPrice)} · дивиденд ${price(item.dividend12m)}`;
-  if (type === "bonds") return `${item.kind} · погашение ${item.maturity}`;
+  if (type === "bonds" || type === "couponBonds") return `${item.kind} · погашение ${item.maturity}`;
   const category = item.categoryLabel ? `${item.categoryLabel} · ` : "";
   return `${category}3 мес. ${pct(item.return3m)} · 12 мес. ${pct(item.return12m)}`;
 }
@@ -375,7 +428,7 @@ function secondaryMetric(item, type) {
     const change = labeledChange(Number(item.dayChange));
     return `<b>${price(item.price)}</b><small>сейчас · ${escapeHtml(change.text)}</small>`;
   }
-  if (type === "bonds") return `<b>${rub.format(item.price)}%</b><small>от номинала</small>`;
+  if (type === "bonds" || type === "couponBonds") return `<b>${rub.format(item.price)}%</b><small>от номинала</small>`;
   const change = labeledChange(Number(item.dayChange));
   return `<b>${price(item.price)}</b><small>${escapeHtml(change.text)}</small>`;
 }
@@ -386,6 +439,9 @@ function stanceBadge(item, type) {
 }
 
 function expectationMetric(item, type) {
+  if (type === "couponBonds") {
+    return `<b class="expected">${rub.format(item.coupon)}%</b><small>номинальный купон</small>`;
+  }
   const label = type === "bonds" ? `YTM ${rub.format(item.yield)}%` : "модель · 12 мес.";
   return `<b class="expected">${pct(item.expectedReturn)}</b><small>${label}</small>`;
 }
@@ -395,6 +451,12 @@ function renderRanking(type) {
   const items = state.data[type] || [];
   document.querySelector("#category-note").textContent = typeNote(type);
   document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.type === type));
+  const head = document.querySelector(".ideas-section .ranking-head");
+  if (head) {
+    head.innerHTML = type === "couponBonds"
+      ? "<span>Рейтинг</span><span>Цена</span><span>Купон</span><span>YTM</span>"
+      : "<span>Рейтинг</span><span>Цена</span><span>Ожидание</span><span>Уверенность</span>";
+  }
   const ranking = document.querySelector("#ranking");
   if (!items.length) {
     ranking.innerHTML = `<div class="empty-state">Источник временно недоступен. Проверьте статус данных ниже.</div>`;
@@ -412,9 +474,10 @@ function renderRanking(type) {
       </div>
       <div class="metric">${secondaryMetric(item, type)}</div>
       <div class="metric">${expectationMetric(item, type)}</div>
-      <div class="metric confidence">
-        <div class="confidence-track"><i style="width:${item.confidence}%"></i></div>
-        <b>${item.confidence}%</b>
+      <div class="metric ${type === "couponBonds" ? "" : "confidence"}">
+        ${type === "couponBonds"
+          ? `<b>${rub.format(item.yield)}%</b><small>YTM</small>`
+          : `<div class="confidence-track"><i style="width:${item.confidence}%"></i></div><b>${item.confidence}%</b>`}
       </div>
       <div class="details">
         <div><b>Почему в списке</b>${escapeHtml(item.thesis)}${type === "stocks" && driverSummary(item) ? `<span class="driver-line">${escapeHtml(driverSummary(item))}</span>` : ""}</div>
@@ -460,6 +523,45 @@ function renderPipeline(metrics) {
   `).join("");
 }
 
+function renderHighCouponIssues(items) {
+  const list = document.querySelector("#high-coupon-issues");
+  const counter = document.querySelector("#issue-count");
+  if (counter) counter.textContent = items.length;
+  if (!list) return;
+  if (!items.length) {
+    list.innerHTML = emptyBlock("Сейчас нет свежих размещений или листингов с очень высоким купоном.");
+    return;
+  }
+  list.innerHTML = items.map((item) => `
+    <article class="urgent-card">
+      <span class="action buy">${Number.isFinite(item.coupon) ? `КУПОН ${rub.format(item.coupon)}%` : "ВЫПУСК"}</span>
+      <div class="urgent-copy">
+        <h3>${escapeHtml(item.ticker)} · ${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.summary || "")}</p>
+        <div class="signal-impact">
+          ${item.kind ? `<span>${item.kind === "listing" ? "листинг MOEX" : "новость"}</span>` : ""}
+          ${item.issuedAt ? `<span>дата ${escapeHtml(item.issuedAt)}</span>` : ""}
+          ${item.maturity ? `<span>погашение ${escapeHtml(item.maturity)}</span>` : ""}
+          ${Number.isFinite(item.yield) && item.yield > 0 ? `<span>YTM ${rub.format(item.yield)}%</span>` : ""}
+        </div>
+      </div>
+      <div class="urgent-source">
+        <b>${Number.isFinite(item.coupon) ? `${rub.format(item.coupon)}%` : "—"}</b>
+        <a href="${escapeHtml(item.source?.url || "#")}" target="_blank" rel="noreferrer">${escapeHtml(item.source?.publisher || "источник")} ↗</a>
+      </div>
+    </article>
+  `).join("");
+}
+
+function couponItems(data) {
+  const items = data.couponBonds || [];
+  if (items.length) return items;
+  return [...(data.bonds || [])]
+    .filter((item) => Number(item.coupon) > 0)
+    .sort((a, b) => Number(b.coupon) - Number(a.coupon))
+    .slice(0, 10);
+}
+
 function render(data) {
   state.data = data;
   document.querySelector("#updated-at").textContent = freshnessLabel(data.generatedAt);
@@ -470,6 +572,7 @@ function render(data) {
   const stockMethod = document.querySelector("#stock-method");
   if (stockMethod) stockMethod.textContent = data.stockModel || typeNote("stocks");
   document.querySelector("#disclaimer").textContent = data.disclaimer;
+  data.couponBonds = couponItems(data);
   renderTape(data.marketTape);
   renderMarketBrief(data.marketBrief);
   renderPulse(data.marketPulse, data.marketRegime);
@@ -479,7 +582,9 @@ function render(data) {
   renderAnomalies(data.anomalies);
   renderUrgent(data.urgent || []);
   renderScalp(data.scalp || []);
+  renderHighCouponIssues(data.highCouponIssues || []);
   renderSectors(data.sectors);
+  renderDividendCalendar(data.dividendCalendar || []);
   renderAccuracy(data.signalPerformance);
   renderHealth(data.sourceHealth || []);
   renderPipeline(data.pipelineMetrics);

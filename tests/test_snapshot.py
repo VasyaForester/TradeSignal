@@ -1,12 +1,17 @@
 import json
 import re
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from scripts.update_data import (
     TelegramChannelParser,
+    build_bonds_by_coupon,
     build_catalysts,
+    build_dividend_calendar,
+    build_high_coupon_issues,
+    confirm_dividends,
+    parse_snowball_calendar,
     build_market_brief,
     build_scalp_signals,
     classify_idea,
@@ -16,8 +21,12 @@ from scripts.update_data import (
     estimate_stock_target,
     evaluate_entity_linking,
     event_key,
+    extract_coupon_pct,
+    high_coupon_floor,
     impact_estimate,
+    is_bond_issue_news,
     is_macro_analyst_commentary,
+    still_upcoming_dividends,
     is_mechanical_dividend_event,
     is_negative_actor_only,
     jaccard_similarity,
@@ -43,7 +52,7 @@ class SnapshotContractTest(unittest.TestCase):
     def test_required_sections_exist(self):
         for key in (
             "generatedAt", "urgent", "scalp", "marketBrief", "stocks", "bonds", "funds",
-            "sourceHealth", "pipelineMetrics",
+            "sourceHealth", "pipelineMetrics", "dividendCalendar",
         ):
             self.assertIn(key, self.data)
 
@@ -57,6 +66,30 @@ class SnapshotContractTest(unittest.TestCase):
             self.assertIn(key, self.data)
         for stock in self.data["stocks"]:
             self.assertIn(stock.get("stance"), {"BUY", "WATCH", "AVOID", None})
+
+    def test_coupon_bond_sections_when_present(self):
+        if "couponBonds" not in self.data:
+            self.skipTest("снимок ещё без рейтинга по купону")
+        coupons = [item["coupon"] for item in self.data["couponBonds"]]
+        self.assertGreater(len(coupons), 0)
+        self.assertEqual(coupons, sorted(coupons, reverse=True))
+        self.assertTrue(all(item["coupon"] >= 12 for item in self.data["couponBonds"]))
+        self.assertIn("highCouponIssues", self.data)
+
+    def test_dividend_calendar_when_present(self):
+        if "dividendCalendar" not in self.data:
+            self.skipTest("снимок ещё без календаря дивидендов")
+        items = self.data["dividendCalendar"]
+        self.assertLessEqual(len(items), 40)
+        dates = [item["cutoffDate"] for item in items]
+        self.assertEqual(dates, sorted(dates))
+        for item in items:
+            self.assertTrue(item.get("secid"))
+            self.assertTrue(item.get("cutoffDate"))
+            self.assertGreater(item.get("dividendRub") or 0, 0)
+            self.assertGreater(item.get("yieldPct") or 0, 0)
+            self.assertLessEqual(item.get("yieldPct") or 0, 80)
+            self.assertEqual(item.get("currency"), "RUB")
 
     def test_rankings_are_top_ten_and_sorted(self):
         for key in ("stocks", "bonds", "funds"):
@@ -227,6 +260,13 @@ class SnapshotContractTest(unittest.TestCase):
             "OZPH",
         )
         self.assertIsNone(related_instrument("Лента новостей: рынки снизились", [], []))
+        self.assertIsNone(
+            related_instrument(
+                '"Михайловский Молочный Завод" допустил техдефолт по облигациям серии 001P-01&nbsp;',
+                [],
+                [{"secid": "NBSP", "name": "NBSP"}],
+            )
+        )
         self.assertEqual(
             related_instrument(
                 "Сбербанк обсуждал с Евротрансом варианты урегулирования",
@@ -240,6 +280,15 @@ class SnapshotContractTest(unittest.TestCase):
                 'Сбербанк намерен инициировать банкротство сети АЗС "Трасса"',
                 "SBER",
             )
+        )
+        fitroo = (
+            "Завтраки сдались без боя // Производитель хлопьев Fitroo может обанкротиться. "
+            "Сбербанк намерен обратиться в арбитражный суд с заявлением о признании банкротом ООО «Фитроо». "
+            "Заявление о ее банкротстве намеревается подать Сбербанк."
+        )
+        self.assertTrue(is_negative_actor_only(fitroo, "SBER"))
+        self.assertFalse(
+            is_negative_actor_only("Сбербанк может обанкротиться из-за проблем с капиталом", "SBER")
         )
         budget_forecast = (
             "🇷🇺#бюджет #россия #прогноз Сбер понизил прогноз дефицита бюджета РФ "
@@ -341,6 +390,15 @@ class SnapshotContractTest(unittest.TestCase):
         )
         self.assertIsNotNone(resolved)
         self.assertEqual(resolved[0], "EUTR")
+        market_wrap = resolve_related_instrument(
+            "Рынок вновь в красном, в аутсайдерах - «Распадская» после приостановки работы шахты",
+            "В минусе также Русагро и другие бумаги сырьевого сектора.",
+            [{"secid": "AGRO", "name": "Русагро"}],
+            [],
+            [],
+            "trading_halt",
+        )
+        self.assertIsNone(market_wrap)
 
     def test_fund_ranking_is_diversified(self):
         funds = self.data["funds"]
@@ -484,6 +542,257 @@ class IntelligenceLayerTest(unittest.TestCase):
             ),
             "AVOID",
         )
+
+
+class CouponBondTest(unittest.TestCase):
+    def test_extracts_coupon_from_placement_headline(self):
+        self.assertEqual(
+            extract_coupon_pct("Компания разместила облигации с купоном 22,5% годовых"),
+            22.5,
+        )
+        self.assertEqual(extract_coupon_pct("ориентир купона 19-21%", 14), 21.0)
+        self.assertEqual(extract_coupon_pct("купон КС + 5%", 14.0), 19.0)
+        self.assertEqual(high_coupon_floor(14), 18.0)
+        self.assertIsNone(extract_coupon_pct("Росагролизинг разместил облигации на 10 млрд рублей"))
+
+    def test_detects_new_issue_news(self):
+        self.assertTrue(is_bond_issue_news("Эмитент разместил облигации серии 001P-03"))
+        self.assertFalse(is_bond_issue_news("Сбер рекомендовал дивиденды"))
+        self.assertFalse(is_bond_issue_news("Дефолт по облигациям серии БО-01"))
+
+    def test_coupon_ranking_sorts_by_coupon_not_ytm(self):
+        maturity = f"{date.today().year + 2}-06-01"
+        board_rows = {
+            "TQCB": [
+                {
+                    "SECID": "LOW",
+                    "SHORTNAME": "Низкий купон",
+                    "MATDATE": maturity,
+                    "COUPONPERCENT": 13,
+                    "LAST": 99,
+                    "YIELD": 28,
+                    "DURATION": 200,
+                    "VALTODAY_RUR": 50_000,
+                },
+                {
+                    "SECID": "HIGH",
+                    "SHORTNAME": "Высокий купон",
+                    "MATDATE": maturity,
+                    "COUPONPERCENT": 24,
+                    "LAST": 101,
+                    "YIELD": 22,
+                    "DURATION": 180,
+                    "VALTODAY_RUR": 40_000,
+                },
+            ],
+            "TQOB": [],
+        }
+        ranked = build_bonds_by_coupon(
+            {"macro": {"currentKeyRate": 14, "forecastKeyRate12m": 12}},
+            board_rows,
+        )
+        self.assertEqual([item["secid"] for item in ranked], ["HIGH", "LOW"])
+        self.assertEqual(ranked[0]["coupon"], 24)
+
+    def test_high_coupon_issues_keep_fat_coupons_only(self):
+        today = date.today().isoformat()
+        maturity = f"{date.today().year + 2}-06-01"
+        news = [
+            {
+                "title": "Завод разместил облигации с купоном 21% годовых",
+                "description": "Первичное размещение.",
+                "source": "Финам: облигации",
+                "url": "https://example.com/high",
+                "publishedAt": datetime.now(timezone(timedelta(hours=3))).isoformat(),
+            },
+            {
+                "title": "Росагролизинг разместил облигации на 10 млрд рублей",
+                "description": "Без ставки купона.",
+                "source": "Финам: облигации",
+                "url": "https://example.com/plain",
+                "publishedAt": datetime.now(timezone(timedelta(hours=3))).isoformat(),
+            },
+            {
+                "title": "Компания разместила облигации с купоном 12% годовых",
+                "description": "Слишком низко для фильтра.",
+                "source": "Финам: облигации",
+                "url": "https://example.com/low",
+                "publishedAt": datetime.now(timezone(timedelta(hours=3))).isoformat(),
+            },
+        ]
+        board_rows = {
+            "TQCB": [{
+                "SECID": "NEWHIGH",
+                "SHORTNAME": "Новый высокий",
+                "MATDATE": maturity,
+                "COUPONPERCENT": 20,
+                "LAST": 100,
+                "YIELD": 20.5,
+                "DURATION": 365,
+                "VALTODAY_RUR": 0,
+                "ISSUEDATE": today,
+            }],
+            "TQOB": [],
+        }
+        items = build_high_coupon_issues(
+            news,
+            board_rows,
+            {"macro": {"currentKeyRate": 14, "forecastKeyRate12m": 12}},
+        )
+        coupons = {round(item["coupon"], 1) for item in items}
+        titles = " ".join(item["title"] for item in items)
+        self.assertIn(21.0, coupons)
+        self.assertIn(20.0, coupons)
+        self.assertNotIn(12.0, coupons)
+        self.assertIn("21%", titles)
+        self.assertIn("Новый высокий", titles)
+        self.assertNotIn("10 млрд", titles)
+
+
+class DividendCalendarTest(unittest.TestCase):
+    TODAY = date(2026, 9, 8)
+
+    def test_keeps_confirmed_rub_payout_inside_60_days(self):
+        items = confirm_dividends(
+            {
+                "SBER": [
+                    {"registryclosedate": "2026-08-01", "value": 10, "currencyid": "RUB"},
+                    {"registryclosedate": "2026-09-20", "value": 10, "currencyid": "RUB"},
+                    {"registryclosedate": "2026-12-01", "value": 10, "currencyid": "RUB"},
+                    {"registryclosedate": "2026-09-21", "value": 5, "currencyid": "USD"},
+                    {"registryclosedate": "2026-09-22", "value": 0, "currencyid": "RUB"},
+                ],
+            },
+            {"SBER": 200},
+            {"SBER": "Сбербанк"},
+            today=self.TODAY,
+        )
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["secid"], "SBER")
+        self.assertEqual(items[0]["cutoffDate"], "2026-09-20")
+        self.assertEqual(items[0]["dividendRub"], 10)
+        self.assertEqual(items[0]["yieldPct"], 5.0)
+        self.assertEqual(items[0]["currency"], "RUB")
+
+    def test_skips_absurd_yield(self):
+        items = confirm_dividends(
+            {"GAZP": [{"registryclosedate": "2026-09-20", "value": 200, "currencyid": "RUB"}]},
+            {"GAZP": 2},
+            {"GAZP": "Газпром"},
+            today=self.TODAY,
+        )
+        self.assertEqual(items, [])
+
+    def test_still_upcoming_drops_past_cutoffs(self):
+        kept = still_upcoming_dividends(
+            [
+                {"secid": "SBER", "cutoffDate": "2026-09-20", "yieldPct": 5},
+                {"secid": "OLD", "cutoffDate": "2026-08-01", "yieldPct": 4},
+            ],
+            today=self.TODAY,
+        )
+        self.assertEqual([item["secid"] for item in kept], ["SBER"])
+
+    def test_build_calendar_uses_injected_iss_rows(self):
+        items = build_dividend_calendar(
+            {"stocks": [{"secid": "SBER", "name": "Сбербанк"}]},
+            [{"secid": "SBER", "name": "Сбербанк", "price": 200}],
+            previous=[{
+                "secid": "GAZP",
+                "cutoffDate": "2026-09-15",
+                "yieldPct": 3.1,
+                "dividendRub": 10,
+                "currency": "RUB",
+            }],
+            today=self.TODAY,
+            raw_by_secid={
+                "SBER": [{"registryclosedate": "2026-09-20", "value": 10, "currencyid": "RUB"}],
+            },
+        )
+        self.assertEqual([item["secid"] for item in items], ["GAZP", "SBER"])
+        self.assertEqual(items[1]["yieldPct"], 5.0)
+
+    def test_build_calendar_falls_back_to_previous_window(self):
+        items = build_dividend_calendar(
+            {"stocks": [{"secid": "SBER", "name": "Сбербанк"}]},
+            [{"secid": "SBER", "name": "Сбербанк", "price": 200}],
+            previous=[
+                {
+                    "secid": "GAZP",
+                    "cutoffDate": "2026-09-15",
+                    "yieldPct": 3.1,
+                    "dividendRub": 10,
+                    "currency": "RUB",
+                },
+                {
+                    "secid": "OLD",
+                    "cutoffDate": "2026-08-01",
+                    "yieldPct": 4,
+                    "dividendRub": 8,
+                    "currency": "RUB",
+                },
+            ],
+            today=self.TODAY,
+            raw_by_secid={"SBER": []},
+        )
+        self.assertEqual([item["secid"] for item in items], ["GAZP"])
+
+    def test_does_not_keep_previous_for_fetched_empty_ticker(self):
+        items = build_dividend_calendar(
+            {"stocks": [{"secid": "SBER", "name": "Сбербанк"}]},
+            [{"secid": "SBER", "name": "Сбербанк", "price": 200}],
+            previous=[{
+                "secid": "SBER",
+                "cutoffDate": "2026-09-18",
+                "yieldPct": 4.0,
+                "dividendRub": 8,
+                "currency": "RUB",
+            }],
+            today=self.TODAY,
+            raw_by_secid={"SBER": []},
+        )
+        self.assertEqual(items, [])
+
+    SNOWBALL_SAMPLE = """
+| Компания | Дата закрытия реестра | Купить до | На 1 акцию | Див. доходность | Статус | Частота выплат |
+| --- | --- | --- | --- | --- | --- | --- |
+| ЯНДЕКСYDEX | 21 сент. 26 через 13 дней | 18 сент. 26 | 110 ₽ | 2,87% | Рекомендованы | Раз в полгода |
+| КуйбышевазотKAZT | 23 сент. 26 через 15 дней | 22 сент. 26 | 2,16 ₽ | 0,57% | Прогноз | Раз в полгода |
+| ХэдхантерHEAD | 28 сент. 26 через 20 дней | 25 сент. 26 | 200 ₽ | 7,2% | Рекомендованы | Раз в полгода |
+| НК ЛУКОЙЛLKOH | 12 дек. 26 через 3 месяца | 10 дек. 26 | 309,5 ₽ | 6,02% | Прогноз | Другое |
+| РусагроRAGR | 1 авг. 26 10 дней назад | 31 июл. 26 | 16,48 ₽ | 20,9% | Объявлены | Раз в год |
+"""
+
+    def test_snowball_keeps_recommended_skips_forecasts(self):
+        items = parse_snowball_calendar(self.SNOWBALL_SAMPLE, today=self.TODAY)
+        self.assertEqual([item["secid"] for item in items], ["YDEX", "HEAD"])
+        self.assertEqual(items[0]["cutoffDate"], "2026-09-21")
+        self.assertEqual(items[0]["dividendRub"], 110)
+        self.assertEqual(items[0]["yieldPct"], 2.87)
+        self.assertEqual(items[0]["status"], "recommended")
+        self.assertEqual(items[0]["source"]["publisher"], "Snowball Income")
+
+    def test_build_calendar_from_snowball_html(self):
+        html = """
+        <table>
+          <tr><th>Компания</th><th>Дата закрытия реестра</th><th>Купить до</th>
+              <th>На 1 акцию</th><th>Див. доходность</th><th>Статус</th></tr>
+          <tr><td>Банк Санкт-Петербург BSPB</td><td>5 окт. 26</td><td>2 окт. 26</td>
+              <td>19,17 ₽</td><td>7,57%</td><td>Рекомендованы</td></tr>
+          <tr><td>Селигдар SELG</td><td>12 окт. 26</td><td>9 окт. 26</td>
+              <td>2 ₽</td><td>5,66%</td><td>Прогноз</td></tr>
+        </table>
+        """
+        items = build_dividend_calendar(
+            {"stocks": []},
+            [],
+            previous=[],
+            today=self.TODAY,
+            html=html,
+        )
+        self.assertEqual([item["secid"] for item in items], ["BSPB"])
+        self.assertEqual(items[0]["yieldPct"], 7.57)
+        self.assertEqual(items[0]["cutoffDate"], "2026-10-05")
 
 
 if __name__ == "__main__":

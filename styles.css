@@ -107,7 +107,7 @@ h2 { font-size: clamp(28px, 4vw, 43px); letter-spacing: -.045em; margin-bottom: 
 .tape-item small.down, .sector-card span.down, .driver-sides .down { color: var(--red); }
 .tape-item small.flat { color: var(--amber); }
 
-.pulse-section, .delta-section, .driver-section, .catalyst-section, .anomaly-section, .sector-section {
+.pulse-section, .delta-section, .driver-section, .catalyst-section, .anomaly-section, .sector-section, .dividend-section {
   margin: 0 0 16px;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -194,9 +194,38 @@ h2 { font-size: clamp(28px, 4vw, 43px); letter-spacing: -.045em; margin-bottom: 
 .scalp-card .signal-tags span { color: var(--green); }
 .empty-state { color: var(--muted); padding: 22px; border: 1px dashed var(--line); border-radius: 12px; text-align: center; }
 
+.issue-section {
+  margin-top: 16px;
+  background: linear-gradient(120deg, rgba(243,201,107,.1), rgba(20,25,31,.9) 42%);
+  border: 1px solid rgba(243,201,107,.24);
+  border-radius: 22px;
+  padding: 32px;
+}
+.dividend-section {
+  background: linear-gradient(120deg, rgba(75,118,255,.1), rgba(20,25,31,.9) 42%);
+  border-color: rgba(75,118,255,.22);
+}
+.dividend-count b { color: var(--green); }
+.dividend-head, .dividend-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.5fr) 150px 140px 140px;
+  gap: 18px;
+  align-items: center;
+}
+.dividend-head { padding: 0 20px 11px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+.dividend-list { display: grid; gap: 8px; }
+.dividend-row {
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  background: rgba(8,11,15,.5);
+  border-radius: 14px;
+}
+.dividend-row .instrument-name a { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+.dividend-row .metric.expected b { color: var(--green); }
+.dividend-section.is-empty .dividend-head { display: none; }
 .ideas-section { padding: 100px 0 60px; }
-.tabs { display: flex; border: 1px solid var(--line); padding: 4px; border-radius: 99px; }
-.tab { border: 0; color: var(--muted); background: transparent; border-radius: 99px; padding: 9px 16px; font: inherit; font-size: 12px; cursor: pointer; }
+.tabs { display: flex; flex-wrap: wrap; border: 1px solid var(--line); padding: 4px; border-radius: 99px; }
+.tab { border: 0; color: var(--muted); background: transparent; border-radius: 99px; padding: 9px 12px; font: inherit; font-size: 11px; cursor: pointer; }
 .tab.active { color: var(--bg); background: var(--green); font-weight: 800; }
 .category-note { color: var(--muted); font-size: 12px; line-height: 1.65; max-width: 770px; min-height: 20px; margin: -12px 0 30px; }
 .ranking-head, .rank-card {
@@ -259,7 +288,9 @@ dialog::backdrop { background: rgba(0,0,0,.72); backdrop-filter: blur(8px); }
   .market-state { display: none; }
   .hero { display: block; min-height: 0; padding: 62px 0; }
   .hero-meta { margin-top: 40px; }
-  .ranking-head { display: none; }
+  .ranking-head, .dividend-head { display: none; }
+  .dividend-row { grid-template-columns: 1fr 1fr; }
+  .dividend-row .instrument { grid-column: 1 / -1; }
   .rank-card { grid-template-columns: 1fr 1fr; }
   .instrument { grid-column: 1 / -1; }
   .details { display: grid; }
@@ -274,11 +305,12 @@ dialog::backdrop { background: rgba(0,0,0,.72); backdrop-filter: blur(8px); }
   .hero-copy { font-size: 14px; }
   .urgent-section { padding: 22px 18px; }
   .scalp-section { padding: 22px 18px; }
+  .issue-section { padding: 22px 18px; }
   .brief-section { padding: 22px 18px; }
   .brief-heading { align-items: flex-start; flex-direction: column; }
   .brief-index { text-align: left; }
   .brief-grid { grid-template-columns: 1fr; }
-  .pulse-section, .delta-section, .driver-section, .catalyst-section, .anomaly-section, .sector-section { padding: 22px 18px; }
+  .pulse-section, .delta-section, .driver-section, .catalyst-section, .anomaly-section, .sector-section, .dividend-section { padding: 22px 18px; }
   .urgent-card { grid-template-columns: 70px 1fr; gap: 13px; }
   .urgent-source { grid-column: 2; text-align: left; display: flex; gap: 8px; align-items: center; }
   .urgent-source b { font-size: 14px; }

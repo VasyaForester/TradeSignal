@@ -11,6 +11,7 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from email.utils import parsedate_to_datetime
+from html import unescape
 from html.parser import HTMLParser
 import urllib.error
 import urllib.parse
@@ -32,6 +33,13 @@ MOEX = "https://iss.moex.com/iss"
 RANKING_LIMIT = 10
 URGENT_LIMIT = 10
 SCALP_LIMIT = 8
+HIGH_COUPON_ISSUE_DAYS = 21
+HIGH_COUPON_ISSUES_LIMIT = 8
+COUPON_RANK_MIN = 12.0
+COUPON_ABSURD_MAX = 45.0
+DIVIDEND_CALENDAR_DAYS = 60
+DIVIDEND_CALENDAR_LIMIT = 40
+DIVIDEND_YIELD_MAX = 80.0
 FUNDAMENTAL_SCALP_BLOCK = {
     "credit_distress",
     "license_revocation",
@@ -65,7 +73,7 @@ ISSUER_TICKERS = {
     for item in ENTITY_REGISTRY["entities"]
     for alias in [item["name"], *item.get("aliases", [])]
 }
-NON_TICKER_TOKENS = {"MOEX", "RUB", "USD", "CNY", "IFRS", "BRICS", "EBITDA", "OIBDA"}
+NON_TICKER_TOKENS = {"MOEX", "RUB", "USD", "CNY", "IFRS", "BRICS", "EBITDA", "OIBDA", "NBSP"}
 AMBIGUOUS_ALIASES = {"лента", "полюс", "астра"}
 SOURCE_PRIORITY = {
     "Московская биржа": 4,
@@ -151,8 +159,28 @@ def now_iso() -> str:
     return datetime.now(MOSCOW_TZ).replace(microsecond=0).isoformat()
 
 
-def request_bytes(url: str, attempts: int = 2, timeout: int = 8) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
+BROWSER_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+)
+SNOWBALL_DIVIDEND_URL = "https://snowball-income.com/calendars/dividend-calendar/mcx"
+SNOWBALL_CONFIRMED = ("объяв", "рекоменд", "утвержд", "подтверж")
+RU_MONTHS = {
+    "янв": 1, "фев": 2, "мар": 3, "апр": 4, "мая": 5, "май": 5,
+    "июн": 6, "июл": 7, "авг": 8, "сен": 9, "окт": 10, "ноя": 11, "дек": 12,
+}
+
+
+def request_bytes(
+    url: str,
+    attempts: int = 2,
+    timeout: int = 8,
+    headers: dict[str, str] | None = None,
+) -> bytes:
+    req_headers = {"User-Agent": USER_AGENT, "Accept": "*/*"}
+    if headers:
+        req_headers.update(headers)
+    req = urllib.request.Request(url, headers=req_headers)
     last_error: Exception | None = None
     for attempt in range(attempts):
         try:
@@ -199,7 +227,7 @@ def fetch_board(market: str, board: str, securities: list[str] | None = None) ->
         "iss.only": "securities,marketdata",
         "securities.columns": (
             "SECID,SHORTNAME,SECNAME,PREVPRICE,MATDATE,COUPONPERCENT,"
-            "INSTRID,SECTYPE"
+            "INSTRID,SECTYPE" + (",ISSUEDATE" if market == "bonds" else "")
         ),
         "marketdata.columns": (
             "SECID,LAST,MARKETPRICE,LCLOSEPRICE,LASTTOPREVPRICE,"
@@ -227,6 +255,14 @@ def fetch_board(market: str, board: str, securities: list[str] | None = None) ->
             break
         start += page_size
     return [{**item, **dynamic.get(secid, {})} for secid, item in static.items()]
+
+
+def fetch_security_dividends(secid: str) -> list[dict[str, Any]]:
+    url = (
+        f"{MOEX}/securities/{urllib.parse.quote(secid)}/dividends.json?"
+        + urllib.parse.urlencode({"iss.meta": "off", "iss.only": "dividends"})
+    )
+    return rows(get_json(url), "dividends")
 
 
 def fetch_index_quote(secid: str, fallback_name: str, page: str) -> dict[str, Any]:
@@ -1220,6 +1256,376 @@ def parse_date(value: Any) -> date | None:
         return None
 
 
+def parse_ru_number(value: Any) -> float:
+    text = str(value or "").replace("\xa0", " ")
+    text = re.sub(r"[^\d,.\-]", "", text.replace(" ", ""))
+    if not text or text in {".", ",", "-", "-."}:
+        return 0.0
+    if "," in text and "." in text:
+        text = text.replace(".", "").replace(",", ".")
+    elif "," in text:
+        text = text.replace(",", ".")
+    return number(text)
+
+
+def parse_snowball_date(value: Any) -> date | None:
+    text = str(value or "").replace("\xa0", " ").lower()
+    text = re.sub(r"через.*$", "", text)
+    text = re.sub(r"\s+\d+\s+дн.*$", "", text)
+    text = re.sub(r"назад.*$", "", text)
+    match = re.search(r"(\d{1,2})\s+([а-яё.]+)\s+(\d{2,4})", text)
+    if not match:
+        return parse_date(value)
+    day = int(match.group(1))
+    token = match.group(2).replace(".", "")
+    year = int(match.group(3))
+    if year < 100:
+        year += 2000
+    month = next((item for prefix, item in RU_MONTHS.items() if token.startswith(prefix)), 0)
+    if not month:
+        return None
+    try:
+        return date(year, month, day)
+    except ValueError:
+        return None
+
+
+def split_company_ticker(cell: str) -> tuple[str, str]:
+    text = re.sub(r"\s+", " ", cell or "").strip()
+    match = re.search(r"([A-Z]{1,6}\d?P?)\s*$", text)
+    if not match:
+        return text, ""
+    secid = match.group(1)
+    name = text[:match.start()].strip(" -·,")
+    if name.upper().startswith(secid):
+        name = name[len(secid):].strip(" -·,")
+    return name or secid, secid
+
+
+def snowball_status(value: str) -> str:
+    text = str(value or "").lower()
+    if "прогноз" in text:
+        return ""
+    if "рекоменд" in text:
+        return "recommended"
+    if any(token in text for token in SNOWBALL_CONFIRMED):
+        return "announced"
+    return ""
+
+
+class HtmlTableParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.rows: list[list[str]] = []
+        self._row: list[str] | None = None
+        self._cell: list[str] | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "tr":
+            self._row = []
+        elif tag in {"td", "th"} and self._row is not None:
+            self._cell = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in {"td", "th"} and self._cell is not None and self._row is not None:
+            self._row.append(re.sub(r"\s+", " ", "".join(self._cell)).strip())
+            self._cell = None
+        elif tag == "tr" and self._row is not None:
+            if any(self._row):
+                self.rows.append(self._row)
+            self._row = None
+
+    def handle_data(self, data: str) -> None:
+        if self._cell is not None:
+            self._cell.append(data)
+
+
+def calendar_table_rows(text: str) -> list[list[str]]:
+    parser = HtmlTableParser()
+    try:
+        parser.feed(text)
+        parser.close()
+    except Exception:
+        parser.rows = []
+    html_rows = [row for row in parser.rows if len(row) >= 5]
+    if html_rows:
+        return html_rows
+    rows_: list[list[str]] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if cells and re.fullmatch(r"[:\- ]+", cells[0] or ""):
+            continue
+        if len(cells) >= 5:
+            rows_.append(cells)
+    return rows_
+
+
+def parse_snowball_calendar(
+    text: str,
+    today: date | None = None,
+    horizon_days: int = DIVIDEND_CALENDAR_DAYS,
+) -> list[dict[str, Any]]:
+    today = today or date.today()
+    until = today + timedelta(days=horizon_days)
+    items: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, float]] = set()
+    for row in calendar_table_rows(text):
+        company, cutoff_cell, _buy, amount_cell, yield_cell, *rest = row
+        status_cell = rest[0] if rest else ""
+        if "компани" in company.lower() or "дата" in cutoff_cell.lower():
+            continue
+        name, secid = split_company_ticker(company)
+        if not secid:
+            continue
+        status = snowball_status(status_cell)
+        if not status:
+            continue
+        cutoff = parse_snowball_date(cutoff_cell)
+        if not cutoff or cutoff < today or cutoff > until:
+            continue
+        payout = parse_ru_number(amount_cell)
+        yield_pct = round(parse_ru_number(yield_cell), 2)
+        if payout <= 0 or yield_pct <= 0 or yield_pct > DIVIDEND_YIELD_MAX:
+            continue
+        key = (secid, cutoff.isoformat(), round(payout, 4))
+        if key in seen:
+            continue
+        seen.add(key)
+        items.append({
+            "secid": secid,
+            "name": name,
+            "cutoffDate": cutoff.isoformat(),
+            "dividendRub": round(payout, 4),
+            "yieldPct": yield_pct,
+            "currency": "RUB",
+            "status": status,
+            "source": {
+                "publisher": "Snowball Income",
+                "url": SNOWBALL_DIVIDEND_URL,
+            },
+        })
+    items.sort(key=lambda item: (item["cutoffDate"], -item["yieldPct"], item["secid"]))
+    return items[:DIVIDEND_CALENDAR_LIMIT]
+
+
+def fetch_snowball_dividends() -> str:
+    return request_bytes(
+        SNOWBALL_DIVIDEND_URL,
+        attempts=3,
+        timeout=20,
+        headers={
+            "User-Agent": BROWSER_UA,
+            "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.8",
+        },
+    ).decode("utf-8", "replace")
+
+
+def confirm_dividends(
+    raw_by_secid: dict[str, list[dict[str, Any]]],
+    prices: dict[str, float],
+    names: dict[str, str],
+    today: date | None = None,
+    horizon_days: int = DIVIDEND_CALENDAR_DAYS,
+) -> list[dict[str, Any]]:
+    today = today or date.today()
+    until = today + timedelta(days=horizon_days)
+    items: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, float]] = set()
+    for secid, rows_ in raw_by_secid.items():
+        price = number(prices.get(secid))
+        if price <= 0:
+            continue
+        for row in rows_:
+            cutoff = parse_date(row.get("registryclosedate") or row.get("RECORDDATE"))
+            if not cutoff or cutoff < today or cutoff > until:
+                continue
+            payout = number(row.get("value") or row.get("DIVIDENDVALUE"))
+            if payout <= 0:
+                continue
+            currency = str(row.get("currencyid") or row.get("CURRENCYID") or "RUB").upper()
+            if currency not in {"RUB", "SUR", ""}:
+                continue
+            yield_pct = round(payout / price * 100, 2)
+            if yield_pct > DIVIDEND_YIELD_MAX:
+                continue
+            key = (secid, cutoff.isoformat(), round(payout, 4))
+            if key in seen:
+                continue
+            seen.add(key)
+            items.append({
+                "secid": secid,
+                "name": names.get(secid) or secid,
+                "cutoffDate": cutoff.isoformat(),
+                "dividendRub": round(payout, 4),
+                "price": round(price, 2),
+                "yieldPct": yield_pct,
+                "currency": "RUB",
+                "source": {
+                    "publisher": "Московская биржа",
+                    "url": f"https://www.moex.com/ru/issue.aspx?code={urllib.parse.quote(secid)}",
+                },
+            })
+    items.sort(key=lambda item: (item["cutoffDate"], -item["yieldPct"], item["secid"]))
+    return items[:DIVIDEND_CALENDAR_LIMIT]
+
+
+def still_upcoming_dividends(
+    items: list[dict[str, Any]],
+    today: date | None = None,
+    horizon_days: int = DIVIDEND_CALENDAR_DAYS,
+) -> list[dict[str, Any]]:
+    today = today or date.today()
+    until = today + timedelta(days=horizon_days)
+    kept = []
+    for item in items:
+        cutoff = parse_date(item.get("cutoffDate"))
+        if cutoff and today <= cutoff <= until:
+            kept.append(item)
+    return kept
+
+
+def build_dividend_calendar(
+    config: dict[str, Any],
+    stocks: list[dict[str, Any]],
+    previous: list[dict[str, Any]] | None = None,
+    today: date | None = None,
+    raw_by_secid: dict[str, list[dict[str, Any]]] | None = None,
+    html: str | None = None,
+) -> list[dict[str, Any]]:
+    today = today or date.today()
+    if html is not None:
+        items = parse_snowball_calendar(html, today=today)
+        return items or still_upcoming_dividends(previous or [], today=today)
+    if raw_by_secid is None:
+        try:
+            items = parse_snowball_calendar(fetch_snowball_dividends(), today=today)
+        except Exception:
+            items = []
+        if items:
+            return items
+        return _iss_dividend_calendar(config, stocks, previous or [], today)
+    return _iss_dividend_calendar(config, stocks, previous or [], today, raw_by_secid)
+
+
+def _iss_dividend_calendar(
+    config: dict[str, Any],
+    stocks: list[dict[str, Any]],
+    previous: list[dict[str, Any]],
+    today: date,
+    raw_by_secid: dict[str, list[dict[str, Any]]] | None = None,
+) -> list[dict[str, Any]]:
+    names = {
+        str(item.get("secid") or ""): str(item.get("name") or item.get("secid") or "")
+        for item in [*config.get("stocks", []), *stocks]
+        if item.get("secid")
+    }
+    prices = {
+        str(item.get("secid") or ""): number(item.get("price"))
+        for item in stocks
+        if number(item.get("price")) > 0
+    }
+    watchlist = {str(item.get("secid") or "") for item in config.get("stocks", []) if item.get("secid")}
+    if raw_by_secid is None:
+        secids = set(watchlist)
+        try:
+            board = fetch_board("shares", "TQBR")
+        except Exception:
+            board = []
+        for item in board:
+            secid = str(item.get("SECID") or "")
+            if not secid:
+                continue
+            price = market_price(item, item)
+            liquidity = number(item.get("VALTODAY_RUR") or item.get("VALTODAY"))
+            if price > 0:
+                prices[secid] = price
+            names.setdefault(secid, str(item.get("SHORTNAME") or secid))
+            if secid in watchlist or liquidity >= 100_000:
+                secids.add(secid)
+        raw_by_secid = {}
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = {
+                executor.submit(fetch_security_dividends, secid): secid
+                for secid in sorted(secids)
+                if number(prices.get(secid)) > 0
+            }
+            for future in as_completed(futures):
+                secid = futures[future]
+                try:
+                    raw_by_secid[secid] = future.result()
+                except Exception:
+                    continue
+    items = confirm_dividends(raw_by_secid, prices, names, today=today)
+    if not raw_by_secid:
+        return still_upcoming_dividends(previous, today=today)
+    fetched = set(raw_by_secid)
+    seen = {(item["secid"], item["cutoffDate"], item.get("dividendRub")) for item in items}
+    for item in still_upcoming_dividends(previous, today=today):
+        key = (item.get("secid"), item.get("cutoffDate"), item.get("dividendRub"))
+        if item.get("secid") in fetched or key in seen:
+            continue
+        items.append(item)
+        seen.add(key)
+    items.sort(key=lambda item: (item["cutoffDate"], -number(item.get("yieldPct")), item.get("secid") or ""))
+    return items[:DIVIDEND_CALENDAR_LIMIT]
+
+
+BOND_ISSUE_MARKERS = (
+    "разместил облигац", "разместила облигац", "разместили облигац",
+    "размещение облигац", "размещает облигац", "размещают облигац",
+    "новый выпуск", "нового выпуска", "открыл книгу", "открыла книгу",
+    "сбор заявок", "первичн", "ориентир купон", "ставку купона",
+    "ставка купона", "купон установлен", "начало размещения",
+    "допущен к торгам", "допуск к торгам", "стартовал выпуск",
+)
+BOND_CONTEXT_MARKERS = ("облигац", "бонд", "офз", "выпуск")
+COUPON_PATTERNS = (
+    re.compile(r"купон(?:ная(?:\s+(?:ставк[аи]|доходность))?)?[^0-9%]{0,24}(\d{1,2}(?:[.,]\d{1,2})?)\s*%", re.I),
+    re.compile(r"ставк[аи]\s+купон[ае]?[^0-9%]{0,16}(\d{1,2}(?:[.,]\d{1,2})?)\s*%", re.I),
+    re.compile(r"ориентир[^0-9%]{0,28}(\d{1,2}(?:[.,]\d{1,2})?)\s*[–\-—]?\s*(\d{1,2}(?:[.,]\d{1,2})?)?\s*%", re.I),
+    re.compile(r"(\d{1,2}(?:[.,]\d{1,2})?)\s*%\s*(?:годовых|купон)", re.I),
+    re.compile(r"доходност[ьи][^0-9%]{0,20}(\d{1,2}(?:[.,]\d{1,2})?)\s*%", re.I),
+)
+FLOATING_COUPON_RE = re.compile(r"кс\s*\+\s*(\d{1,2}(?:[.,]\d{1,2})?)", re.I)
+
+
+def high_coupon_floor(key_rate: float) -> float:
+    return round(max(18.0, number(key_rate) + 3.0), 1)
+
+
+def parse_pct_token(value: str) -> float:
+    return number(str(value).replace(",", "."))
+
+
+def extract_coupon_pct(text: str, key_rate: float = 0.0) -> float | None:
+    found: list[float] = []
+    for pattern in COUPON_PATTERNS:
+        for match in pattern.finditer(text):
+            for group in match.groups():
+                if not group:
+                    continue
+                coupon = parse_pct_token(group)
+                if 4 <= coupon <= COUPON_ABSURD_MAX:
+                    found.append(coupon)
+    for match in FLOATING_COUPON_RE.finditer(text):
+        spread = parse_pct_token(match.group(1))
+        coupon = number(key_rate) + spread
+        if 4 <= coupon <= COUPON_ABSURD_MAX:
+            found.append(coupon)
+    return max(found) if found else None
+
+
+def is_bond_issue_news(text: str) -> bool:
+    lowered = text.lower()
+    if not any(marker in lowered for marker in BOND_CONTEXT_MARKERS):
+        return False
+    return any(marker in lowered for marker in BOND_ISSUE_MARKERS)
+
+
 def bond_candidate(item: dict[str, Any], board: str) -> bool:
     maturity = parse_date(item.get("MATDATE"))
     if not maturity or maturity < date.today() + timedelta(days=90):
@@ -1238,9 +1644,18 @@ def bond_candidate(item: dict[str, Any], board: str) -> bool:
     return any(issuer in name for issuer in trusted)
 
 
-def build_bonds(config: dict[str, Any]) -> list[dict[str, Any]]:
-    rate_drop = max(0.0, number(config["macro"]["currentKeyRate"]) - number(config["macro"]["forecastKeyRate12m"]))
-    candidates: list[dict[str, Any]] = []
+def coupon_bond_candidate(item: dict[str, Any], min_coupon: float = COUPON_RANK_MIN) -> bool:
+    coupon = number(item.get("COUPONPERCENT"))
+    if not (min_coupon <= coupon <= COUPON_ABSURD_MAX):
+        return False
+    maturity = parse_date(item.get("MATDATE"))
+    if not maturity or maturity < date.today() + timedelta(days=90):
+        return False
+    price = market_price(item, item)
+    return price <= 0 or 40 <= price <= 160
+
+
+def load_bond_boards() -> dict[str, list[dict[str, Any]]]:
     board_rows: dict[str, list[dict[str, Any]]] = {}
     with ThreadPoolExecutor(max_workers=2) as executor:
         futures = {
@@ -1248,40 +1663,56 @@ def build_bonds(config: dict[str, Any]) -> list[dict[str, Any]]:
             for board in ("TQOB", "TQCB")
         }
         for future in as_completed(futures):
-            board = futures[future]
-            board_rows[board] = future.result()
+            board_rows[futures[future]] = future.result()
+    if not any(board_rows.values()):
+        raise RuntimeError("источник вернул пустой набор")
+    return board_rows
+
+
+def map_bond(item: dict[str, Any], board: str, rate_drop: float) -> dict[str, Any]:
+    ytm = number(item.get("YIELD") or item.get("EFFECTIVEYIELD"))
+    duration_years = number(item.get("DURATION")) / 365
+    price_effect = min(15.0, duration_years * rate_drop * 0.75)
+    coupon = round(number(item.get("COUPONPERCENT")), 2)
+    kind = "ОФЗ" if board == "TQOB" else "Корпоративная"
+    return {
+        "secid": item["SECID"],
+        "name": item.get("SHORTNAME") or item["SECID"],
+        "kind": kind,
+        "price": round(market_price(item, item), 2),
+        "yield": round(ytm, 2),
+        "coupon": coupon,
+        "durationYears": round(duration_years, 1),
+        "maturity": str(item.get("MATDATE", ""))[:10],
+        "issuedAt": str(item.get("ISSUEDATE") or "")[:10],
+        "expectedReturn": round(ytm + price_effect, 1),
+        "confidence": 88 if board == "TQOB" else 69,
+        "liquidityRub": round(number(item.get("VALTODAY_RUR") or item.get("VALTODAY"))),
+        "thesis": (
+            f"Текущая доходность {ytm:.1f}% и сценарный эффект снижения ставок "
+            f"около {price_effect:.1f}%."
+        ),
+        "risks": (
+            "Рост ставок вызывает снижение цены; результат зависит от реинвестирования купонов."
+            if board == "TQOB"
+            else "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск."
+        ),
+        "source": "https://iss.moex.com/iss/reference/",
+    }
+
+
+def build_bonds(
+    config: dict[str, Any],
+    board_rows: dict[str, list[dict[str, Any]]] | None = None,
+) -> list[dict[str, Any]]:
+    rate_drop = max(0.0, number(config["macro"]["currentKeyRate"]) - number(config["macro"]["forecastKeyRate12m"]))
+    board_rows = board_rows if board_rows is not None else load_bond_boards()
+    candidates: list[dict[str, Any]] = []
     for board in ("TQOB", "TQCB"):
         for item in board_rows.get(board, []):
             if not bond_candidate(item, board):
                 continue
-            ytm = number(item.get("YIELD") or item.get("EFFECTIVEYIELD"))
-            duration_years = number(item.get("DURATION")) / 365
-            price_effect = min(15.0, duration_years * rate_drop * 0.75)
-            expected = ytm + price_effect
-            maturity = str(item.get("MATDATE", ""))[:10]
-            candidates.append({
-                "secid": item["SECID"],
-                "name": item.get("SHORTNAME") or item["SECID"],
-                "kind": "ОФЗ" if board == "TQOB" else "Корпоративная",
-                "price": round(market_price(item, item), 2),
-                "yield": round(ytm, 2),
-                "coupon": round(number(item.get("COUPONPERCENT")), 2),
-                "durationYears": round(duration_years, 1),
-                "maturity": maturity,
-                "expectedReturn": round(expected, 1),
-                "confidence": 88 if board == "TQOB" else 69,
-                "liquidityRub": round(number(item.get("VALTODAY_RUR") or item.get("VALTODAY"))),
-                "thesis": (
-                    f"Текущая доходность {ytm:.1f}% и сценарный эффект снижения ставок "
-                    f"около {price_effect:.1f}%."
-                ),
-                "risks": (
-                    "Рост ставок вызывает снижение цены; результат зависит от реинвестирования купонов."
-                    if board == "TQOB"
-                    else "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск."
-                ),
-                "source": "https://iss.moex.com/iss/reference/",
-            })
+            candidates.append(map_bond(item, board, rate_drop))
     liquid = [
         item for item in candidates
         if item["liquidityRub"] >= (100_000 if item["kind"] == "ОФЗ" else 25_000)
@@ -1310,6 +1741,148 @@ def build_bonds(config: dict[str, Any]) -> list[dict[str, Any]]:
         key=lambda item: item["expectedReturn"],
         reverse=True,
     )[:RANKING_LIMIT]
+
+
+def build_bonds_by_coupon(
+    config: dict[str, Any],
+    board_rows: dict[str, list[dict[str, Any]]],
+    limit: int = RANKING_LIMIT,
+) -> list[dict[str, Any]]:
+    rate_drop = max(0.0, number(config["macro"]["currentKeyRate"]) - number(config["macro"]["forecastKeyRate12m"]))
+    candidates: list[dict[str, Any]] = []
+    for board in ("TQOB", "TQCB"):
+        for item in board_rows.get(board, []):
+            if not coupon_bond_candidate(item):
+                continue
+            record = map_bond(item, board, rate_drop)
+            if record["yield"] < 0:
+                continue
+            issued = parse_date(record.get("issuedAt"))
+            recent = bool(issued and issued >= date.today() - timedelta(days=HIGH_COUPON_ISSUE_DAYS))
+            if record["liquidityRub"] < 10_000 and not recent:
+                continue
+            record["confidence"] = 80 if board == "TQOB" else 48
+            record["thesis"] = (
+                f"Номинальный купон {record['coupon']:.1f}% при YTM {record['yield']:.1f}%. "
+                "Это размер купона, а не оценка надёжности эмитента."
+            )
+            record["risks"] = (
+                "Высокий купон обычно платит за кредитный и ликвидный риск. "
+                "Проверьте оферту, рейтинг и отчётность до покупки."
+            )
+            candidates.append(record)
+    candidates.sort(key=lambda item: (item["coupon"], item["yield"], item["liquidityRub"]), reverse=True)
+    seen: set[str] = set()
+    ranked: list[dict[str, Any]] = []
+    for item in candidates:
+        if item["secid"] in seen:
+            continue
+        seen.add(item["secid"])
+        ranked.append(item)
+        if len(ranked) >= limit:
+            break
+    return ranked
+
+
+def build_high_coupon_issues(
+    news: list[dict[str, str]],
+    board_rows: dict[str, list[dict[str, Any]]],
+    config: dict[str, Any],
+    previous: list[dict[str, Any]] | None = None,
+    limit: int = HIGH_COUPON_ISSUES_LIMIT,
+) -> list[dict[str, Any]]:
+    key_rate = number((config.get("macro") or {}).get("currentKeyRate"))
+    floor = high_coupon_floor(key_rate)
+    rate_drop = max(0.0, key_rate - number((config.get("macro") or {}).get("forecastKeyRate12m")))
+    items: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    def remember(key: str) -> bool:
+        if key in seen:
+            return False
+        seen.add(key)
+        return True
+
+    cutoff = date.today() - timedelta(days=HIGH_COUPON_ISSUE_DAYS)
+    for board in ("TQCB", "TQOB"):
+        for raw in board_rows.get(board, []):
+            coupon = number(raw.get("COUPONPERCENT"))
+            issued = parse_date(raw.get("ISSUEDATE"))
+            if coupon < floor or not issued or issued < cutoff:
+                continue
+            if not coupon_bond_candidate(raw, min_coupon=floor):
+                continue
+            record = map_bond(raw, board, rate_drop)
+            key = f"moex|{record['secid']}"
+            if not remember(key):
+                continue
+            items.append({
+                "ticker": record["secid"],
+                "name": record["name"],
+                "kind": "listing",
+                "coupon": record["coupon"],
+                "yield": record["yield"],
+                "maturity": record["maturity"],
+                "issuedAt": record["issuedAt"],
+                "title": f"{record['name']}: новый выпуск с купоном {record['coupon']:.1f}%",
+                "summary": (
+                    f"На Мосбирже с {record['issuedAt']} торгуется выпуск с номинальным купоном "
+                    f"{record['coupon']:.1f}%. Порог «очень высокий» — от {floor:.0f}% "
+                    f"(ключевая ставка {key_rate:.1f}%). Это не оферта купить."
+                ),
+                "source": {
+                    "publisher": "Московская биржа",
+                    "url": f"https://www.moex.com/ru/issue.aspx?code={urllib.parse.quote(record['secid'])}",
+                },
+            })
+
+    now = datetime.now(MOSCOW_TZ)
+    for item in news:
+        text = f"{item.get('title', '')} {item.get('description', '')}"
+        if not is_bond_issue_news(text):
+            continue
+        try:
+            published = published_datetime(str(item.get("publishedAt") or ""))
+            if now - published > timedelta(hours=36):
+                continue
+        except (TypeError, ValueError, OverflowError):
+            continue
+        coupon = extract_coupon_pct(text, key_rate)
+        if coupon is None or coupon < floor:
+            continue
+        title = str(item.get("title") or "")
+        slug = re.sub(r"\W+", "", title.lower())[:80]
+        key = f"news|{slug}"
+        if not remember(key):
+            continue
+        items.append({
+            "ticker": "ВЫПУСК",
+            "name": title[:80],
+            "kind": "news",
+            "coupon": round(coupon, 2),
+            "yield": round(coupon, 2),
+            "maturity": "",
+            "issuedAt": published.date().isoformat(),
+            "title": title,
+            "summary": (
+                f"В новости указан купон/ориентир {coupon:.1f}% при пороге {floor:.0f}%. "
+                "Сверьте ставку, оферту и эмитента в первоисточнике."
+            ),
+            "source": {
+                "publisher": item.get("source") or "лента",
+                "url": item.get("url") or "",
+            },
+        })
+
+    items.sort(key=lambda row: (number(row.get("coupon")), row.get("issuedAt") or ""), reverse=True)
+    if items:
+        return items[:limit]
+    stale = []
+    for item in previous or []:
+        issued = parse_date(item.get("issuedAt"))
+        if issued and issued >= cutoff:
+            stale.append(item)
+    return stale[:limit]
 
 
 def daily_closes(secid: str, boards: tuple[str, ...] = ("TQBR", "TQTF")) -> list[float]:
@@ -1555,7 +2128,8 @@ def build_funds(
 
 
 def strip_html(value: str) -> str:
-    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", value or "")).strip()
+    text = unescape(value or "").replace("\xa0", " ")
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", text)).strip()
 
 
 def rss_items(source: str, url: str) -> list[dict[str, str]]:
@@ -1676,18 +2250,22 @@ def alias_matches(alias: str, text: str) -> bool:
     return True
 
 
-def is_negative_actor_only(title: str, ticker: str) -> bool:
-    aliases = issuer_aliases(ticker)
-    lowered = title.lower()
-    actor_actions = r"(?:инициир\w*|намерен\w*|обрат\w*|подал\w*)"
-    negative_events = r"(?:банкрот\w*|иск\w*)"
-    return any(
-        re.search(
-            rf"{re.escape(alias)}.{{0,55}}{actor_actions}.{{0,55}}{negative_events}",
-            lowered,
+def is_negative_actor_only(text: str, ticker: str) -> bool:
+    """True when the issuer files a claim, rather than being the distressed party."""
+    aliases = [alias for alias in issuer_aliases(ticker) if len(alias) >= 3]
+    lowered = text.lower()
+    actor = r"(?:инициир\w*|намерен\w*|намерева\w*|обрат\w*|подал\w*|подаст\w*|подат\w*)"
+    event = r"(?:банкрот\w*|иск\w*)"
+    for alias in aliases:
+        token = re.escape(alias)
+        patterns = (
+            rf"{token}.{{0,160}}{actor}.{{0,160}}{event}",
+            rf"{event}.{{0,160}}{actor}.{{0,80}}{token}",
+            rf"{actor}.{{0,100}}{event}.{{0,80}}{token}",
         )
-        for alias in aliases
-    )
+        if any(re.search(pattern, lowered) for pattern in patterns):
+            return True
+    return False
 
 
 def issuer_aliases(ticker: str) -> list[str]:
@@ -1745,6 +2323,7 @@ def collect_entity_candidates(
     funds: list[dict[str, Any]] | None = None,
 ) -> list[tuple[int, float, str, list[str], str]]:
     """Return candidates as (alias_len, confidence, ticker, tags, matched_alias)."""
+    text = unescape(text).replace("\xa0", " ")
     upper = text.upper()
     lower = text.lower()
     known_tickers = {stock["secid"] for stock in stocks} | set(ISSUER_TICKERS.values())
@@ -1779,10 +2358,13 @@ def collect_entity_candidates(
                 (alias_len, confidence, stock["secid"], list(dict.fromkeys(tag for tag in tags if tag)), alias.lower())
             )
     for bond in bonds:
-        if bond["secid"] in upper or alias_matches(str(bond["name"]).lower(), lower):
-            tags = [make_hashtag(str(bond["name"])), f"#{bond['secid']}"]
-            confidence = 0.99 if bond["secid"] in upper else 0.9
-            alias = bond["secid"] if bond["secid"] in upper else str(bond["name"])
+        secid = str(bond.get("secid") or "")
+        secid_hit = bool(re.search(rf"(?<![A-Z0-9]){re.escape(secid)}(?![A-Z0-9])", upper)) if len(secid) >= 4 else False
+        name_hit = alias_matches(str(bond.get("name") or "").lower(), lower)
+        if secid_hit or name_hit:
+            tags = [make_hashtag(str(bond["name"])), f"#{secid}"]
+            confidence = 0.99 if secid_hit else 0.9
+            alias = secid if secid_hit else str(bond["name"])
             candidates.append(
                 (len(alias), confidence, bond["secid"], list(dict.fromkeys(tag for tag in tags if tag)), alias.lower())
             )
@@ -1798,7 +2380,10 @@ def collect_entity_candidates(
             ))
     if re.search(r"акци|бумаг|облигац|тикер", lower):
         tickers = re.findall(r"\b[A-Z]{4,5}\b", upper)
-        ticker = next((value for value in tickers if value not in NON_TICKER_TOKENS), None)
+        ticker = next(
+            (value for value in tickers if value not in NON_TICKER_TOKENS and value in known_tickers),
+            None,
+        )
         if ticker and not any(item[2] == ticker for item in candidates):
             candidates.append((len(ticker), 0.6, ticker, [f"#{ticker}"], ticker.lower()))
     return candidates
@@ -1897,6 +2482,15 @@ def resolve_related_instrument(
             used_text = combined
     if instrument is None:
         return None
+    if used_text != title:
+        quoted = re.findall(r"[«\"]([^»\"]{3,})[»\"]", title)
+        alias_in_title = any(
+            alias_matches(item[4], title.lower()) or item[2] in title.upper()
+            for item in collect_entity_candidates(title, stocks, bonds, funds)
+            if item[2] == instrument[0]
+        )
+        if quoted and not alias_in_title:
+            return None
 
     candidates = collect_entity_candidates(used_text, stocks, bonds, funds)
     by_ticker: dict[str, tuple[int, float, str, list[str], str]] = {}
@@ -2107,15 +2701,8 @@ def published_datetime(value: str) -> datetime:
     return parsed.astimezone(MOSCOW_TZ)
 
 
-def build_urgent(
-    stocks: list[dict[str, Any]],
-    bonds: list[dict[str, Any]],
-    funds: list[dict[str, Any]],
-    day_changes: dict[str, float] | None = None,
-) -> tuple[list[dict[str, Any]], list[dict[str, str]], dict[str, Any]]:
-    started_at = time.perf_counter()
-    day_changes = day_changes or {}
-    health = []
+def collect_market_news() -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    health: list[dict[str, str]] = []
     news: list[dict[str, str]] = []
     try:
         items = moex_sitenews()
@@ -2138,8 +2725,24 @@ def build_urgent(
                 items = future.result()
                 news.extend(items)
                 health.append({"source": source, "status": "ok", "detail": f"{len(items)} сообщений"})
-            except Exception as exc:  # one feed failure must not block the snapshot
+            except Exception as exc:
                 health.append({"source": source, "status": "error", "detail": str(exc)[:140]})
+    return news, health
+
+
+def build_urgent(
+    stocks: list[dict[str, Any]],
+    bonds: list[dict[str, Any]],
+    funds: list[dict[str, Any]],
+    day_changes: dict[str, float] | None = None,
+    news: list[dict[str, str]] | None = None,
+    health: list[dict[str, str]] | None = None,
+) -> tuple[list[dict[str, Any]], list[dict[str, str]], dict[str, Any]]:
+    started_at = time.perf_counter()
+    day_changes = day_changes or {}
+    if news is None:
+        news, health = collect_market_news()
+    health = health or []
 
     metrics = {
         "fetched": len(news),
@@ -2189,7 +2792,7 @@ def build_urgent(
             continue
         ticker, hashtags, entity_confidence, proximity = resolved
         combined_text = f"{item['title']} {item.get('description', '')}"
-        if is_negative_actor_only(item["title"], ticker) or is_macro_analyst_commentary(combined_text, ticker):
+        if is_negative_actor_only(combined_text, ticker) or is_macro_analyst_commentary(combined_text, ticker):
             metrics["unlinked"] += 1
             continue
         source = {"publisher": item["source"], "url": item["url"]}
@@ -2351,7 +2954,30 @@ def main() -> int:
             print(f"{name}: ошибка за {elapsed_ms} мс · {exc}", flush=True)
             return fallback
 
-    bonds = safe_build("MOEX: облигации", lambda: build_bonds(config), "bonds")
+    board_rows: dict[str, list[dict[str, Any]]] = {}
+    coupon_bonds: list[dict[str, Any]] = []
+    bond_started = time.perf_counter()
+    try:
+        board_rows = load_bond_boards()
+        bonds = build_bonds(config, board_rows)
+        coupon_bonds = build_bonds_by_coupon(config, board_rows)
+        elapsed_ms = round((time.perf_counter() - bond_started) * 1000)
+        status.append({
+            "source": "MOEX: облигации",
+            "status": "ok",
+            "detail": f"{len(bonds)} к погашению · {len(coupon_bonds)} по купону · {elapsed_ms} мс",
+        })
+        print(f"MOEX: облигации: {len(bonds)} + купон {len(coupon_bonds)} · {elapsed_ms} мс", flush=True)
+    except Exception as exc:
+        elapsed_ms = round((time.perf_counter() - bond_started) * 1000)
+        bonds = previous.get("bonds", [])
+        coupon_bonds = previous.get("couponBonds") or []
+        status.append({
+            "source": "MOEX: облигации",
+            "status": "stale" if bonds else "error",
+            "detail": f"{str(exc)[:140]}; сохранен прошлый снимок" if bonds else str(exc)[:140],
+        })
+        print(f"MOEX: облигации: ошибка за {elapsed_ms} мс · {exc}", flush=True)
     funds = safe_build(
         "MOEX: фонды",
         lambda: build_funds(config, previous.get("funds", [])),
@@ -2362,14 +2988,23 @@ def main() -> int:
         for item in config.get("stocks", [])
     ]
     urgent_started = time.perf_counter()
+    news, feed_health = collect_market_news()
     urgent, feed_health, pipeline_metrics = build_urgent(
         stock_stubs,
         bonds,
         funds,
         previous_day_changes(previous),
+        news=news,
+        health=feed_health,
+    )
+    high_coupon_issues = build_high_coupon_issues(
+        news,
+        board_rows,
+        config,
+        previous.get("highCouponIssues") or [],
     )
     print(
-        f"Срочные сигналы: {len(urgent)} · "
+        f"Срочные сигналы: {len(urgent)} · новые выпуски: {len(high_coupon_issues)} · "
         f"{round((time.perf_counter() - urgent_started) * 1000)} мс",
         flush=True,
     )
@@ -2455,6 +3090,28 @@ def main() -> int:
         f"ledger hit {performance.get('n') or 0}",
         flush=True,
     )
+    dividend_started = time.perf_counter()
+    try:
+        dividend_calendar = build_dividend_calendar(
+            config,
+            stocks_universe,
+            previous.get("dividendCalendar") or [],
+        )
+        elapsed_ms = round((time.perf_counter() - dividend_started) * 1000)
+        status.append({
+            "source": "Snowball: дивиденды",
+            "status": "ok",
+            "detail": f"{len(dividend_calendar)} отсечек · {elapsed_ms} мс",
+        })
+        print(f"Календарь дивидендов: {len(dividend_calendar)} · {elapsed_ms} мс", flush=True)
+    except Exception as exc:
+        dividend_calendar = still_upcoming_dividends(previous.get("dividendCalendar") or [])
+        status.append({
+            "source": "Snowball: дивиденды",
+            "status": "stale" if dividend_calendar else "error",
+            "detail": f"{str(exc)[:140]}; сохранен прошлый снимок" if dividend_calendar else str(exc)[:140],
+        })
+        print(f"Календарь дивидендов: ошибка · {exc}", flush=True)
 
     payload = {
         "generatedAt": now_iso(),
@@ -2471,8 +3128,11 @@ def main() -> int:
         "sectors": sectors,
         "urgent": urgent,
         "scalp": scalp,
+        "highCouponIssues": high_coupon_issues,
+        "dividendCalendar": dividend_calendar,
         "stocks": stocks,
         "bonds": bonds,
+        "couponBonds": coupon_bonds,
         "funds": funds,
         "macro": config["macro"],
         "stockModel": STOCK_MODEL,
