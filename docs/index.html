@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=divcal-2">
 </head>
 <body>
   <div class="ambient ambient-a"></div>
@@ -144,6 +144,20 @@
       </div>
     </section>
 
+    <section class="issue-section" aria-labelledby="issue-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">ПЕРВИЧКА · ВЫСОКИЙ КУПОН</p>
+          <h2 id="issue-title">Новые выпуски облигаций</h2>
+        </div>
+        <div class="signal-count scalp-count"><b id="issue-count">0</b><span>выпусков<br>в фокусе</span></div>
+      </div>
+      <p class="scalp-note">Размещения и свежие листинги, где купон не ниже ключевой ставки плюс 3 п.п. (минимум 18%). Высокий купон — плата за кредитный риск, не «доходность без риска».</p>
+      <div id="high-coupon-issues" class="urgent-list">
+        <div class="empty-state">Ищем новые выпуски с высоким купоном…</div>
+      </div>
+    </section>
+
     <section class="sector-section" aria-labelledby="sector-title">
       <div class="urgent-heading">
         <div>
@@ -154,6 +168,23 @@
       <div id="sector-list" class="sector-list"></div>
     </section>
 
+    <section class="dividend-section" aria-labelledby="dividend-title">
+      <div class="urgent-heading">
+        <div>
+          <p class="eyebrow">АКЦИИ · 60 ДНЕЙ</p>
+          <h2 id="dividend-title">Календарь дивидендов</h2>
+        </div>
+        <div class="signal-count dividend-count"><b id="dividend-count">0</b><span>отсечек<br>в календаре</span></div>
+      </div>
+      <p class="scalp-note">Календарь Snowball Income по акциям MOEX: дата закрытия реестра и дивидендная доходность. Прогнозы не показываем — только объявленные и рекомендованные выплаты.</p>
+      <div class="dividend-head">
+        <span>Бумага</span><span>Отсечка</span><span>Дивиденд</span><span>Доходность</span>
+      </div>
+      <div id="dividend-calendar" class="dividend-list">
+        <div class="empty-state">Проверяем официальные отсечки…</div>
+      </div>
+    </section>
+
     <section class="ideas-section">
       <div class="section-heading">
         <div>
@@ -162,7 +193,8 @@
         </div>
         <div class="tabs" role="tablist" aria-label="Тип инструмента">
           <button class="tab active" data-type="stocks" role="tab">Акции</button>
-          <button class="tab" data-type="bonds" role="tab">Облигации</button>
+          <button class="tab" data-type="bonds" role="tab">Облигации (доходность)</button>
+          <button class="tab" data-type="couponBonds" role="tab">Облигации (купон)</button>
           <button class="tab" data-type="funds" role="tab">Фонды</button>
         </div>
       </div>
@@ -234,9 +266,17 @@
       <b>Скальп · отскок</b>
       <p>Ищем бумаги, которые за сессию просели сильнее медианы вселенной, вместе с общим спадом или на нефундаментальной новости (арест, иск, шум). Фундаментальный негатив — дефолт, санкции, halt, profit warning — в этот список не попадает.</p>
     </div>
+    <div class="method-block">
+      <b>Облигации · доходность и купон</b>
+      <p>Вкладка «доходность» — сценарий на 12 месяцев (YTM плюс эффект ставки). Вкладка «купон» сортирует те же торгуемые выпуски по номинальному купону: это не замена YTM и не оценка надёжности. Новые выпуски с очень высоким купоном собираются из новостей о размещении и из листингов MOEX за 21 день, если ставка купона не ниже ключевой + 3 п.п. (и не ниже 18%).</p>
+    </div>
+    <div class="method-block">
+      <b>Календарь дивидендов</b>
+      <p>Ближайшие 60 дней — календарь Snowball Income по российским акциям. Берём дату закрытия реестра, выплату на акцию и дивидендную доходность. Строки со статусом «прогноз» отбрасываются; остаются объявленные и рекомендованные выплаты. Это не гарантия платежа и не команда покупать к отсечке.</p>
+    </div>
     <p class="dialog-warning">Любой сигнал — повод для проверки, а не команда на сделку. Учитывайте горизонт, ликвидность и допустимый убыток.</p>
   </dialog>
 
-  <script src="app.js" defer></script>
+  <script src="app.js?v=divcal-2" defer></script>
 </body>
 </html>
