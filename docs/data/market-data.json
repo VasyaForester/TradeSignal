@@ -1,34 +1,34 @@
 {
-  "generatedAt": "2026-10-22T14:49:10+03:00",
+  "generatedAt": "2026-10-22T20:09:06+03:00",
   "methodologyVersion": "1.2.0",
   "market": "Московская биржа",
   "marketTape": {
     "imoex": {
       "secid": "IMOEX",
       "name": "Индекс МосБиржи",
-      "value": 2430.07,
+      "value": 2430.1,
       "dayChange": -0.69,
       "url": "https://www.moex.com/ru/index/IMOEX"
     },
     "rgbi": {
       "secid": "RGBI",
       "name": "Индекс Мосбиржи гос обл RGBI",
-      "value": 112.03,
-      "dayChange": 0.23,
+      "value": 111.99,
+      "dayChange": 0.2,
       "url": "https://www.moex.com/ru/index/RGBI"
     },
     "usd": {
       "secid": "USD",
       "name": "USD/RUB",
-      "value": 81.41,
-      "dayChange": -0.51,
+      "value": 81.53,
+      "dayChange": -0.39,
       "url": "https://www.moex.com/ru/derivatives/currency-rate.aspx?currency=USD/RUB"
     }
   },
   "marketBrief": {
     "index": "IMOEX",
     "indexName": "Индекс МосБиржи",
-    "value": 2430.07,
+    "value": 2430.1,
     "dayChange": -0.69,
     "stance": "падает",
     "horizon": "не только сессия",
@@ -71,39 +71,39 @@
   },
   "marketPulse": {
     "catalyst": {
-      "ticker": "RASP",
-      "name": "RASP",
+      "ticker": "LKOH",
+      "name": "Лукойл",
       "action": "SELL",
-      "eventType": "accident",
-      "title": "⚠️🇷🇺#RASP Распадская сообщает о том, что комиссией по расследованию инцидента, в результате анализа фактических обстоятельств, 21.10.2026 принято решение классифицировать произошедшее событие как авария на опасном произв…",
+      "eventType": "sanctions",
+      "title": "Россия и США обсуждают тему санкций против “ЛУКОЙЛа”",
       "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "expectedImpactPct": -2.6,
+      "expectedImpactPct": -1.7,
       "marketReactionPct": 0.0,
-      "gapPct": -2.6,
-      "reaction": "underreaction",
-      "horizon": "1–3 дня",
-      "confidence": 88,
-      "sourceQuality": 0.25,
+      "gapPct": -1.7,
+      "reaction": "confirmed",
+      "horizon": "1–10 дней",
+      "confidence": 74,
+      "sourceQuality": 0.5,
       "official": false,
-      "strength": 10,
+      "strength": 4.5,
       "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/390040"
+        "publisher": "Финам: компании",
+        "url": "https://www.finam.ru/publications/item/rossiya-i-ssha-obsuzhdayut-temu-sanktsiy-protiv-lukoyla-20261021-1816/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
       }
     },
     "mover": {
-      "ticker": "PHOR",
-      "name": "ФосАгро",
-      "dayChange": 0.64
+      "ticker": "CNRU",
+      "name": "Циан",
+      "dayChange": 0.84
     },
     "anomaly": {
-      "ticker": "RASP",
-      "title": "⚠️🇷🇺#RASP Распадская сообщает о том, что комиссией по расследованию инцидента, в результате анализа фактических обстоятельств, 21.10.2026 принято решение классифицировать произошедшее событие как авария на опасном произв…",
-      "kind": "underreaction",
-      "label": "сильный катализатор, слабая реакция рынка",
-      "expectedImpactPct": -2.6,
-      "marketReactionPct": 0.0,
-      "eventType": "accident"
+      "ticker": "PLZL",
+      "title": "PLZL -3.9% без свежего катализатора в ленте",
+      "kind": "mover",
+      "label": "сильное движение без явного события в снимке",
+      "expectedImpactPct": 0,
+      "marketReactionPct": -3.93,
+      "eventType": "other"
     }
   },
   "sinceLastUpdate": {
@@ -114,13 +114,8 @@
         "action": "SELL"
       },
       {
-        "ticker": "RASP",
-        "title": "⚠️🇷🇺#RASP Распадская сообщает о том, что комиссией по расследованию инцидента, в результате анализа фактических обстоятельств, 21.10.2026 принято решение классифицировать произошедшее событие как авария на опасном произв…",
-        "action": "SELL"
-      },
-      {
-        "ticker": "GAZP",
-        "title": "🛢🇷🇺🇪🇺#газ #спг #россия #европа #прогноз СОТРУДНИЧЕСТВО РОССИИ И ЕВРОПЫ В ЭНЕРГЕТИКЕ НЕ МОЖЕТ ПРЕКРАТИТЬСЯ, ОНО БУДЕТ ВСЕГДА - МИХЕЛЬСОН ГАЗПРОМ ГОТОВ ВОЗОБНОВИТЬ ПОСТАВКИ ГАЗА В ЕВРОПУ, ЕСЛИ У ЕВРОПЫ БУДЕТ ТАКОЙ ИНТЕРЕС …",
+        "ticker": "LSRG",
+        "title": "❗️🇷🇺#LSRG #дивиденд СД ЛСР утвердил положение о дивидендной политике Общества в новой редакции.",
         "action": "BUY"
       }
     ],
@@ -134,7 +129,7 @@
   },
   "drivers": [
     {
-      "title": "USD/RUB -0.5%",
+      "title": "USD/RUB -0.4%",
       "positive": [
         "SBER"
       ],
@@ -155,44 +150,15 @@
       "note": "Цепочка: новость → эмитент → сектор."
     },
     {
-      "title": "⚠️🇷🇺#RASP Распадская сообщает о том, что комиссией по расследованию инцидента, в результате анализа фактических обстоятельств, 21.10.2026 принято решение классифицировать произошедшее событие как авария на опасном произв…",
-      "positive": [],
-      "negative": [
-        "RASP"
-      ],
-      "note": "Цепочка: новость → эмитент → сектор."
-    },
-    {
-      "title": "🛢🇷🇺🇪🇺#газ #спг #россия #европа #прогноз СОТРУДНИЧЕСТВО РОССИИ И ЕВРОПЫ В ЭНЕРГЕТИКЕ НЕ МОЖЕТ ПРЕКРАТИТЬСЯ, ОНО БУДЕТ ВСЕГДА - МИХЕЛЬСОН ГАЗПРОМ ГОТОВ ВОЗОБНОВИТЬ ПОСТАВКИ ГАЗА В ЕВРОПУ, ЕСЛИ У ЕВРОПЫ БУДЕТ ТАКОЙ ИНТЕРЕС …",
+      "title": "❗️🇷🇺#LSRG #дивиденд СД ЛСР утвердил положение о дивидендной политике Общества в новой редакции.",
       "positive": [
-        "GAZP"
+        "LSRG"
       ],
       "negative": [],
       "note": "Цепочка: новость → эмитент → сектор."
     }
   ],
   "catalysts": [
-    {
-      "ticker": "RASP",
-      "name": "RASP",
-      "action": "SELL",
-      "eventType": "accident",
-      "title": "⚠️🇷🇺#RASP Распадская сообщает о том, что комиссией по расследованию инцидента, в результате анализа фактических обстоятельств, 21.10.2026 принято решение классифицировать произошедшее событие как авария на опасном произв…",
-      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "expectedImpactPct": -2.6,
-      "marketReactionPct": 0.0,
-      "gapPct": -2.6,
-      "reaction": "underreaction",
-      "horizon": "1–3 дня",
-      "confidence": 88,
-      "sourceQuality": 0.25,
-      "official": false,
-      "strength": 10,
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/390040"
-      }
-    },
     {
       "ticker": "LKOH",
       "name": "Лукойл",
@@ -215,59 +181,64 @@
       }
     },
     {
-      "ticker": "GAZP",
-      "name": "Газпром",
+      "ticker": "LSRG",
+      "name": "LSRG",
       "action": "BUY",
-      "eventType": "other",
-      "title": "🛢🇷🇺🇪🇺#газ #спг #россия #европа #прогноз СОТРУДНИЧЕСТВО РОССИИ И ЕВРОПЫ В ЭНЕРГЕТИКЕ НЕ МОЖЕТ ПРЕКРАТИТЬСЯ, ОНО БУДЕТ ВСЕГДА - МИХЕЛЬСОН ГАЗПРОМ ГОТОВ ВОЗОБНОВИТЬ ПОСТАВКИ ГАЗА В ЕВРОПУ, ЕСЛИ У ЕВРОПЫ БУДЕТ ТАКОЙ ИНТЕРЕС …",
+      "eventType": "dividend",
+      "title": "❗️🇷🇺#LSRG #дивиденд СД ЛСР утвердил положение о дивидендной политике Общества в новой редакции.",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 1.1,
+      "expectedImpactPct": 1.0,
       "marketReactionPct": 0.0,
-      "gapPct": 1.1,
+      "gapPct": 1.0,
       "reaction": "confirmed",
-      "horizon": "1–3 дня",
-      "confidence": 67,
+      "horizon": "1–5 дней",
+      "confidence": 64,
       "sourceQuality": 0.25,
       "official": false,
-      "strength": 3.7,
+      "strength": 3.5,
       "source": {
         "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/390033"
+        "url": "https://t.me/markettwits/390081"
       }
     }
   ],
   "anomalies": [
     {
-      "ticker": "RASP",
-      "title": "⚠️🇷🇺#RASP Распадская сообщает о том, что комиссией по расследованию инцидента, в результате анализа фактических обстоятельств, 21.10.2026 принято решение классифицировать произошедшее событие как авария на опасном произв…",
-      "kind": "underreaction",
-      "label": "сильный катализатор, слабая реакция рынка",
-      "expectedImpactPct": -2.6,
-      "marketReactionPct": 0.0,
-      "eventType": "accident"
+      "ticker": "PLZL",
+      "title": "PLZL -3.9% без свежего катализатора в ленте",
+      "kind": "mover",
+      "label": "сильное движение без явного события в снимке",
+      "expectedImpactPct": 0,
+      "marketReactionPct": -3.93,
+      "eventType": "other"
+    },
+    {
+      "ticker": "X5",
+      "title": "X5 -2.1% без свежего катализатора в ленте",
+      "kind": "mover",
+      "label": "сильное движение без явного события в снимке",
+      "expectedImpactPct": 0,
+      "marketReactionPct": -2.11,
+      "eventType": "other"
     }
   ],
   "sectors": [
     {
-      "id": "tech",
-      "label": "Технологии",
-      "dayChange": -1.22,
+      "id": "retail",
+      "label": "Ритейл",
+      "dayChange": -1.42,
       "members": [
         {
-          "secid": "OZON",
-          "dayChange": -2.01
+          "secid": "X5",
+          "dayChange": -2.11
         },
         {
-          "secid": "YDEX",
-          "dayChange": -1.75
+          "secid": "HNFG",
+          "dayChange": -1.23
         },
         {
-          "secid": "HEAD",
-          "dayChange": -1.5
-        },
-        {
-          "secid": "CNRU",
-          "dayChange": 0.39
+          "secid": "LENT",
+          "dayChange": -0.91
         }
       ],
       "why": "Движение внутри сектора без единого заголовка в срочной ленте."
@@ -275,75 +246,27 @@
     {
       "id": "commodity",
       "label": "Сырьё",
-      "dayChange": -1.06,
+      "dayChange": -1.36,
       "members": [
         {
           "secid": "PLZL",
-          "dayChange": -3.81
+          "dayChange": -3.93
         },
         {
           "secid": "GMKN",
-          "dayChange": -1.03
-        },
-        {
-          "secid": "ENPG",
-          "dayChange": -0.95
+          "dayChange": -1.39
         },
         {
           "secid": "NVTK",
-          "dayChange": -0.13
+          "dayChange": -1.13
+        },
+        {
+          "secid": "ENPG",
+          "dayChange": -1.13
         },
         {
           "secid": "PHOR",
-          "dayChange": 0.64
-        }
-      ],
-      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
-    },
-    {
-      "id": "retail",
-      "label": "Ритейл",
-      "dayChange": -0.96,
-      "members": [
-        {
-          "secid": "X5",
-          "dayChange": -1.22
-        },
-        {
-          "secid": "HNFG",
-          "dayChange": -1.1
-        },
-        {
-          "secid": "LENT",
-          "dayChange": -0.57
-        }
-      ],
-      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
-    },
-    {
-      "id": "health",
-      "label": "Здравоохранение",
-      "dayChange": -0.95,
-      "members": [
-        {
-          "secid": "MDMG",
-          "dayChange": -0.95
-        }
-      ],
-      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
-    },
-    {
-      "id": "telecom",
-      "label": "Телеком",
-      "dayChange": -0.74,
-      "members": [
-        {
-          "secid": "RTKM",
-          "dayChange": -1.08
-        },
-        {
-          "secid": "MTSS",
-          "dayChange": -0.4
+          "dayChange": 0.77
         }
       ],
       "why": "Движение внутри сектора без единого заголовка в срочной ленте."
@@ -351,11 +274,63 @@
     {
       "id": "infra",
       "label": "Инфраструктура",
-      "dayChange": -0.73,
+      "dayChange": -1.17,
       "members": [
         {
           "secid": "TRNFP",
-          "dayChange": -0.73
+          "dayChange": -1.17
+        }
+      ],
+      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
+    },
+    {
+      "id": "health",
+      "label": "Здравоохранение",
+      "dayChange": -1.12,
+      "members": [
+        {
+          "secid": "MDMG",
+          "dayChange": -1.12
+        }
+      ],
+      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
+    },
+    {
+      "id": "tech",
+      "label": "Технологии",
+      "dayChange": -0.78,
+      "members": [
+        {
+          "secid": "YDEX",
+          "dayChange": -1.72
+        },
+        {
+          "secid": "OZON",
+          "dayChange": -1.2
+        },
+        {
+          "secid": "HEAD",
+          "dayChange": -1.05
+        },
+        {
+          "secid": "CNRU",
+          "dayChange": 0.84
+        }
+      ],
+      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
+    },
+    {
+      "id": "telecom",
+      "label": "Телеком",
+      "dayChange": -0.76,
+      "members": [
+        {
+          "secid": "RTKM",
+          "dayChange": -0.98
+        },
+        {
+          "secid": "MTSS",
+          "dayChange": -0.54
         }
       ],
       "why": "Движение внутри сектора без единого заголовка в срочной ленте."
@@ -363,11 +338,11 @@
     {
       "id": "bank",
       "label": "Банки",
-      "dayChange": -0.24,
+      "dayChange": -0.26,
       "members": [
         {
           "secid": "SBER",
-          "dayChange": -0.24
+          "dayChange": -0.26
         }
       ],
       "why": "Движение внутри сектора без единого заголовка в срочной ленте."
@@ -395,7 +370,7 @@
       "title": "Россия и США обсуждают тему санкций против “ЛУКОЙЛа”",
       "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
       "publishedAt": "Wed, 21 Oct 2026 18:16:43 +0300",
-      "expiresAt": "2026-10-24T14:49:03.069795+03:00",
+      "expiresAt": "2026-10-24T20:08:57.241372+03:00",
       "source": {
         "publisher": "Финам: компании",
         "url": "https://www.finam.ru/publications/item/rossiya-i-ssha-obsuzhdayut-temu-sanktsiy-protiv-lukoyla-20261021-1816/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
@@ -410,73 +385,38 @@
       "signalScore": 76.5
     },
     {
-      "ticker": "RASP",
+      "ticker": "LSRG",
       "hashtags": [
-        "#RASP"
-      ],
-      "action": "SELL",
-      "strength": 96,
-      "sentimentScore": -1.0,
-      "impactEstimatePct": -2.6,
-      "impactConfidence": 88,
-      "entityConfidence": 65,
-      "impactModel": "rules-v1",
-      "eventType": "accident",
-      "eventSeverity": 70,
-      "noveltyScore": 1.0,
-      "sourceQuality": 0.25,
-      "marketReaction": null,
-      "title": "⚠️🇷🇺#RASP Распадская сообщает о том, что комиссией по расследованию инцидента, в результате анализа фактических обстоятельств, 21.10.2026 принято решение классифицировать произошедшее событие как авария на опасном произв…",
-      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "publishedAt": "2026-10-22T11:19:59+00:00",
-      "expiresAt": "2026-10-23T14:49:03.101214+03:00",
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/390040"
-      },
-      "sources": [
-        {
-          "publisher": "MarketTwits",
-          "url": "https://t.me/markettwits/390040"
-        }
-      ],
-      "sourceCount": 1,
-      "signalScore": 68.28
-    },
-    {
-      "ticker": "GAZP",
-      "hashtags": [
-        "#Газпром",
-        "#GAZP"
+        "#LSRG"
       ],
       "action": "BUY",
-      "strength": 62,
-      "sentimentScore": 0.31,
-      "impactEstimatePct": 1.1,
-      "impactConfidence": 67,
-      "entityConfidence": 90,
+      "strength": 66,
+      "sentimentScore": 0.4,
+      "impactEstimatePct": 1.0,
+      "impactConfidence": 64,
+      "entityConfidence": 65,
       "impactModel": "rules-v1",
-      "eventType": "other",
-      "eventSeverity": 20,
+      "eventType": "dividend",
+      "eventSeverity": 30,
       "noveltyScore": 1.0,
       "sourceQuality": 0.25,
       "marketReaction": null,
-      "title": "🛢🇷🇺🇪🇺#газ #спг #россия #европа #прогноз СОТРУДНИЧЕСТВО РОССИИ И ЕВРОПЫ В ЭНЕРГЕТИКЕ НЕ МОЖЕТ ПРЕКРАТИТЬСЯ, ОНО БУДЕТ ВСЕГДА - МИХЕЛЬСОН ГАЗПРОМ ГОТОВ ВОЗОБНОВИТЬ ПОСТАВКИ ГАЗА В ЕВРОПУ, ЕСЛИ У ЕВРОПЫ БУДЕТ ТАКОЙ ИНТЕРЕС …",
+      "title": "❗️🇷🇺#LSRG #дивиденд СД ЛСР утвердил положение о дивидендной политике Общества в новой редакции.",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "2026-10-22T10:47:19+00:00",
-      "expiresAt": "2026-10-24T14:49:03.094058+03:00",
+      "publishedAt": "2026-10-22T14:53:33+00:00",
+      "expiresAt": "2026-10-24T20:08:57.263523+03:00",
       "source": {
         "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/390033"
+        "url": "https://t.me/markettwits/390081"
       },
       "sources": [
         {
           "publisher": "MarketTwits",
-          "url": "https://t.me/markettwits/390033"
+          "url": "https://t.me/markettwits/390081"
         }
       ],
       "sourceCount": 1,
-      "signalScore": 49.59
+      "signalScore": 52.4
     }
   ],
   "scalp": [
@@ -489,14 +429,14 @@
       ],
       "action": "BUY",
       "horizon": "1–3 сессии",
-      "price": 1090.8,
-      "dayChange": -3.81,
-      "marketChange": -0.95,
-      "excessDrop": 2.86,
+      "price": 1089.4,
+      "dayChange": -3.93,
+      "marketChange": -1.13,
+      "excessDrop": 2.8,
       "catalyst": "market_drawdown",
       "strength": 91,
-      "signalScore": 90.8,
-      "title": "PLZL просела на 3.8%",
+      "signalScore": 91.1,
+      "title": "PLZL просела на 3.9%",
       "summary": "Бумага просела вместе с рынком, без явного фундаментального удара.",
       "source": {
         "publisher": "MOEX · сессия",
@@ -512,14 +452,14 @@
       ],
       "action": "BUY",
       "horizon": "1–3 сессии",
-      "price": 2630.0,
-      "dayChange": -2.92,
-      "marketChange": -0.95,
-      "excessDrop": 1.97,
+      "price": 2642.0,
+      "dayChange": -2.47,
+      "marketChange": -1.13,
+      "excessDrop": 1.34,
       "catalyst": "market_drawdown",
-      "strength": 79,
-      "signalScore": 78.8,
-      "title": "HEAD просела на 2.9%",
+      "strength": 71,
+      "signalScore": 71.4,
+      "title": "HEAD просела на 2.5%",
       "summary": "Бумага просела вместе с рынком, без явного фундаментального удара.",
       "source": {
         "publisher": "MOEX · сессия",
@@ -527,26 +467,25 @@
       }
     },
     {
-      "ticker": "OZON",
-      "name": "Ozon",
+      "ticker": "X5",
+      "name": "X5",
       "hashtags": [
-        "#Ozon",
-        "#OZON"
+        "#X5"
       ],
       "action": "BUY",
       "horizon": "1–3 сессии",
-      "price": 3465.0,
-      "dayChange": -2.01,
-      "marketChange": -0.95,
-      "excessDrop": 1.06,
+      "price": 2203.0,
+      "dayChange": -2.11,
+      "marketChange": -1.13,
+      "excessDrop": 0.98,
       "catalyst": "market_drawdown",
-      "strength": 66,
-      "signalScore": 66.5,
-      "title": "OZON просела на 2.0%",
+      "strength": 67,
+      "signalScore": 66.6,
+      "title": "X5 просела на 2.1%",
       "summary": "Бумага просела вместе с рынком, без явного фундаментального удара.",
       "source": {
         "publisher": "MOEX · сессия",
-        "url": "https://www.moex.com/ru/issue.aspx?code=OZON"
+        "url": "https://www.moex.com/ru/issue.aspx?code=X5"
       }
     },
     {
@@ -558,14 +497,14 @@
       ],
       "action": "BUY",
       "horizon": "1–3 сессии",
-      "price": 3392.0,
-      "dayChange": -1.75,
-      "marketChange": -0.95,
-      "excessDrop": 0.8,
+      "price": 3393.0,
+      "dayChange": -1.72,
+      "marketChange": -1.13,
+      "excessDrop": 0.59,
       "catalyst": "market_drawdown",
-      "strength": 63,
-      "signalScore": 63.0,
-      "title": "YDEX просела на 1.8%",
+      "strength": 61,
+      "signalScore": 61.3,
+      "title": "YDEX просела на 1.7%",
       "summary": "Бумага просела вместе с рынком, без явного фундаментального удара.",
       "source": {
         "publisher": "MOEX · сессия",
@@ -573,57 +512,43 @@
       }
     },
     {
-      "ticker": "X5",
-      "name": "X5",
+      "ticker": "GMKN",
+      "name": "Норникель",
       "hashtags": [
-        "#X5"
+        "#Норникель",
+        "#GMKN"
       ],
       "action": "BUY",
       "horizon": "1–3 сессии",
-      "price": 2223.0,
-      "dayChange": -1.22,
-      "marketChange": -0.95,
-      "excessDrop": 0.27,
+      "price": 113.32,
+      "dayChange": -1.39,
+      "marketChange": -1.13,
+      "excessDrop": 0.26,
       "catalyst": "market_drawdown",
-      "strength": 56,
-      "signalScore": 55.8,
-      "title": "X5 просела на 1.2%",
+      "strength": 57,
+      "signalScore": 56.9,
+      "title": "GMKN просела на 1.4%",
       "summary": "Бумага просела вместе с рынком, без явного фундаментального удара.",
       "source": {
         "publisher": "MOEX · сессия",
-        "url": "https://www.moex.com/ru/issue.aspx?code=X5"
+        "url": "https://www.moex.com/ru/issue.aspx?code=GMKN"
       }
     }
   ],
   "highCouponIssues": [
     {
       "ticker": "ВЫПУСК",
-      "name": "Нижегородская область 10 ноября проведет сбор заявок на облигации объемом до 20 ",
+      "name": "\"ЛЕГЕНДА\" увеличила объем размещения облигаций до 1,1 млрд рублей",
       "kind": "news",
-      "coupon": 40.0,
-      "yield": 40.0,
+      "coupon": 23.14,
+      "yield": 23.14,
       "maturity": "",
-      "issuedAt": "2026-10-21",
-      "title": "Нижегородская область 10 ноября проведет сбор заявок на облигации объемом до 20 млрд рублей",
-      "summary": "В новости указан купон/ориентир 40.0% при пороге 18%. Сверьте ставку, оферту и эмитента в первоисточнике.",
+      "issuedAt": "2026-10-22",
+      "title": "\"ЛЕГЕНДА\" увеличила объем размещения облигаций до 1,1 млрд рублей",
+      "summary": "В новости указан купон/ориентир 23.1% при пороге 18%. Сверьте ставку, оферту и эмитента в первоисточнике.",
       "source": {
         "publisher": "Финам: облигации",
-        "url": "http://bonds.finam.ru/news/item/nizhegorodskaya-oblast-10-noyabrya-provedet-sbor-zayavok-na-obligatsii-obemom-do-20-mlrd-rubley/?utm_source=rss&utm_medium=bonds_news&utm_campaign=news_to_finamb"
-      }
-    },
-    {
-      "ticker": "ВЫПУСК",
-      "name": "МКАО \"Воксис\" 26 октября проведет сбор заявок на облигации объемом 500 млн рубле",
-      "kind": "news",
-      "coupon": 23.75,
-      "yield": 23.75,
-      "maturity": "",
-      "issuedAt": "2026-10-21",
-      "title": "МКАО \"Воксис\" 26 октября проведет сбор заявок на облигации объемом 500 млн рублей",
-      "summary": "В новости указан купон/ориентир 23.8% при пороге 18%. Сверьте ставку, оферту и эмитента в первоисточнике.",
-      "source": {
-        "publisher": "Финам: облигации",
-        "url": "http://bonds.finam.ru/news/item/mkao-voxis-26-oktyabrya-provedet-sbor-zayavok-na-obligatsii-obemom-500-mln-rubley/?utm_source=rss&utm_medium=bonds_news&utm_campaign=news_to_finamb"
+        "url": "http://bonds.finam.ru/news/item/-legenda-uvelichila-obem-razmeshchenia-obligatsiy-do-1-1-mlrd-rubley/?utm_source=rss&utm_medium=bonds_news&utm_campaign=news_to_finamb"
       }
     }
   ],
@@ -633,7 +558,7 @@
       "name": "Акрон",
       "cutoffDate": "2026-11-02",
       "dividendRub": 146.0,
-      "yieldPct": 0.77,
+      "yieldPct": 0.76,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -646,7 +571,7 @@
       "name": "Самараэнерго",
       "cutoffDate": "2026-11-30",
       "dividendRub": 0.42,
-      "yieldPct": 15.11,
+      "yieldPct": 15.27,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -659,7 +584,7 @@
       "name": "Самараэнерго - ап",
       "cutoffDate": "2026-11-30",
       "dividendRub": 0.42,
-      "yieldPct": 15.03,
+      "yieldPct": 15.0,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -672,7 +597,7 @@
       "name": "Циан",
       "cutoffDate": "2026-11-30",
       "dividendRub": 33.0,
-      "yieldPct": 4.95,
+      "yieldPct": 4.93,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -685,7 +610,7 @@
       "name": "Куйбышевазот",
       "cutoffDate": "2026-12-01",
       "dividendRub": 20.0,
-      "yieldPct": 5.46,
+      "yieldPct": 5.5,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -698,7 +623,7 @@
       "name": "Куйбышевазот ап",
       "cutoffDate": "2026-12-01",
       "dividendRub": 20.0,
-      "yieldPct": 5.38,
+      "yieldPct": 5.4,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -711,7 +636,7 @@
       "name": "ВИ.ру",
       "cutoffDate": "2026-12-07",
       "dividendRub": 7.0,
-      "yieldPct": 8.87,
+      "yieldPct": 9.01,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -724,7 +649,7 @@
       "name": "HENDERS",
       "cutoffDate": "2026-12-07",
       "dividendRub": 8.0,
-      "yieldPct": 2.75,
+      "yieldPct": 2.78,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -737,7 +662,7 @@
       "name": "НК ЛУКОЙЛ",
       "cutoffDate": "2026-12-09",
       "dividendRub": 535.0,
-      "yieldPct": 8.83,
+      "yieldPct": 8.81,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -750,20 +675,20 @@
     {
       "secid": "X5",
       "name": "X5",
-      "price": 2223.0,
-      "dayChange": -1.22,
-      "targetPrice": 2529.31,
+      "price": 2203.0,
+      "dayChange": -2.11,
+      "targetPrice": 2504.56,
       "dividend12m": 530.0,
-      "priceReturn": 13.8,
-      "dividendYield": 23.8,
-      "expectedReturn": 37.6,
+      "priceReturn": 13.7,
+      "dividendYield": 24.1,
+      "expectedReturn": 37.7,
       "confidence": 88,
       "financialTrend": 90,
-      "return3m": 12.7,
-      "return12m": -13.1,
+      "return3m": 12.2,
+      "return12m": -13.5,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
-        "impulse": 0.2,
+        "impulse": 0.1,
         "fundamental": 11.2,
         "news": 0.0,
         "macro": 2.4
@@ -771,7 +696,7 @@
       "sector": "retail",
       "thesis": "Лидер продуктового ретейла, рост дискаунтеров и сильный денежный поток.",
       "risks": "Инфляция издержек, конкуренция и регулирование цен.",
-      "liquidityRub": 761607982,
+      "liquidityRub": 1420747182,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -784,8 +709,8 @@
     {
       "secid": "SBER",
       "name": "Сбербанк",
-      "price": 290.91,
-      "dayChange": -0.24,
+      "price": 290.86,
+      "dayChange": -0.26,
       "targetPrice": 330.92,
       "dividend12m": 37.0,
       "priceReturn": 13.8,
@@ -793,8 +718,8 @@
       "expectedReturn": 26.5,
       "confidence": 88,
       "financialTrend": 86,
-      "return3m": 5.2,
-      "return12m": -4.2,
+      "return3m": 5.3,
+      "return12m": -4.1,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
         "impulse": 0.2,
@@ -805,7 +730,7 @@
       "sector": "bank",
       "thesis": "Высокая рентабельность капитала, устойчивые комиссионные доходы и дивидендный поток; кредитный риск отдельных заёмщиков учитывается новостной моделью.",
       "risks": "Кредитный цикл, регулирование и замедление экономики.",
-      "liquidityRub": 1984322473,
+      "liquidityRub": 3292119817,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -818,17 +743,17 @@
     {
       "secid": "HEAD",
       "name": "HeadHunter",
-      "price": 2630.0,
-      "dayChange": -1.5,
-      "targetPrice": 2848.89,
+      "price": 2642.0,
+      "dayChange": -1.05,
+      "targetPrice": 2864.06,
       "dividend12m": 450.0,
-      "priceReturn": 8.3,
-      "dividendYield": 17.1,
+      "priceReturn": 8.4,
+      "dividendYield": 17.0,
       "expectedReturn": 25.4,
       "confidence": 86,
       "financialTrend": 79,
-      "return3m": -4.2,
-      "return12m": -11.4,
+      "return3m": -3.7,
+      "return12m": -11.0,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
         "impulse": -1.3,
@@ -839,7 +764,7 @@
       "sector": "tech",
       "thesis": "Лидер HR-tech с высокой маржой и сильной генерацией денежных средств.",
       "risks": "Охлаждение рынка труда и снижение найма.",
-      "liquidityRub": 230350075,
+      "liquidityRub": 345906428,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -852,17 +777,17 @@
     {
       "secid": "TRNFP",
       "name": "Транснефть, ап",
-      "price": 1056.4,
-      "dayChange": -0.73,
-      "targetPrice": 1142.46,
+      "price": 1051.8,
+      "dayChange": -1.17,
+      "targetPrice": 1137.13,
       "dividend12m": 176.0,
       "priceReturn": 8.1,
       "dividendYield": 16.7,
       "expectedReturn": 24.8,
       "confidence": 86,
       "financialTrend": 78,
-      "return3m": 2.8,
-      "return12m": -25.5,
+      "return3m": 2.6,
+      "return12m": -25.7,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
         "impulse": -1.8,
@@ -873,7 +798,7 @@
       "sector": "infra",
       "thesis": "Защитный инфраструктурный бизнес и высокий ожидаемый дивиденд.",
       "risks": "Тарифное регулирование, налоги и капитальные затраты.",
-      "liquidityRub": 255655479,
+      "liquidityRub": 395646499,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -886,20 +811,20 @@
     {
       "secid": "MTSS",
       "name": "МТС",
-      "price": 174.6,
-      "dayChange": -0.4,
-      "targetPrice": 177.39,
+      "price": 174.35,
+      "dayChange": -0.54,
+      "targetPrice": 177.17,
       "dividend12m": 35.0,
       "priceReturn": 1.6,
-      "dividendYield": 20.0,
-      "expectedReturn": 21.6,
+      "dividendYield": 20.1,
+      "expectedReturn": 21.7,
       "confidence": 79,
       "financialTrend": 55,
-      "return3m": -5.9,
-      "return12m": -23.2,
+      "return3m": -5.8,
+      "return12m": -23.1,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
-        "impulse": -2.5,
+        "impulse": -2.4,
         "fundamental": 1.4,
         "news": 0.0,
         "macro": 2.7
@@ -907,7 +832,7 @@
       "sector": "telecom",
       "thesis": "Стабильная телеком-выручка и высокая дивидендная доходность.",
       "risks": "Долговая нагрузка и высокая ставка.",
-      "liquidityRub": 138905307,
+      "liquidityRub": 204089103,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -920,20 +845,20 @@
     {
       "secid": "CNRU",
       "name": "Циан",
-      "price": 668.0,
-      "dayChange": 0.39,
-      "targetPrice": 720.97,
+      "price": 671.0,
+      "dayChange": 0.84,
+      "targetPrice": 725.26,
       "dividend12m": 80.0,
-      "priceReturn": 7.9,
-      "dividendYield": 12.0,
-      "expectedReturn": 19.9,
+      "priceReturn": 8.1,
+      "dividendYield": 11.9,
+      "expectedReturn": 20.0,
       "confidence": 83,
       "financialTrend": 68,
-      "return3m": 1.5,
-      "return12m": 14.9,
+      "return3m": 2.3,
+      "return12m": 15.8,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
-        "impulse": 1.3,
+        "impulse": 1.5,
         "fundamental": 5.0,
         "news": 0.0,
         "macro": 1.5
@@ -941,7 +866,7 @@
       "sector": "tech",
       "thesis": "Монетизация объявлений сохраняется; крупный специальный дивиденд больше не закладывается в базовый сценарий.",
       "risks": "Слабый рынок ипотеки и волатильность рекламного спроса.",
-      "liquidityRub": 20336863,
+      "liquidityRub": 38341443,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -954,17 +879,17 @@
     {
       "secid": "PLZL",
       "name": "Полюс",
-      "price": 1090.8,
-      "dayChange": -3.81,
-      "targetPrice": 1143.21,
+      "price": 1089.4,
+      "dayChange": -3.93,
+      "targetPrice": 1141.58,
       "dividend12m": 162.0,
       "priceReturn": 4.8,
       "dividendYield": 14.9,
       "expectedReturn": 19.7,
       "confidence": 87,
       "financialTrend": 82,
-      "return3m": -8.3,
-      "return12m": -60.1,
+      "return3m": -8.4,
+      "return12m": -60.2,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
         "impulse": -5.3,
@@ -975,7 +900,7 @@
       "sector": "commodity",
       "thesis": "Сильная маржа и защитная экспозиция на золото.",
       "risks": "Коррекция золота, налоги и капиталоемкость.",
-      "liquidityRub": 2583904204,
+      "liquidityRub": 3563176621,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -988,20 +913,20 @@
     {
       "secid": "PHOR",
       "name": "ФосАгро",
-      "price": 5656.0,
-      "dayChange": 0.64,
-      "targetPrice": 6061.37,
+      "price": 5663.0,
+      "dayChange": 0.77,
+      "targetPrice": 6073.93,
       "dividend12m": 671.0,
-      "priceReturn": 7.2,
-      "dividendYield": 11.9,
-      "expectedReturn": 19.0,
+      "priceReturn": 7.3,
+      "dividendYield": 11.8,
+      "expectedReturn": 19.1,
       "confidence": 85,
       "financialTrend": 74,
-      "return3m": 3.5,
-      "return12m": -12.6,
+      "return3m": 4.0,
+      "return12m": -12.1,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
-        "impulse": -0.7,
+        "impulse": -0.6,
         "fundamental": 6.7,
         "news": 0.0,
         "macro": 1.1
@@ -1009,7 +934,7 @@
       "sector": "commodity",
       "thesis": "Низкая себестоимость и устойчивый мировой спрос на удобрения.",
       "risks": "Экспортные ограничения, рубль и цены на удобрения.",
-      "liquidityRub": 580639449,
+      "liquidityRub": 897986546,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -1022,9 +947,9 @@
     {
       "secid": "MDMG",
       "name": "Мать и дитя",
-      "price": 1282.9,
-      "dayChange": -0.95,
-      "targetPrice": 1410.27,
+      "price": 1280.7,
+      "dayChange": -1.12,
+      "targetPrice": 1407.83,
       "dividend12m": 100.0,
       "priceReturn": 9.9,
       "dividendYield": 7.8,
@@ -1032,7 +957,7 @@
       "confidence": 88,
       "financialTrend": 84,
       "return3m": -3.3,
-      "return12m": -13.4,
+      "return12m": -13.5,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
         "impulse": -1.4,
@@ -1043,7 +968,7 @@
       "sector": "health",
       "thesis": "Защитный спрос на медицину, расширение сети и низкая долговая нагрузка.",
       "risks": "Темпы открытия клиник и дефицит персонала.",
-      "liquidityRub": 57945961,
+      "liquidityRub": 88878822,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -1056,9 +981,9 @@
     {
       "secid": "HNFG",
       "name": "Henderson",
-      "price": 288.4,
-      "dayChange": -1.1,
-      "targetPrice": 307.37,
+      "price": 288.0,
+      "dayChange": -1.23,
+      "targetPrice": 306.92,
       "dividend12m": 30.0,
       "priceReturn": 6.6,
       "dividendYield": 10.4,
@@ -1066,7 +991,7 @@
       "confidence": 87,
       "financialTrend": 81,
       "return3m": -9.7,
-      "return12m": -43.5,
+      "return12m": -43.6,
       "targetModel": "tradesignal-v1",
       "targetDrivers": {
         "impulse": -4.5,
@@ -1077,7 +1002,7 @@
       "sector": "retail",
       "thesis": "Расширение сети и рост продаж на квадратный метр.",
       "risks": "Потребительский спрос и валютная себестоимость.",
-      "liquidityRub": 3007496,
+      "liquidityRub": 3743436,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -1093,15 +1018,15 @@
       "secid": "SU26230RMFS1",
       "name": "ОФЗ 26230",
       "kind": "ОФЗ",
-      "price": 56.85,
-      "yield": 16.32,
+      "price": 56.8,
+      "yield": 16.33,
       "coupon": 7.7,
       "durationYears": 6.7,
       "maturity": "2039-03-16",
       "issuedAt": "",
       "expectedReturn": 26.3,
       "confidence": 88,
-      "liquidityRub": 15099700,
+      "liquidityRub": 42501930,
       "thesis": "Текущая доходность 16.3% и сценарный эффект снижения ставок около 10.0%.",
       "risks": "Рост ставок вызывает снижение цены; результат зависит от реинвестирования купонов.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1110,15 +1035,15 @@
       "secid": "SU26238RMFS4",
       "name": "ОФЗ 26238",
       "kind": "ОФЗ",
-      "price": 51.95,
-      "yield": 16.1,
+      "price": 51.79,
+      "yield": 16.15,
       "coupon": 7.1,
       "durationYears": 6.8,
       "maturity": "2041-05-15",
       "issuedAt": "",
       "expectedReturn": 26.3,
       "confidence": 88,
-      "liquidityRub": 466644981,
+      "liquidityRub": 720969502,
       "thesis": "Текущая доходность 16.1% и сценарный эффект снижения ставок около 10.2%.",
       "risks": "Рост ставок вызывает снижение цены; результат зависит от реинвестирования купонов.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1127,16 +1052,16 @@
       "secid": "SU29029RMFS4",
       "name": "ОФЗ 29029",
       "kind": "ОФЗ",
-      "price": 93.83,
-      "yield": 17.02,
+      "price": 93.69,
+      "yield": 17.05,
       "coupon": 0.0,
       "durationYears": 6.1,
       "maturity": "2041-10-22",
       "issuedAt": "",
       "expectedReturn": 26.2,
       "confidence": 88,
-      "liquidityRub": 5900568,
-      "thesis": "Текущая доходность 17.0% и сценарный эффект снижения ставок около 9.1%.",
+      "liquidityRub": 17639460,
+      "thesis": "Текущая доходность 17.1% и сценарный эффект снижения ставок около 9.1%.",
       "risks": "Рост ставок вызывает снижение цены; результат зависит от реинвестирования купонов.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1144,15 +1069,15 @@
       "secid": "SU26254RMFS1",
       "name": "ОФЗ 26254",
       "kind": "ОФЗ",
-      "price": 83.65,
-      "yield": 16.59,
+      "price": 83.62,
+      "yield": 16.6,
       "coupon": 13.0,
       "durationYears": 6.2,
       "maturity": "2040-10-03",
       "issuedAt": "",
       "expectedReturn": 25.9,
       "confidence": 88,
-      "liquidityRub": 1408658363,
+      "liquidityRub": 2132040917,
       "thesis": "Текущая доходность 16.6% и сценарный эффект снижения ставок около 9.3%.",
       "risks": "Рост ставок вызывает снижение цены; результат зависит от реинвестирования купонов.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1161,67 +1086,67 @@
       "secid": "SU29028RMFS6",
       "name": "ОФЗ 29028",
       "kind": "ОФЗ",
-      "price": 93.87,
-      "yield": 17.03,
+      "price": 93.81,
+      "yield": 17.05,
       "coupon": 0.0,
       "durationYears": 5.9,
       "maturity": "2039-10-22",
       "issuedAt": "",
       "expectedReturn": 25.8,
       "confidence": 88,
-      "liquidityRub": 20759671,
-      "thesis": "Текущая доходность 17.0% и сценарный эффект снижения ставок около 8.8%.",
+      "liquidityRub": 53915334,
+      "thesis": "Текущая доходность 17.1% и сценарный эффект снижения ставок около 8.8%.",
       "risks": "Рост ставок вызывает снижение цены; результат зависит от реинвестирования купонов.",
+      "source": "https://iss.moex.com/iss/reference/"
+    },
+    {
+      "secid": "RU000A109890",
+      "name": "ВЭББНКР 07",
+      "kind": "Корпоративная",
+      "price": 98.0,
+      "yield": 23.68,
+      "coupon": 19.0,
+      "durationYears": 0.7,
+      "maturity": "2028-01-26",
+      "issuedAt": "",
+      "expectedReturn": 24.8,
+      "confidence": 69,
+      "liquidityRub": 25464,
+      "thesis": "Текущая доходность 23.7% и сценарный эффект снижения ставок около 1.1%.",
+      "risks": "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск.",
+      "source": "https://iss.moex.com/iss/reference/"
+    },
+    {
+      "secid": "RU000A106Y88",
+      "name": "ВЭББНКР 04",
+      "kind": "Корпоративная",
+      "price": 98.69,
+      "yield": 23.67,
+      "coupon": 15.0,
+      "durationYears": 0.2,
+      "maturity": "2027-03-09",
+      "issuedAt": "",
+      "expectedReturn": 24.0,
+      "confidence": 69,
+      "liquidityRub": 58176,
+      "thesis": "Текущая доходность 23.7% и сценарный эффект снижения ставок около 0.3%.",
+      "risks": "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск.",
       "source": "https://iss.moex.com/iss/reference/"
     },
     {
       "secid": "RU000A1082K7",
       "name": "ВЭББНКР 06",
       "kind": "Корпоративная",
-      "price": 99.72,
-      "yield": 23.1,
+      "price": 99.61,
+      "yield": 23.57,
       "coupon": 20.0,
       "durationYears": 0.3,
       "maturity": "2027-09-02",
       "issuedAt": "",
-      "expectedReturn": 23.5,
+      "expectedReturn": 24.0,
       "confidence": 69,
-      "liquidityRub": 50286,
-      "thesis": "Текущая доходность 23.1% и сценарный эффект снижения ставок около 0.4%.",
-      "risks": "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск.",
-      "source": "https://iss.moex.com/iss/reference/"
-    },
-    {
-      "secid": "RU000A106LL5",
-      "name": "ВЭБP-37",
-      "kind": "Корпоративная",
-      "price": 99.35,
-      "yield": 17.3,
-      "coupon": 0.0,
-      "durationYears": 3.8,
-      "maturity": "2032-08-25",
-      "issuedAt": "",
-      "expectedReturn": 23.1,
-      "confidence": 69,
-      "liquidityRub": 3546515,
-      "thesis": "Текущая доходность 17.3% и сценарный эффект снижения ставок около 5.8%.",
-      "risks": "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск.",
-      "source": "https://iss.moex.com/iss/reference/"
-    },
-    {
-      "secid": "RU000A107X96",
-      "name": "ВЭБP-40",
-      "kind": "Корпоративная",
-      "price": 97.2,
-      "yield": 17.49,
-      "coupon": 0.0,
-      "durationYears": 3.7,
-      "maturity": "2032-03-30",
-      "issuedAt": "",
-      "expectedReturn": 23.1,
-      "confidence": 69,
-      "liquidityRub": 2357106,
-      "thesis": "Текущая доходность 17.5% и сценарный эффект снижения ставок около 5.6%.",
+      "liquidityRub": 439344,
+      "thesis": "Текущая доходность 23.6% и сценарный эффект снижения ставок около 0.4%.",
       "risks": "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1229,33 +1154,33 @@
       "secid": "RU000A10DCH3",
       "name": "СберSbD10R",
       "kind": "Корпоративная",
-      "price": 49.21,
-      "yield": 15.95,
+      "price": 49.16,
+      "yield": 15.97,
       "coupon": 0.0,
       "durationYears": 4.8,
       "maturity": "2031-08-07",
       "issuedAt": "",
-      "expectedReturn": 23.1,
+      "expectedReturn": 23.2,
       "confidence": 69,
-      "liquidityRub": 11192199,
-      "thesis": "Текущая доходность 15.9% и сценарный эффект снижения ставок около 7.2%.",
+      "liquidityRub": 16919182,
+      "thesis": "Текущая доходность 16.0% и сценарный эффект снижения ставок около 7.2%.",
       "risks": "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск.",
       "source": "https://iss.moex.com/iss/reference/"
     },
     {
-      "secid": "RU000A0ZZRY2",
-      "name": "РЖД 1Р-09R",
+      "secid": "RU000A106LL5",
+      "name": "ВЭБP-37",
       "kind": "Корпоративная",
-      "price": 100.2,
-      "yield": 15.82,
-      "coupon": 14.82,
-      "durationYears": 4.6,
-      "maturity": "2033-10-14",
+      "price": 99.39,
+      "yield": 17.29,
+      "coupon": 0.0,
+      "durationYears": 3.8,
+      "maturity": "2032-08-25",
       "issuedAt": "",
-      "expectedReturn": 22.7,
+      "expectedReturn": 23.1,
       "confidence": 69,
-      "liquidityRub": 637210,
-      "thesis": "Текущая доходность 15.8% и сценарный эффект снижения ставок около 6.8%.",
+      "liquidityRub": 54973940,
+      "thesis": "Текущая доходность 17.3% и сценарный эффект снижения ставок около 5.8%.",
       "risks": "Кредитный рейтинг автоматически не проверяется; есть процентный и кредитный риск.",
       "source": "https://iss.moex.com/iss/reference/"
     }
@@ -1265,16 +1190,16 @@
       "secid": "RU000A10E6G3",
       "name": "Л-Старт1Р1",
       "kind": "Корпоративная",
-      "price": 52.21,
-      "yield": 86.99,
+      "price": 52.24,
+      "yield": 86.93,
       "coupon": 31.0,
       "durationYears": 1.6,
       "maturity": "2030-01-09",
       "issuedAt": "",
-      "expectedReturn": 89.4,
+      "expectedReturn": 89.3,
       "confidence": 48,
-      "liquidityRub": 113586,
-      "thesis": "Номинальный купон 31.0% при YTM 87.0%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 250230,
+      "thesis": "Номинальный купон 31.0% при YTM 86.9%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1282,16 +1207,16 @@
       "secid": "RU000A10B4H9",
       "name": "ИПС БО-01",
       "kind": "Корпоративная",
-      "price": 91.49,
-      "yield": 43.08,
+      "price": 91.4,
+      "yield": 43.18,
       "coupon": 30.5,
       "durationYears": 1.3,
       "maturity": "2030-03-15",
       "issuedAt": "",
-      "expectedReturn": 45.0,
+      "expectedReturn": 45.1,
       "confidence": 48,
-      "liquidityRub": 34309,
-      "thesis": "Номинальный купон 30.5% при YTM 43.1%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 50074,
+      "thesis": "Номинальный купон 30.5% при YTM 43.2%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1299,16 +1224,16 @@
       "secid": "RU000A10BP87",
       "name": "ПИР 1P3",
       "kind": "Корпоративная",
-      "price": 83.02,
-      "yield": 71.38,
+      "price": 82.87,
+      "yield": 71.79,
       "coupon": 30.0,
       "durationYears": 0.7,
       "maturity": "2028-05-11",
       "issuedAt": "",
-      "expectedReturn": 72.5,
+      "expectedReturn": 72.9,
       "confidence": 48,
-      "liquidityRub": 278278,
-      "thesis": "Номинальный купон 30.0% при YTM 71.4%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 716346,
+      "thesis": "Номинальный купон 30.0% при YTM 71.8%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1316,16 +1241,16 @@
       "secid": "RU000A10ATC4",
       "name": "МГКЛ-1P7",
       "kind": "Корпоративная",
-      "price": 88.21,
-      "yield": 42.94,
+      "price": 87.14,
+      "yield": 43.8,
       "coupon": 30.0,
       "durationYears": 2.0,
       "maturity": "2030-01-11",
       "issuedAt": "",
-      "expectedReturn": 45.9,
+      "expectedReturn": 46.8,
       "confidence": 48,
-      "liquidityRub": 1842226,
-      "thesis": "Номинальный купон 30.0% при YTM 42.9%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 3556143,
+      "thesis": "Номинальный купон 30.0% при YTM 43.8%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1333,16 +1258,16 @@
       "secid": "RU000A107FG5",
       "name": "ТрансМ БО2",
       "kind": "Корпоративная",
-      "price": 106.2,
-      "yield": 25.31,
+      "price": 106.51,
+      "yield": 24.89,
       "coupon": 30.0,
       "durationYears": 0.8,
       "maturity": "2027-11-30",
       "issuedAt": "",
-      "expectedReturn": 26.6,
+      "expectedReturn": 26.2,
       "confidence": 48,
-      "liquidityRub": 268791,
-      "thesis": "Номинальный купон 30.0% при YTM 25.3%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 469879,
+      "thesis": "Номинальный купон 30.0% при YTM 24.9%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1350,15 +1275,15 @@
       "secid": "RU000A10B4L1",
       "name": "ДЕВАР 1Р1",
       "kind": "Корпоративная",
-      "price": 101.27,
-      "yield": 32.37,
+      "price": 101.26,
+      "yield": 32.38,
       "coupon": 29.5,
       "durationYears": 1.1,
       "maturity": "2028-03-05",
       "issuedAt": "",
       "expectedReturn": 34.1,
       "confidence": 48,
-      "liquidityRub": 254676,
+      "liquidityRub": 372930,
       "thesis": "Номинальный купон 29.5% при YTM 32.4%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1367,16 +1292,16 @@
       "secid": "RU000A10AZN8",
       "name": "Органик1Р1",
       "kind": "Корпоративная",
-      "price": 105.26,
-      "yield": 27.78,
+      "price": 102.73,
+      "yield": 30.62,
       "coupon": 29.5,
       "durationYears": 1.1,
       "maturity": "2028-02-13",
       "issuedAt": "",
-      "expectedReturn": 29.4,
+      "expectedReturn": 32.3,
       "confidence": 48,
-      "liquidityRub": 258816,
-      "thesis": "Номинальный купон 29.5% при YTM 27.8%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 1585632,
+      "thesis": "Номинальный купон 29.5% при YTM 30.6%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1384,16 +1309,16 @@
       "secid": "RU000A10ASF9",
       "name": "СибСтекБ01",
       "kind": "Корпоративная",
-      "price": 101.06,
-      "yield": 26.9,
+      "price": 101.44,
+      "yield": 24.75,
       "coupon": 29.0,
       "durationYears": 0.2,
       "maturity": "2027-01-24",
       "issuedAt": "",
-      "expectedReturn": 27.2,
+      "expectedReturn": 25.1,
       "confidence": 48,
-      "liquidityRub": 80868,
-      "thesis": "Номинальный купон 29.0% при YTM 26.9%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 282470,
+      "thesis": "Номинальный купон 29.0% при YTM 24.8%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     },
@@ -1401,33 +1326,33 @@
       "secid": "RU000A10ADD6",
       "name": "NSKATD-02",
       "kind": "Корпоративная",
-      "price": 101.17,
-      "yield": 22.04,
+      "price": 101.11,
+      "yield": 22.58,
       "coupon": 29.0,
       "durationYears": 0.1,
       "maturity": "2027-12-03",
       "issuedAt": "",
-      "expectedReturn": 22.2,
+      "expectedReturn": 22.8,
       "confidence": 48,
-      "liquidityRub": 488561,
-      "thesis": "Номинальный купон 29.0% при YTM 22.0%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 891055,
+      "thesis": "Номинальный купон 29.0% при YTM 22.6%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     },
     {
-      "secid": "RU000A10C5P8",
-      "name": "ПИР 1P4",
+      "secid": "RU000A10F7K2",
+      "name": "Л-Старт2Р1",
       "kind": "Корпоративная",
-      "price": 79.25,
-      "yield": 72.15,
+      "price": 41.4,
+      "yield": 111.31,
       "coupon": 28.5,
-      "durationYears": 0.9,
-      "maturity": "2028-07-07",
+      "durationYears": 1.5,
+      "maturity": "2030-10-28",
       "issuedAt": "",
-      "expectedReturn": 73.4,
+      "expectedReturn": 113.6,
       "confidence": 48,
-      "liquidityRub": 163754,
-      "thesis": "Номинальный купон 28.5% при YTM 72.2%. Это размер купона, а не оценка надёжности эмитента.",
+      "liquidityRub": 10764,
+      "thesis": "Номинальный купон 28.5% при YTM 111.3%. Это размер купона, а не оценка надёжности эмитента.",
       "risks": "Высокий купон обычно платит за кредитный и ликвидный риск. Проверьте оферту, рейтинг и отчётность до покупки.",
       "source": "https://iss.moex.com/iss/reference/"
     }
@@ -1438,15 +1363,15 @@
       "name": "OBLG ETF",
       "category": "bonds",
       "categoryLabel": "Облигации",
-      "price": 213.44,
-      "dayChange": 0.09,
+      "price": 213.42,
+      "dayChange": 0.08,
       "return3m": 3.2,
-      "return12m": 17.5,
+      "return12m": 17.4,
       "volatility": 2.8,
       "maxDrawdown": -1.9,
       "expectedReturn": 13.6,
       "confidence": 84,
-      "liquidityRub": 16608436,
+      "liquidityRub": 27891731,
       "thesis": "Облигационный фонд: ставка/купонный carry + смягчение ДКП, с поправкой на волатильность.",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1456,15 +1381,15 @@
       "name": "TMON ETF",
       "category": "money",
       "categoryLabel": "Денежный рынок",
-      "price": 166.46,
-      "dayChange": 0.07,
+      "price": 166.45,
+      "dayChange": 0.06,
       "return3m": 3.0,
       "return12m": 14.2,
       "volatility": 1.1,
       "maxDrawdown": -0.3,
       "expectedReturn": 13.1,
       "confidence": 84,
-      "liquidityRub": 2519716,
+      "liquidityRub": 3000271,
       "thesis": "Фонд денежного рынка: сценарная доходность около ключевой ставки (14.0% минус издержки).",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1474,15 +1399,15 @@
       "name": "BCSD ETF",
       "category": "bonds",
       "categoryLabel": "Облигации",
-      "price": 14.566,
-      "dayChange": 0.03,
+      "price": 14.565,
+      "dayChange": 0.02,
       "return3m": 2.7,
       "return12m": 14.5,
       "volatility": 0.7,
       "maxDrawdown": -0.0,
       "expectedReturn": 12.8,
       "confidence": 84,
-      "liquidityRub": 324644061,
+      "liquidityRub": 879594123,
       "thesis": "Облигационный фонд: ставка/купонный carry + смягчение ДКП, с поправкой на волатильность.",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1492,15 +1417,15 @@
       "name": "AKMM ETF",
       "category": "money",
       "categoryLabel": "Денежный рынок",
-      "price": 179.98,
-      "dayChange": 0.03,
+      "price": 179.99,
+      "dayChange": 0.04,
       "return3m": 2.4,
       "return12m": 10.6,
       "volatility": 0.6,
       "maxDrawdown": -0.0,
       "expectedReturn": 12.4,
       "confidence": 84,
-      "liquidityRub": 2574425076,
+      "liquidityRub": 4221335951,
       "thesis": "Фонд денежного рынка: сценарная доходность около ключевой ставки (14.0% минус издержки).",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1518,7 +1443,7 @@
       "maxDrawdown": -0.0,
       "expectedReturn": 12.4,
       "confidence": 84,
-      "liquidityRub": 1476762369,
+      "liquidityRub": 2655182947,
       "thesis": "Фонд денежного рынка: сценарная доходность около ключевой ставки (14.0% минус издержки).",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1536,7 +1461,7 @@
       "maxDrawdown": -0.0,
       "expectedReturn": 12.4,
       "confidence": 84,
-      "liquidityRub": 1368572104,
+      "liquidityRub": 2446953484,
       "thesis": "Фонд денежного рынка: сценарная доходность около ключевой ставки (14.0% минус издержки).",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1546,15 +1471,15 @@
       "name": "BOND ETF",
       "category": "bonds",
       "categoryLabel": "Облигации",
-      "price": 1709.6,
-      "dayChange": 0.01,
-      "return3m": 1.0,
-      "return12m": 15.0,
+      "price": 1711.4,
+      "dayChange": 0.12,
+      "return3m": 0.9,
+      "return12m": 14.9,
       "volatility": 4.4,
       "maxDrawdown": -2.6,
       "expectedReturn": 12.4,
       "confidence": 84,
-      "liquidityRub": 3003260,
+      "liquidityRub": 5485174,
       "thesis": "Облигационный фонд: ставка/купонный carry + смягчение ДКП, с поправкой на волатильность.",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1564,15 +1489,15 @@
       "name": "SBRB ETF",
       "category": "bonds",
       "categoryLabel": "Облигации",
-      "price": 19.202,
-      "dayChange": 0.15,
-      "return3m": 1.4,
-      "return12m": 8.5,
+      "price": 19.212,
+      "dayChange": 0.2,
+      "return3m": 1.5,
+      "return12m": 8.6,
       "volatility": 3.8,
       "maxDrawdown": -2.3,
       "expectedReturn": 10.6,
       "confidence": 84,
-      "liquidityRub": 161466281,
+      "liquidityRub": 267704053,
       "thesis": "Облигационный фонд: ставка/купонный carry + смягчение ДКП, с поправкой на волатильность.",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1582,15 +1507,15 @@
       "name": "EQMX ETF",
       "category": "equity",
       "categoryLabel": "Акции",
-      "price": 134.45,
-      "dayChange": -0.59,
-      "return3m": 11.5,
-      "return12m": 6.8,
+      "price": 134.2,
+      "dayChange": -0.78,
+      "return3m": 11.4,
+      "return12m": 6.7,
       "volatility": 23.5,
       "maxDrawdown": -31.2,
-      "expectedReturn": 3.3,
+      "expectedReturn": 3.2,
       "confidence": 71,
-      "liquidityRub": 140486975,
+      "liquidityRub": 186025923,
       "thesis": "Акционный фонд: тренд 3/12 мес. с поправкой на волатильность и просадку.",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -1600,15 +1525,15 @@
       "name": "GOLD ETF",
       "category": "gold",
       "categoryLabel": "Золото",
-      "price": 2.7025,
-      "dayChange": -1.91,
-      "return3m": 4.3,
-      "return12m": 6.3,
+      "price": 2.6875,
+      "dayChange": -2.45,
+      "return3m": 3.5,
+      "return12m": 5.5,
       "volatility": 27.3,
       "maxDrawdown": -27.6,
-      "expectedReturn": 0.5,
+      "expectedReturn": -0.1,
       "confidence": 69,
-      "liquidityRub": 89538514,
+      "liquidityRub": 137197519,
       "thesis": "Золотой фонд: импульс цены металла с штрафом за просадку и волатильность.",
       "risks": "Прошлая доходность и сценарный carry не гарантируют будущий результат.",
       "source": "https://iss.moex.com/iss/reference/"
@@ -2893,7 +2818,7 @@
       "priceAtEmit": 1042.5,
       "expectedImpactPct": -1.8,
       "confidence": 76,
-      "return1d": 10.34,
+      "return1d": 9.24,
       "hit1d": false
     },
     {
@@ -2941,7 +2866,7 @@
       "priceAtEmit": 116.2,
       "expectedImpactPct": 1.4,
       "confidence": 70,
-      "return1d": -2.12,
+      "return1d": -2.48,
       "hit1d": false
     },
     {
@@ -2953,7 +2878,7 @@
       "priceAtEmit": 275.06,
       "expectedImpactPct": 1.4,
       "confidence": 71,
-      "return1d": 5.76,
+      "return1d": 5.74,
       "hit1d": true
     },
     {
@@ -2993,42 +2918,30 @@
       "hit1d": null
     },
     {
-      "id": "RASP|SELL|raspраспадскаясообщаетотомчтокомиссиейпорасследованиюинцидентаврезультатеанализа",
-      "ticker": "RASP",
-      "action": "SELL",
-      "eventType": "accident",
-      "emittedAt": "2026-10-22T11:19:59+00:00",
-      "priceAtEmit": 0.0,
-      "expectedImpactPct": -2.6,
-      "confidence": 88,
-      "return1d": null,
-      "hit1d": null
-    },
-    {
-      "id": "GAZP|BUY|газспгроссияевропапрогнозсотрудничествороссиииевропывэнергетикенеможетпрекратить",
-      "ticker": "GAZP",
+      "id": "LSRG|BUY|lsrgдивидендсдлсрутвердилположениеодивиденднойполитикеобществавновойредакции",
+      "ticker": "LSRG",
       "action": "BUY",
-      "eventType": "other",
-      "emittedAt": "2026-10-22T10:47:19+00:00",
+      "eventType": "dividend",
+      "emittedAt": "2026-10-22T14:53:33+00:00",
       "priceAtEmit": 0.0,
-      "expectedImpactPct": 1.1,
-      "confidence": 67,
+      "expectedImpactPct": 1.0,
+      "confidence": 64,
       "return1d": null,
       "hit1d": null
     }
   ],
   "signalPerformance": {
     "n": 30,
-    "pending": 86,
+    "pending": 85,
     "hitRate": 0.367,
-    "avgReturn": 0.06,
+    "avgReturn": 0.01,
     "highConfidenceHitRate": 0.545,
     "byEvent": [
       {
         "eventType": "dividend",
         "n": 15,
         "hitRate": 0.267,
-        "avgReturn": -0.84
+        "avgReturn": -0.86
       },
       {
         "eventType": "report",
@@ -3052,7 +2965,7 @@
         "eventType": "sanctions",
         "n": 3,
         "hitRate": 0.333,
-        "avgReturn": 3.43
+        "avgReturn": 3.06
       },
       {
         "eventType": "buyback",
@@ -3075,15 +2988,15 @@
     ]
   },
   "pipelineMetrics": {
-    "fetched": 250,
-    "expired": 18,
-    "lowImpact": 206,
-    "unlinked": 23,
+    "fetched": 268,
+    "expired": 10,
+    "lowImpact": 225,
+    "unlinked": 31,
     "duplicatesMerged": 0,
-    "signals": 3,
+    "signals": 2,
     "dedupRate": 0.0,
     "impactAccuracy": null,
-    "latencyMs": 97,
+    "latencyMs": 82,
     "entityLinkPrecision": 1.0,
     "entityLinkRecall": 1.0,
     "entityEvalSamples": 50
@@ -3092,17 +3005,17 @@
     {
       "source": "MOEX: облигации",
       "status": "ok",
-      "detail": "10 к погашению · 10 по купону · 9937 мс"
+      "detail": "10 к погашению · 10 по купону · 13747 мс"
     },
     {
       "source": "MOEX: фонды",
       "status": "ok",
-      "detail": "10 инструментов · 5432 мс"
+      "detail": "10 инструментов · 8229 мс"
     },
     {
       "source": "MOEX: акции",
       "status": "ok",
-      "detail": "17 инструментов · 3757 мс"
+      "detail": "17 инструментов · 4742 мс"
     },
     {
       "source": "MOEX: IMOEX",
@@ -3112,7 +3025,7 @@
     {
       "source": "Snowball: дивиденды",
       "status": "ok",
-      "detail": "9 отсечек · 1436 мс"
+      "detail": "9 отсечек · 1921 мс"
     },
     {
       "source": "Московская биржа",
@@ -3125,14 +3038,9 @@
       "detail": "10 сообщений"
     },
     {
-      "source": "Финам: облигации",
+      "source": "Банк России",
       "status": "ok",
-      "detail": "20 сообщений"
-    },
-    {
-      "source": "Финам: компании",
-      "status": "ok",
-      "detail": "40 сообщений"
+      "detail": "13 сообщений"
     },
     {
       "source": "Ведомости",
@@ -3140,14 +3048,14 @@
       "detail": "40 сообщений"
     },
     {
-      "source": "Коммерсантъ",
+      "source": "Финам: компании",
       "status": "ok",
-      "detail": "2 сообщений"
+      "detail": "40 сообщений"
     },
     {
-      "source": "Банк России",
+      "source": "Финам: облигации",
       "status": "ok",
-      "detail": "13 сообщений"
+      "detail": "20 сообщений"
     },
     {
       "source": "Интерфакс",
@@ -3160,14 +3068,19 @@
       "detail": "20 сообщений"
     },
     {
-      "source": "Роснефть",
-      "status": "error",
-      "detail": "Не удалось загрузить https://www.rosneft.ru/press/releases/rss/: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: "
-    },
-    {
       "source": "РБК",
       "status": "ok",
       "detail": "30 сообщений"
+    },
+    {
+      "source": "Коммерсантъ",
+      "status": "ok",
+      "detail": "20 сообщений"
+    },
+    {
+      "source": "Роснефть",
+      "status": "error",
+      "detail": "Не удалось загрузить https://www.rosneft.ru/press/releases/rss/: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: "
     },
     {
       "source": "Газпром",
