@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T06:57:41+03:00",
+  "generatedAt": "2026-11-24T20:40:05+03:00",
   "methodologyVersion": "1.2.0",
   "market": "Московская биржа",
   "marketTape": {
@@ -31,10 +31,10 @@
     "value": 2272.61,
     "dayChange": 0.21,
     "stance": "боковик",
-    "horizon": "не только сессия",
+    "horizon": "краткосрочно",
     "longVerdict": "точечно",
-    "why": "Медиана вселенной -0.1% при индексе +0.2%. В ленте есть тяжелый негатив (⬆️🇷🇺#MGKL = планка вверх на очередном дефолте по облигациям). Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
-    "outlook": "Это уже не чистый внутридневной шум: негатив или глубокая просадка могут держаться дольше одной сессии. Долгосрочный тренд по одному дню не переписываем.",
+    "why": "Медиана вселенной -0.1% при индексе +0.2%. Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
+    "outlook": "Пока это сессионная конъюнктура, а не смена долгосрочной перспективы. Горизонт 12 месяцев смотрите в блоке лучших идей, не в дневном проценте IMOEX.",
     "longAdvice": "Рынок без явного дневного тренда. Длинные — только в отдельных бумагах, не в индексе целиком: X5, SBER, HEAD.",
     "longTickers": [
       {
@@ -66,28 +66,28 @@
     "avoid": [
       "ставки на широкий тренд дня"
     ],
-    "note": "Это уже не чистый внутридневной шум: негатив или глубокая просадка могут держаться дольше одной сессии. Долгосрочный тренд по одному дню не переписываем."
+    "note": "Пока это сессионная конъюнктура, а не смена долгосрочной перспективы. Горизонт 12 месяцев смотрите в блоке лучших идей, не в дневном проценте IMOEX."
   },
   "marketPulse": {
     "catalyst": {
-      "ticker": "MGKL",
-      "name": "MGKL",
-      "action": "SELL",
-      "eventType": "credit_distress",
-      "title": "⬆️🇷🇺#MGKL = планка вверх на очередном дефолте по облигациям",
-      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "expectedImpactPct": -2.4,
-      "marketReactionPct": 0.0,
-      "gapPct": -2.4,
-      "reaction": "confirmed",
-      "horizon": "1–10 дней",
-      "confidence": 85,
-      "sourceQuality": 0.25,
+      "ticker": "CNRU",
+      "name": "Циан",
+      "action": "BUY",
+      "eventType": "buyback",
+      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
+      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
+      "expectedImpactPct": 2.1,
+      "marketReactionPct": -1.46,
+      "gapPct": 3.56,
+      "reaction": "anomaly_down",
+      "horizon": "1–5 дней",
+      "confidence": 79,
+      "sourceQuality": 0.5,
       "official": false,
-      "strength": 5.6,
+      "strength": 5.1,
       "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394529"
+        "publisher": "РБК",
+        "url": "https://www.rbc.ru/radio/24/11/2026/6b05c198392e54c3c4a57853"
       }
     },
     "mover": {
@@ -96,35 +96,35 @@
       "dayChange": 2.81
     },
     "anomaly": {
-      "ticker": "X5",
-      "title": "X5 +2.8% без свежего катализатора в ленте",
-      "kind": "mover",
-      "label": "сильное движение без явного события в снимке",
-      "expectedImpactPct": 0,
-      "marketReactionPct": 2.81,
-      "eventType": "other"
+      "ticker": "CNRU",
+      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
+      "kind": "anomaly_down",
+      "label": "позитив в новостях, бумага падает",
+      "expectedImpactPct": 2.1,
+      "marketReactionPct": -1.46,
+      "eventType": "buyback"
     }
   },
   "sinceLastUpdate": {
     "newSignals": [
       {
-        "ticker": "MGKL",
-        "title": "⬆️🇷🇺#MGKL = планка вверх на очередном дефолте по облигациям",
-        "action": "SELL"
-      },
-      {
-        "ticker": "OZON",
-        "title": "Совет директоров Ozon рекомендовал дивиденды за 9 месяцев в размере 120 рублей на акцию",
+        "ticker": "CNRU",
+        "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
         "action": "BUY"
       },
       {
-        "ticker": "LKOH",
-        "title": "Акционеры «ЛУКОЙЛа» утвердили 535 рублей на акцию в виде дивидендов за 9 месяцев",
+        "ticker": "AFLT",
+        "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
         "action": "BUY"
       },
       {
         "ticker": "MTSS",
         "title": "«МТС-Банк» рассчитывает увеличить ROE выше 20% к 2029 году",
+        "action": "BUY"
+      },
+      {
+        "ticker": "LSRG",
+        "title": "❗️🇷🇺#LSRG #оферта #делистинг ЛСР ОФЕРТА 710.20 РУБ/АКЦ в связи с делистингом выкуп будет проходить в период с 12.02.2027 по 15.03.2027 включительно ВОСА - 28 декабря релиз",
         "action": "BUY"
       }
     ],
@@ -149,25 +149,26 @@
       "note": "Крепкий доллар обычно давит на банки и помогает экспортёрам, слабый — наоборот."
     },
     {
-      "title": "⬆️🇷🇺#MGKL = планка вверх на очередном дефолте по облигациям",
-      "positive": [],
-      "negative": [
-        "MGKL"
-      ],
-      "note": "Цепочка: новость → эмитент → сектор."
-    },
-    {
-      "title": "Совет директоров Ozon рекомендовал дивиденды за 9 месяцев в размере 120 рублей на акцию",
+      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
       "positive": [
-        "OZON"
+        "CNRU",
+        "HEAD"
       ],
       "negative": [],
       "note": "Цепочка: новость → эмитент → сектор."
     },
     {
-      "title": "Акционеры «ЛУКОЙЛа» утвердили 535 рублей на акцию в виде дивидендов за 9 месяцев",
+      "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
       "positive": [
-        "LKOH"
+        "AFLT"
+      ],
+      "negative": [],
+      "note": "Цепочка: новость → эмитент → сектор."
+    },
+    {
+      "title": "«МТС-Банк» рассчитывает увеличить ROE выше 20% к 2029 году",
+      "positive": [
+        "MTSS"
       ],
       "negative": [],
       "note": "Цепочка: новость → эмитент → сектор."
@@ -175,45 +176,24 @@
   ],
   "catalysts": [
     {
-      "ticker": "MGKL",
-      "name": "MGKL",
-      "action": "SELL",
-      "eventType": "credit_distress",
-      "title": "⬆️🇷🇺#MGKL = планка вверх на очередном дефолте по облигациям",
-      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "expectedImpactPct": -2.4,
-      "marketReactionPct": 0.0,
-      "gapPct": -2.4,
-      "reaction": "confirmed",
-      "horizon": "1–10 дней",
-      "confidence": 85,
-      "sourceQuality": 0.25,
-      "official": false,
-      "strength": 5.6,
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394529"
-      }
-    },
-    {
-      "ticker": "OZON",
-      "name": "Ozon",
+      "ticker": "CNRU",
+      "name": "Циан",
       "action": "BUY",
-      "eventType": "dividend",
-      "title": "Совет директоров Ozon рекомендовал дивиденды за 9 месяцев в размере 120 рублей на акцию",
+      "eventType": "buyback",
+      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 1.7,
-      "marketReactionPct": 0.0,
-      "gapPct": 1.7,
-      "reaction": "confirmed",
+      "expectedImpactPct": 2.1,
+      "marketReactionPct": -1.46,
+      "gapPct": 3.56,
+      "reaction": "anomaly_down",
       "horizon": "1–5 дней",
-      "confidence": 75,
+      "confidence": 79,
       "sourceQuality": 0.5,
       "official": false,
-      "strength": 4.5,
+      "strength": 5.1,
       "source": {
-        "publisher": "Финам: компании",
-        "url": "https://www.finam.ru/publications/item/sovet-direktorov-ozon-rekomendoval-dividendy-za-9-mesyatsev-v-razmere-120-rubley-na-aktsiyu-20261123-1415/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+        "publisher": "РБК",
+        "url": "https://www.rbc.ru/radio/24/11/2026/6b05c198392e54c3c4a57853"
       }
     },
     {
@@ -238,11 +218,11 @@
       }
     },
     {
-      "ticker": "LKOH",
-      "name": "Лукойл",
+      "ticker": "AFLT",
+      "name": "Аэрофлот",
       "action": "BUY",
       "eventType": "dividend",
-      "title": "Акционеры «ЛУКОЙЛа» утвердили 535 рублей на акцию в виде дивидендов за 9 месяцев",
+      "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
       "expectedImpactPct": 1.6,
       "marketReactionPct": 0.0,
@@ -255,28 +235,40 @@
       "strength": 4.4,
       "source": {
         "publisher": "Финам: компании",
-        "url": "https://www.finam.ru/publications/item/aktsionery-lukoyla-utverdili-535-rubley-na-aktsiyu-v-vide-dividendov-za-9-mesyatsev-20261123-1447/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+        "url": "https://www.finam.ru/publications/item/aeroflot-natselen-na-vyplatu-dividendov-po-itogam-2026-goda-20261124-1007/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+      }
+    },
+    {
+      "ticker": "LSRG",
+      "name": "LSRG",
+      "action": "BUY",
+      "eventType": "buyback",
+      "title": "❗️🇷🇺#LSRG #оферта #делистинг ЛСР ОФЕРТА 710.20 РУБ/АКЦ в связи с делистингом выкуп будет проходить в период с 12.02.2027 по 15.03.2027 включительно ВОСА - 28 декабря релиз",
+      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
+      "expectedImpactPct": 1.3,
+      "marketReactionPct": 0.0,
+      "gapPct": 1.3,
+      "reaction": "confirmed",
+      "horizon": "1–5 дней",
+      "confidence": 68,
+      "sourceQuality": 0.25,
+      "official": false,
+      "strength": 3.9,
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394688"
       }
     }
   ],
   "anomalies": [
     {
-      "ticker": "X5",
-      "title": "X5 +2.8% без свежего катализатора в ленте",
-      "kind": "mover",
-      "label": "сильное движение без явного события в снимке",
-      "expectedImpactPct": 0,
-      "marketReactionPct": 2.81,
-      "eventType": "other"
-    },
-    {
       "ticker": "CNRU",
-      "title": "CNRU -1.5% без свежего катализатора в ленте",
-      "kind": "mover",
-      "label": "сильное движение без явного события в снимке",
-      "expectedImpactPct": 0,
+      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
+      "kind": "anomaly_down",
+      "label": "позитив в новостях, бумага падает",
+      "expectedImpactPct": 2.1,
       "marketReactionPct": -1.46,
-      "eventType": "other"
+      "eventType": "buyback"
     }
   ],
   "sectors": [
@@ -294,7 +286,7 @@
           "dayChange": -0.4
         }
       ],
-      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
+      "why": "CNRU: «Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы"
     },
     {
       "id": "infra",
@@ -379,79 +371,49 @@
   ],
   "urgent": [
     {
-      "ticker": "MGKL",
+      "ticker": "CNRU",
       "hashtags": [
-        "#MGKL"
-      ],
-      "action": "SELL",
-      "strength": 93,
-      "sentimentScore": -1.0,
-      "impactEstimatePct": -2.4,
-      "impactConfidence": 85,
-      "entityConfidence": 65,
-      "impactModel": "rules-v1",
-      "eventType": "credit_distress",
-      "eventSeverity": 90,
-      "noveltyScore": 1.0,
-      "sourceQuality": 0.25,
-      "marketReaction": null,
-      "title": "⬆️🇷🇺#MGKL = планка вверх на очередном дефолте по облигациям",
-      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "publishedAt": "2026-11-23T17:54:21+00:00",
-      "expiresAt": "2026-11-25T06:57:27.180712+03:00",
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394529"
-      },
-      "sources": [
-        {
-          "publisher": "MarketTwits",
-          "url": "https://t.me/markettwits/394529"
-        }
-      ],
-      "sourceCount": 1,
-      "signalScore": 73.59
-    },
-    {
-      "ticker": "OZON",
-      "hashtags": [
-        "#Ozon",
-        "#OZON"
+        "#Циан",
+        "#CNRU"
       ],
       "action": "BUY",
-      "strength": 66,
-      "sentimentScore": 0.4,
-      "impactEstimatePct": 1.7,
-      "impactConfidence": 75,
-      "entityConfidence": 99,
+      "strength": 72,
+      "sentimentScore": 0.53,
+      "impactEstimatePct": 2.1,
+      "impactConfidence": 79,
+      "entityConfidence": 95,
       "impactModel": "rules-v1",
-      "eventType": "dividend",
-      "eventSeverity": 30,
+      "eventType": "buyback",
+      "eventSeverity": 40,
       "noveltyScore": 1.0,
       "sourceQuality": 0.5,
-      "marketReaction": null,
-      "title": "Совет директоров Ozon рекомендовал дивиденды за 9 месяцев в размере 120 рублей на акцию",
+      "marketReaction": {
+        "dayChangePct": -1.46,
+        "confirmed": false,
+        "divergence": false
+      },
+      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "Mon, 23 Nov 2026 14:12:52 +0300",
-      "expiresAt": "2026-11-26T06:57:27.142642+03:00",
+      "publishedAt": "Tue, 24 Nov 2026 19:59:14 +0300",
+      "expiresAt": "2026-11-26T20:39:51.157305+03:00",
       "source": {
-        "publisher": "Финам: компании",
-        "url": "https://www.finam.ru/publications/item/sovet-direktorov-ozon-rekomendoval-dividendy-za-9-mesyatsev-v-razmere-120-rubley-na-aktsiyu-20261123-1415/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+        "publisher": "РБК",
+        "url": "https://www.rbc.ru/radio/24/11/2026/6b05c198392e54c3c4a57853"
       },
       "sources": [
         {
-          "publisher": "Финам: компании",
-          "url": "https://www.finam.ru/publications/item/sovet-direktorov-ozon-rekomendoval-dividendy-za-9-mesyatsev-v-razmere-120-rubley-na-aktsiyu-20261123-1415/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+          "publisher": "РБК",
+          "url": "https://www.rbc.ru/radio/24/11/2026/6b05c198392e54c3c4a57853"
         }
       ],
       "sourceCount": 1,
-      "signalScore": 63.35
+      "signalScore": 66.39
     },
     {
-      "ticker": "LKOH",
+      "ticker": "AFLT",
       "hashtags": [
-        "#Лукойл",
-        "#LKOH"
+        "#Аэрофлот",
+        "#AFLT"
       ],
       "action": "BUY",
       "strength": 66,
@@ -465,18 +427,18 @@
       "noveltyScore": 1.0,
       "sourceQuality": 0.5,
       "marketReaction": null,
-      "title": "Акционеры «ЛУКОЙЛа» утвердили 535 рублей на акцию в виде дивидендов за 9 месяцев",
+      "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "Mon, 23 Nov 2026 14:44:16 +0300",
-      "expiresAt": "2026-11-26T06:57:27.139323+03:00",
+      "publishedAt": "Tue, 24 Nov 2026 09:56:51 +0300",
+      "expiresAt": "2026-11-26T20:39:51.115896+03:00",
       "source": {
         "publisher": "Финам: компании",
-        "url": "https://www.finam.ru/publications/item/aktsionery-lukoyla-utverdili-535-rubley-na-aktsiyu-v-vide-dividendov-za-9-mesyatsev-20261123-1447/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+        "url": "https://www.finam.ru/publications/item/aeroflot-natselen-na-vyplatu-dividendov-po-itogam-2026-goda-20261124-1007/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
       },
       "sources": [
         {
           "publisher": "Финам: компании",
-          "url": "https://www.finam.ru/publications/item/aktsionery-lukoyla-utverdili-535-rubley-na-aktsiyu-v-vide-dividendov-za-9-mesyatsev-20261123-1447/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+          "url": "https://www.finam.ru/publications/item/aeroflot-natselen-na-vyplatu-dividendov-po-itogam-2026-goda-20261124-1007/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
         }
       ],
       "sourceCount": 1,
@@ -507,7 +469,7 @@
       "title": "«МТС-Банк» рассчитывает увеличить ROE выше 20% к 2029 году",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
       "publishedAt": "Mon, 23 Nov 2026 20:59:54 +0300",
-      "expiresAt": "2026-11-26T06:57:27.131841+03:00",
+      "expiresAt": "2026-11-26T20:39:51.121833+03:00",
       "source": {
         "publisher": "Финам: компании",
         "url": "https://www.finam.ru/publications/item/mts-bank-rasschityvaet-uvelichit-roe-vyshe-20-k-2029-godu-20261123-2110/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
@@ -520,6 +482,40 @@
       ],
       "sourceCount": 1,
       "signalScore": 56.63
+    },
+    {
+      "ticker": "LSRG",
+      "hashtags": [
+        "#LSRG"
+      ],
+      "action": "BUY",
+      "strength": 72,
+      "sentimentScore": 0.53,
+      "impactEstimatePct": 1.3,
+      "impactConfidence": 68,
+      "entityConfidence": 65,
+      "impactModel": "rules-v1",
+      "eventType": "buyback",
+      "eventSeverity": 40,
+      "noveltyScore": 1.0,
+      "sourceQuality": 0.25,
+      "marketReaction": null,
+      "title": "❗️🇷🇺#LSRG #оферта #делистинг ЛСР ОФЕРТА 710.20 РУБ/АКЦ в связи с делистингом выкуп будет проходить в период с 12.02.2027 по 15.03.2027 включительно ВОСА - 28 декабря релиз",
+      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
+      "publishedAt": "2026-11-24T15:25:22+00:00",
+      "expiresAt": "2026-11-26T20:39:51.146916+03:00",
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394688"
+      },
+      "sources": [
+        {
+          "publisher": "MarketTwits",
+          "url": "https://t.me/markettwits/394688"
+        }
+      ],
+      "sourceCount": 1,
+      "signalScore": 52.5
     }
   ],
   "scalp": [
@@ -577,9 +573,9 @@
       "name": "Самараэнерго - ап",
       "cutoffDate": "2026-11-30",
       "dividendRub": 0.42,
-      "yieldPct": 13.13,
+      "yieldPct": 13.15,
       "currency": "RUB",
-      "status": "recommended",
+      "status": "announced",
       "source": {
         "publisher": "Snowball Income",
         "url": "https://snowball-income.com/calendars/dividend-calendar/mcx"
@@ -590,7 +586,7 @@
       "name": "Самараэнерго",
       "cutoffDate": "2026-11-30",
       "dividendRub": 0.42,
-      "yieldPct": 13.06,
+      "yieldPct": 13.08,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -603,7 +599,7 @@
       "name": "Циан",
       "cutoffDate": "2026-11-30",
       "dividendRub": 33.0,
-      "yieldPct": 3.66,
+      "yieldPct": 3.63,
       "currency": "RUB",
       "status": "announced",
       "source": {
@@ -616,9 +612,9 @@
       "name": "Куйбышевазот",
       "cutoffDate": "2026-12-01",
       "dividendRub": 20.0,
-      "yieldPct": 5.7,
+      "yieldPct": 5.71,
       "currency": "RUB",
-      "status": "recommended",
+      "status": "announced",
       "source": {
         "publisher": "Snowball Income",
         "url": "https://snowball-income.com/calendars/dividend-calendar/mcx"
@@ -629,7 +625,7 @@
       "name": "Куйбышевазот ап",
       "cutoffDate": "2026-12-01",
       "dividendRub": 20.0,
-      "yieldPct": 5.38,
+      "yieldPct": 5.37,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -642,7 +638,7 @@
       "name": "ВИ.ру",
       "cutoffDate": "2026-12-07",
       "dividendRub": 7.0,
-      "yieldPct": 7.96,
+      "yieldPct": 7.98,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -655,7 +651,7 @@
       "name": "HENDERS",
       "cutoffDate": "2026-12-07",
       "dividendRub": 8.0,
-      "yieldPct": 2.86,
+      "yieldPct": 2.89,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -668,7 +664,7 @@
       "name": "НК ЛУКОЙЛ",
       "cutoffDate": "2026-12-09",
       "dividendRub": 535.0,
-      "yieldPct": 9.11,
+      "yieldPct": 9.21,
       "currency": "RUB",
       "status": "announced",
       "source": {
@@ -681,7 +677,7 @@
       "name": "КЦ ИКС 5",
       "cutoffDate": "2026-12-11",
       "dividendRub": 204.0,
-      "yieldPct": 8.7,
+      "yieldPct": 8.76,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -694,7 +690,7 @@
       "name": "ФосАгро",
       "cutoffDate": "2026-12-13",
       "dividendRub": 309.0,
-      "yieldPct": 6.12,
+      "yieldPct": 6.14,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -707,7 +703,7 @@
       "name": "Займер",
       "cutoffDate": "2026-12-13",
       "dividendRub": 7.14,
-      "yieldPct": 5.45,
+      "yieldPct": 5.43,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -720,7 +716,7 @@
       "name": "Т-Технологии",
       "cutoffDate": "2026-12-14",
       "dividendRub": 4.8,
-      "yieldPct": 1.7,
+      "yieldPct": 1.73,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -733,7 +729,7 @@
       "name": "Липецкая энергосбыт.ком.ОАО",
       "cutoffDate": "2026-12-15",
       "dividendRub": 15.11,
-      "yieldPct": 16.85,
+      "yieldPct": 16.84,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -746,7 +742,7 @@
       "name": "Мордовск.энергсбыт.комп.ао",
       "cutoffDate": "2026-12-15",
       "dividendRub": 0.1309,
-      "yieldPct": 11.85,
+      "yieldPct": 11.81,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -759,7 +755,7 @@
       "name": "Инарктика",
       "cutoffDate": "2026-12-15",
       "dividendRub": 10.0,
-      "yieldPct": 2.95,
+      "yieldPct": 3.01,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -772,7 +768,7 @@
       "name": "В2В-РТС",
       "cutoffDate": "2026-12-21",
       "dividendRub": 5.59,
-      "yieldPct": 4.09,
+      "yieldPct": 4.12,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -785,7 +781,7 @@
       "name": "В2В-РТС",
       "cutoffDate": "2026-12-21",
       "dividendRub": 4.21,
-      "yieldPct": 3.08,
+      "yieldPct": 3.1,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -811,7 +807,7 @@
       "name": "Фикс Прайс",
       "cutoffDate": "2026-12-28",
       "dividendRub": 0.1,
-      "yieldPct": 15.83,
+      "yieldPct": 16.25,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -824,7 +820,7 @@
       "name": "ММЦБ",
       "cutoffDate": "2026-12-29",
       "dividendRub": 2.33,
-      "yieldPct": 2.8,
+      "yieldPct": 2.89,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -837,7 +833,7 @@
       "name": "Европлан",
       "cutoffDate": "2027-01-08",
       "dividendRub": 87.0,
-      "yieldPct": 12.39,
+      "yieldPct": 12.45,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -850,7 +846,7 @@
       "name": "Светофор Групп",
       "cutoffDate": "2027-01-08",
       "dividendRub": 0.0448,
-      "yieldPct": 0.45,
+      "yieldPct": 0.46,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -876,7 +872,7 @@
       "name": "Татнефть ап 3 вып.",
       "cutoffDate": "2027-01-10",
       "dividendRub": 31.44,
-      "yieldPct": 5.72,
+      "yieldPct": 5.79,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -889,7 +885,20 @@
       "name": "Татнефть",
       "cutoffDate": "2027-01-10",
       "dividendRub": 31.44,
-      "yieldPct": 5.65,
+      "yieldPct": 5.74,
+      "currency": "RUB",
+      "status": "recommended",
+      "source": {
+        "publisher": "Snowball Income",
+        "url": "https://snowball-income.com/calendars/dividend-calendar/mcx"
+      }
+    },
+    {
+      "secid": "NOMPP",
+      "name": "NOMPНовошип ап",
+      "cutoffDate": "2027-01-11",
+      "dividendRub": 36.0,
+      "yieldPct": 20.81,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -902,7 +911,7 @@
       "name": "Озон",
       "cutoffDate": "2027-01-12",
       "dividendRub": 120.0,
-      "yieldPct": 3.32,
+      "yieldPct": 3.4,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -915,7 +924,7 @@
       "name": "НК Роснефть",
       "cutoffDate": "2027-01-12",
       "dividendRub": 9.44,
-      "yieldPct": 2.86,
+      "yieldPct": 2.92,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -928,7 +937,7 @@
       "name": "Мобильные ТелеСистемы",
       "cutoffDate": "2027-01-18",
       "dividendRub": 7.0,
-      "yieldPct": 3.99,
+      "yieldPct": 4.09,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -1079,12 +1088,12 @@
       "name": "МТС",
       "price": 166.35,
       "dayChange": 0.12,
-      "targetPrice": 170.9,
+      "targetPrice": 170.09,
       "dividend12m": 35.0,
-      "priceReturn": 2.7,
+      "priceReturn": 2.3,
       "dividendYield": 21.0,
-      "expectedReturn": 23.8,
-      "confidence": 81,
+      "expectedReturn": 23.3,
+      "confidence": 80,
       "financialTrend": 55,
       "return3m": -8.9,
       "return12m": -22.1,
@@ -1092,7 +1101,7 @@
       "targetDrivers": {
         "impulse": -2.7,
         "fundamental": 1.4,
-        "news": 1.3,
+        "news": 0.9,
         "macro": 2.7
       },
       "sector": "telecom",
@@ -1113,12 +1122,12 @@
       "name": "Циан",
       "price": 648.0,
       "dayChange": -1.46,
-      "targetPrice": 702.4,
+      "targetPrice": 715.81,
       "dividend12m": 80.0,
-      "priceReturn": 8.4,
+      "priceReturn": 10.5,
       "dividendYield": 12.3,
-      "expectedReturn": 20.7,
-      "confidence": 83,
+      "expectedReturn": 22.8,
+      "confidence": 86,
       "financialTrend": 68,
       "return3m": 12.6,
       "return12m": 7.0,
@@ -1126,7 +1135,7 @@
       "targetDrivers": {
         "impulse": 1.8,
         "fundamental": 5.0,
-        "news": 0.0,
+        "news": 2.1,
         "macro": 1.5
       },
       "sector": "tech",
@@ -1140,7 +1149,7 @@
           "url": "https://iss.moex.com/iss/reference/"
         }
       ],
-      "stance": "WATCH"
+      "stance": "BUY"
     },
     {
       "secid": "PLZL",
@@ -3172,35 +3181,23 @@
       "hit1d": null
     },
     {
-      "id": "MGKL|SELL|mgklпланкавверхнаочередномдефолтепооблигациям",
-      "ticker": "MGKL",
-      "action": "SELL",
-      "eventType": "credit_distress",
-      "emittedAt": "2026-11-23T17:54:21+00:00",
-      "priceAtEmit": 0.0,
-      "expectedImpactPct": -2.4,
-      "confidence": 85,
+      "id": "CNRU|BUY|непокупайтенизачтоделистинглсрвыкупцианиновыефьючерсы",
+      "ticker": "CNRU",
+      "action": "BUY",
+      "eventType": "buyback",
+      "emittedAt": "Tue, 24 Nov 2026 19:59:14 +0300",
+      "priceAtEmit": 648.0,
+      "expectedImpactPct": 2.1,
+      "confidence": 79,
       "return1d": null,
       "hit1d": null
     },
     {
-      "id": "OZON|BUY|советдиректоровozonрекомендовалдивидендыза9месяцеввразмере120рублейнаакцию",
-      "ticker": "OZON",
+      "id": "AFLT|BUY|аэрофлотнацеленнавыплатудивидендовпоитогам2026года",
+      "ticker": "AFLT",
       "action": "BUY",
       "eventType": "dividend",
-      "emittedAt": "Mon, 23 Nov 2026 14:12:52 +0300",
-      "priceAtEmit": 0.0,
-      "expectedImpactPct": 1.7,
-      "confidence": 75,
-      "return1d": null,
-      "hit1d": null
-    },
-    {
-      "id": "LKOH|BUY|акционерылукойлаутвердили535рублейнаакциюввидедивидендовза9месяцев",
-      "ticker": "LKOH",
-      "action": "BUY",
-      "eventType": "dividend",
-      "emittedAt": "Mon, 23 Nov 2026 14:44:16 +0300",
+      "emittedAt": "Tue, 24 Nov 2026 09:56:51 +0300",
       "priceAtEmit": 0.0,
       "expectedImpactPct": 1.6,
       "confidence": 73,
@@ -3216,22 +3213,34 @@
       "priceAtEmit": 166.35,
       "expectedImpactPct": 1.7,
       "confidence": 74,
+      "return1d": 0.0,
+      "hit1d": false
+    },
+    {
+      "id": "LSRG|BUY|lsrgофертаделистинглсроферта71020рубакцвсвязисделистингомвыкупбудетпроходитьвпер",
+      "ticker": "LSRG",
+      "action": "BUY",
+      "eventType": "buyback",
+      "emittedAt": "2026-11-24T15:25:22+00:00",
+      "priceAtEmit": 0.0,
+      "expectedImpactPct": 1.3,
+      "confidence": 68,
       "return1d": null,
       "hit1d": null
     }
   ],
   "signalPerformance": {
-    "n": 28,
-    "pending": 89,
-    "hitRate": 0.357,
-    "avgReturn": -0.43,
+    "n": 29,
+    "pending": 88,
+    "hitRate": 0.345,
+    "avgReturn": -0.42,
     "highConfidenceHitRate": 0.545,
     "byEvent": [
       {
         "eventType": "dividend",
-        "n": 14,
-        "hitRate": 0.286,
-        "avgReturn": -0.75
+        "n": 15,
+        "hitRate": 0.267,
+        "avgReturn": -0.7
       },
       {
         "eventType": "report",
@@ -3278,15 +3287,15 @@
     ]
   },
   "pipelineMetrics": {
-    "fetched": 209,
-    "expired": 22,
-    "lowImpact": 160,
-    "unlinked": 23,
+    "fetched": 192,
+    "expired": 8,
+    "lowImpact": 165,
+    "unlinked": 15,
     "duplicatesMerged": 0,
     "signals": 4,
     "dedupRate": 0.0,
     "impactAccuracy": null,
-    "latencyMs": 86,
+    "latencyMs": 74,
     "entityLinkPrecision": 1.0,
     "entityLinkRecall": 1.0,
     "entityEvalSamples": 50
@@ -3300,12 +3309,12 @@
     {
       "source": "MOEX: фонды",
       "status": "ok",
-      "detail": "10 инструментов · 2148 мс"
+      "detail": "10 инструментов · 1733 мс"
     },
     {
       "source": "MOEX: акции",
       "status": "ok",
-      "detail": "10 инструментов · 7375 мс"
+      "detail": "10 инструментов · 7528 мс"
     },
     {
       "source": "MOEX: IMOEX",
@@ -3315,7 +3324,7 @@
     {
       "source": "Snowball: дивиденды",
       "status": "ok",
-      "detail": "28 отсечек · 1417 мс"
+      "detail": "29 отсечек · 1717 мс"
     },
     {
       "source": "Московская биржа",
@@ -3328,14 +3337,19 @@
       "detail": "10 сообщений"
     },
     {
+      "source": "Банк России",
+      "status": "ok",
+      "detail": "8 сообщений"
+    },
+    {
       "source": "Финам: компании",
       "status": "ok",
       "detail": "40 сообщений"
     },
     {
-      "source": "Интерфакс",
+      "source": "Коммерсантъ",
       "status": "ok",
-      "detail": "25 сообщений"
+      "detail": "20 сообщений"
     },
     {
       "source": "Ведомости",
@@ -3343,19 +3357,14 @@
       "detail": "40 сообщений"
     },
     {
-      "source": "Банк России",
-      "status": "ok",
-      "detail": "8 сообщений"
-    },
-    {
-      "source": "Коммерсантъ",
-      "status": "ok",
-      "detail": "36 сообщений"
-    },
-    {
       "source": "MarketTwits",
       "status": "ok",
-      "detail": "20 сообщений"
+      "detail": "19 сообщений"
+    },
+    {
+      "source": "Интерфакс",
+      "status": "ok",
+      "detail": "25 сообщений"
     },
     {
       "source": "Финам: облигации",
