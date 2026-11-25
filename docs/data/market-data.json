@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T20:40:05+03:00",
+  "generatedAt": "2026-11-25T05:24:25+03:00",
   "methodologyVersion": "1.2.0",
   "market": "Московская биржа",
   "marketTape": {
@@ -33,7 +33,7 @@
     "stance": "боковик",
     "horizon": "краткосрочно",
     "longVerdict": "точечно",
-    "why": "Медиана вселенной -0.1% при индексе +0.2%. Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
+    "why": "Медиана вселенной -0.1% при индексе +0.2%. Есть шум без удара по бизнесу: Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках. Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
     "outlook": "Пока это сессионная конъюнктура, а не смена долгосрочной перспективы. Горизонт 12 месяцев смотрите в блоке лучших идей, не в дневном проценте IMOEX.",
     "longAdvice": "Рынок без явного дневного тренда. Длинные — только в отдельных бумагах, не в индексе целиком: X5, SBER, HEAD.",
     "longTickers": [
@@ -70,24 +70,24 @@
   },
   "marketPulse": {
     "catalyst": {
-      "ticker": "CNRU",
-      "name": "Циан",
-      "action": "BUY",
-      "eventType": "buyback",
-      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 2.1,
-      "marketReactionPct": -1.46,
-      "gapPct": 3.56,
-      "reaction": "anomaly_down",
-      "horizon": "1–5 дней",
-      "confidence": 79,
+      "ticker": "GAZP",
+      "name": "Газпром",
+      "action": "SELL",
+      "eventType": "legal",
+      "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "expectedImpactPct": -2.3,
+      "marketReactionPct": 0.0,
+      "gapPct": -2.3,
+      "reaction": "confirmed",
+      "horizon": "1–3 дня",
+      "confidence": 81,
       "sourceQuality": 0.5,
       "official": false,
-      "strength": 5.1,
+      "strength": 5.3,
       "source": {
         "publisher": "РБК",
-        "url": "https://www.rbc.ru/radio/24/11/2026/6b05c198392e54c3c4a57853"
+        "url": "https://www.rbc.ru/politics/24/11/2026/6b05c7136ebc0591b7bbf116"
       }
     },
     "mover": {
@@ -96,35 +96,25 @@
       "dayChange": 2.81
     },
     "anomaly": {
-      "ticker": "CNRU",
-      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
-      "kind": "anomaly_down",
-      "label": "позитив в новостях, бумага падает",
-      "expectedImpactPct": 2.1,
-      "marketReactionPct": -1.46,
-      "eventType": "buyback"
+      "ticker": "X5",
+      "title": "X5 +2.8% без свежего катализатора в ленте",
+      "kind": "mover",
+      "label": "сильное движение без явного события в снимке",
+      "expectedImpactPct": 0,
+      "marketReactionPct": 2.81,
+      "eventType": "other"
     }
   },
   "sinceLastUpdate": {
     "newSignals": [
       {
-        "ticker": "CNRU",
-        "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
-        "action": "BUY"
+        "ticker": "GAZP",
+        "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+        "action": "SELL"
       },
       {
         "ticker": "AFLT",
         "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
-        "action": "BUY"
-      },
-      {
-        "ticker": "MTSS",
-        "title": "«МТС-Банк» рассчитывает увеличить ROE выше 20% к 2029 году",
-        "action": "BUY"
-      },
-      {
-        "ticker": "LSRG",
-        "title": "❗️🇷🇺#LSRG #оферта #делистинг ЛСР ОФЕРТА 710.20 РУБ/АКЦ в связи с делистингом выкуп будет проходить в период с 12.02.2027 по 15.03.2027 включительно ВОСА - 28 декабря релиз",
         "action": "BUY"
       }
     ],
@@ -149,12 +139,11 @@
       "note": "Крепкий доллар обычно давит на банки и помогает экспортёрам, слабый — наоборот."
     },
     {
-      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
-      "positive": [
-        "CNRU",
-        "HEAD"
+      "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+      "positive": [],
+      "negative": [
+        "GAZP"
       ],
-      "negative": [],
       "note": "Цепочка: новость → эмитент → сектор."
     },
     {
@@ -164,57 +153,28 @@
       ],
       "negative": [],
       "note": "Цепочка: новость → эмитент → сектор."
-    },
-    {
-      "title": "«МТС-Банк» рассчитывает увеличить ROE выше 20% к 2029 году",
-      "positive": [
-        "MTSS"
-      ],
-      "negative": [],
-      "note": "Цепочка: новость → эмитент → сектор."
     }
   ],
   "catalysts": [
     {
-      "ticker": "CNRU",
-      "name": "Циан",
-      "action": "BUY",
-      "eventType": "buyback",
-      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 2.1,
-      "marketReactionPct": -1.46,
-      "gapPct": 3.56,
-      "reaction": "anomaly_down",
-      "horizon": "1–5 дней",
-      "confidence": 79,
+      "ticker": "GAZP",
+      "name": "Газпром",
+      "action": "SELL",
+      "eventType": "legal",
+      "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "expectedImpactPct": -2.3,
+      "marketReactionPct": 0.0,
+      "gapPct": -2.3,
+      "reaction": "confirmed",
+      "horizon": "1–3 дня",
+      "confidence": 81,
       "sourceQuality": 0.5,
       "official": false,
-      "strength": 5.1,
+      "strength": 5.3,
       "source": {
         "publisher": "РБК",
-        "url": "https://www.rbc.ru/radio/24/11/2026/6b05c198392e54c3c4a57853"
-      }
-    },
-    {
-      "ticker": "MTSS",
-      "name": "МТС",
-      "action": "BUY",
-      "eventType": "dividend",
-      "title": "«МТС-Банк» рассчитывает увеличить ROE выше 20% к 2029 году",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 1.7,
-      "marketReactionPct": 0.12,
-      "gapPct": 1.58,
-      "reaction": "confirmed",
-      "horizon": "1–5 дней",
-      "confidence": 74,
-      "sourceQuality": 0.5,
-      "official": false,
-      "strength": 4.5,
-      "source": {
-        "publisher": "Финам: компании",
-        "url": "https://www.finam.ru/publications/item/mts-bank-rasschityvaet-uvelichit-roe-vyshe-20-k-2029-godu-20261123-2110/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+        "url": "https://www.rbc.ru/politics/24/11/2026/6b05c7136ebc0591b7bbf116"
       }
     },
     {
@@ -237,38 +197,26 @@
         "publisher": "Финам: компании",
         "url": "https://www.finam.ru/publications/item/aeroflot-natselen-na-vyplatu-dividendov-po-itogam-2026-goda-20261124-1007/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
       }
-    },
-    {
-      "ticker": "LSRG",
-      "name": "LSRG",
-      "action": "BUY",
-      "eventType": "buyback",
-      "title": "❗️🇷🇺#LSRG #оферта #делистинг ЛСР ОФЕРТА 710.20 РУБ/АКЦ в связи с делистингом выкуп будет проходить в период с 12.02.2027 по 15.03.2027 включительно ВОСА - 28 декабря релиз",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 1.3,
-      "marketReactionPct": 0.0,
-      "gapPct": 1.3,
-      "reaction": "confirmed",
-      "horizon": "1–5 дней",
-      "confidence": 68,
-      "sourceQuality": 0.25,
-      "official": false,
-      "strength": 3.9,
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394688"
-      }
     }
   ],
   "anomalies": [
     {
+      "ticker": "X5",
+      "title": "X5 +2.8% без свежего катализатора в ленте",
+      "kind": "mover",
+      "label": "сильное движение без явного события в снимке",
+      "expectedImpactPct": 0,
+      "marketReactionPct": 2.81,
+      "eventType": "other"
+    },
+    {
       "ticker": "CNRU",
-      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
-      "kind": "anomaly_down",
-      "label": "позитив в новостях, бумага падает",
-      "expectedImpactPct": 2.1,
+      "title": "CNRU -1.5% без свежего катализатора в ленте",
+      "kind": "mover",
+      "label": "сильное движение без явного события в снимке",
+      "expectedImpactPct": 0,
       "marketReactionPct": -1.46,
-      "eventType": "buyback"
+      "eventType": "other"
     }
   ],
   "sectors": [
@@ -286,7 +234,7 @@
           "dayChange": -0.4
         }
       ],
-      "why": "CNRU: «Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы"
+      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
     },
     {
       "id": "infra",
@@ -338,7 +286,7 @@
           "dayChange": 0.12
         }
       ],
-      "why": "MTSS: «МТС-Банк» рассчитывает увеличить ROE выше 20% к 2029 году"
+      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
     },
     {
       "id": "bank",
@@ -371,43 +319,39 @@
   ],
   "urgent": [
     {
-      "ticker": "CNRU",
+      "ticker": "GAZP",
       "hashtags": [
-        "#Циан",
-        "#CNRU"
+        "#Газпром",
+        "#GAZP"
       ],
-      "action": "BUY",
-      "strength": 72,
-      "sentimentScore": 0.53,
-      "impactEstimatePct": 2.1,
-      "impactConfidence": 79,
-      "entityConfidence": 95,
+      "action": "SELL",
+      "strength": 76,
+      "sentimentScore": -0.62,
+      "impactEstimatePct": -2.3,
+      "impactConfidence": 81,
+      "entityConfidence": 90,
       "impactModel": "rules-v1",
-      "eventType": "buyback",
-      "eventSeverity": 40,
+      "eventType": "legal",
+      "eventSeverity": 55,
       "noveltyScore": 1.0,
       "sourceQuality": 0.5,
-      "marketReaction": {
-        "dayChangePct": -1.46,
-        "confirmed": false,
-        "divergence": false
-      },
-      "title": "«Не покупайте ни за что»: делистинг ЛСР, выкуп «Циан» и новые фьючерсы",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "Tue, 24 Nov 2026 19:59:14 +0300",
-      "expiresAt": "2026-11-26T20:39:51.157305+03:00",
+      "marketReaction": null,
+      "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "publishedAt": "Tue, 24 Nov 2026 21:52:53 +0300",
+      "expiresAt": "2026-11-27T05:24:12.544133+03:00",
       "source": {
         "publisher": "РБК",
-        "url": "https://www.rbc.ru/radio/24/11/2026/6b05c198392e54c3c4a57853"
+        "url": "https://www.rbc.ru/politics/24/11/2026/6b05c7136ebc0591b7bbf116"
       },
       "sources": [
         {
           "publisher": "РБК",
-          "url": "https://www.rbc.ru/radio/24/11/2026/6b05c198392e54c3c4a57853"
+          "url": "https://www.rbc.ru/politics/24/11/2026/6b05c7136ebc0591b7bbf116"
         }
       ],
       "sourceCount": 1,
-      "signalScore": 66.39
+      "signalScore": 60.76
     },
     {
       "ticker": "AFLT",
@@ -430,7 +374,7 @@
       "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
       "publishedAt": "Tue, 24 Nov 2026 09:56:51 +0300",
-      "expiresAt": "2026-11-26T20:39:51.115896+03:00",
+      "expiresAt": "2026-11-27T05:24:12.503165+03:00",
       "source": {
         "publisher": "Финам: компании",
         "url": "https://www.finam.ru/publications/item/aeroflot-natselen-na-vyplatu-dividendov-po-itogam-2026-goda-20261124-1007/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
@@ -443,79 +387,6 @@
       ],
       "sourceCount": 1,
       "signalScore": 60.18
-    },
-    {
-      "ticker": "MTSS",
-      "hashtags": [
-        "#МТС",
-        "#MTSS"
-      ],
-      "action": "BUY",
-      "strength": 66,
-      "sentimentScore": 0.4,
-      "impactEstimatePct": 1.7,
-      "impactConfidence": 74,
-      "entityConfidence": 95,
-      "impactModel": "rules-v1",
-      "eventType": "dividend",
-      "eventSeverity": 30,
-      "noveltyScore": 1.0,
-      "sourceQuality": 0.5,
-      "marketReaction": {
-        "dayChangePct": 0.12,
-        "confirmed": false,
-        "divergence": false
-      },
-      "title": "«МТС-Банк» рассчитывает увеличить ROE выше 20% к 2029 году",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "Mon, 23 Nov 2026 20:59:54 +0300",
-      "expiresAt": "2026-11-26T20:39:51.121833+03:00",
-      "source": {
-        "publisher": "Финам: компании",
-        "url": "https://www.finam.ru/publications/item/mts-bank-rasschityvaet-uvelichit-roe-vyshe-20-k-2029-godu-20261123-2110/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
-      },
-      "sources": [
-        {
-          "publisher": "Финам: компании",
-          "url": "https://www.finam.ru/publications/item/mts-bank-rasschityvaet-uvelichit-roe-vyshe-20-k-2029-godu-20261123-2110/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
-        }
-      ],
-      "sourceCount": 1,
-      "signalScore": 56.63
-    },
-    {
-      "ticker": "LSRG",
-      "hashtags": [
-        "#LSRG"
-      ],
-      "action": "BUY",
-      "strength": 72,
-      "sentimentScore": 0.53,
-      "impactEstimatePct": 1.3,
-      "impactConfidence": 68,
-      "entityConfidence": 65,
-      "impactModel": "rules-v1",
-      "eventType": "buyback",
-      "eventSeverity": 40,
-      "noveltyScore": 1.0,
-      "sourceQuality": 0.25,
-      "marketReaction": null,
-      "title": "❗️🇷🇺#LSRG #оферта #делистинг ЛСР ОФЕРТА 710.20 РУБ/АКЦ в связи с делистингом выкуп будет проходить в период с 12.02.2027 по 15.03.2027 включительно ВОСА - 28 декабря релиз",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "2026-11-24T15:25:22+00:00",
-      "expiresAt": "2026-11-26T20:39:51.146916+03:00",
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394688"
-      },
-      "sources": [
-        {
-          "publisher": "MarketTwits",
-          "url": "https://t.me/markettwits/394688"
-        }
-      ],
-      "sourceCount": 1,
-      "signalScore": 52.5
     }
   ],
   "scalp": [
@@ -1088,12 +959,12 @@
       "name": "МТС",
       "price": 166.35,
       "dayChange": 0.12,
-      "targetPrice": 170.09,
+      "targetPrice": 168.66,
       "dividend12m": 35.0,
-      "priceReturn": 2.3,
+      "priceReturn": 1.4,
       "dividendYield": 21.0,
-      "expectedReturn": 23.3,
-      "confidence": 80,
+      "expectedReturn": 22.4,
+      "confidence": 79,
       "financialTrend": 55,
       "return3m": -8.9,
       "return12m": -22.1,
@@ -1101,7 +972,7 @@
       "targetDrivers": {
         "impulse": -2.7,
         "fundamental": 1.4,
-        "news": 0.9,
+        "news": 0.0,
         "macro": 2.7
       },
       "sector": "telecom",
@@ -1115,19 +986,19 @@
           "url": "https://iss.moex.com/iss/reference/"
         }
       ],
-      "stance": "BUY"
+      "stance": "WATCH"
     },
     {
       "secid": "CNRU",
       "name": "Циан",
       "price": 648.0,
       "dayChange": -1.46,
-      "targetPrice": 715.81,
+      "targetPrice": 702.4,
       "dividend12m": 80.0,
-      "priceReturn": 10.5,
+      "priceReturn": 8.4,
       "dividendYield": 12.3,
-      "expectedReturn": 22.8,
-      "confidence": 86,
+      "expectedReturn": 20.7,
+      "confidence": 83,
       "financialTrend": 68,
       "return3m": 12.6,
       "return12m": 7.0,
@@ -1135,7 +1006,7 @@
       "targetDrivers": {
         "impulse": 1.8,
         "fundamental": 5.0,
-        "news": 2.1,
+        "news": 0.0,
         "macro": 1.5
       },
       "sector": "tech",
@@ -1149,7 +1020,7 @@
           "url": "https://iss.moex.com/iss/reference/"
         }
       ],
-      "stance": "BUY"
+      "stance": "WATCH"
     },
     {
       "secid": "PLZL",
@@ -3181,14 +3052,14 @@
       "hit1d": null
     },
     {
-      "id": "CNRU|BUY|непокупайтенизачтоделистинглсрвыкупцианиновыефьючерсы",
-      "ticker": "CNRU",
-      "action": "BUY",
-      "eventType": "buyback",
-      "emittedAt": "Tue, 24 Nov 2026 19:59:14 +0300",
-      "priceAtEmit": 648.0,
-      "expectedImpactPct": 2.1,
-      "confidence": 79,
+      "id": "GAZP|SELL|дляэксгубернаторатамбовскойобластизапросили14летподелуовзятках",
+      "ticker": "GAZP",
+      "action": "SELL",
+      "eventType": "legal",
+      "emittedAt": "Tue, 24 Nov 2026 21:52:53 +0300",
+      "priceAtEmit": 0.0,
+      "expectedImpactPct": -2.3,
+      "confidence": 81,
       "return1d": null,
       "hit1d": null
     },
@@ -3203,44 +3074,20 @@
       "confidence": 73,
       "return1d": null,
       "hit1d": null
-    },
-    {
-      "id": "MTSS|BUY|мтсбанкрассчитываетувеличитьroeвыше20к2029году",
-      "ticker": "MTSS",
-      "action": "BUY",
-      "eventType": "dividend",
-      "emittedAt": "Mon, 23 Nov 2026 20:59:54 +0300",
-      "priceAtEmit": 166.35,
-      "expectedImpactPct": 1.7,
-      "confidence": 74,
-      "return1d": 0.0,
-      "hit1d": false
-    },
-    {
-      "id": "LSRG|BUY|lsrgофертаделистинглсроферта71020рубакцвсвязисделистингомвыкупбудетпроходитьвпер",
-      "ticker": "LSRG",
-      "action": "BUY",
-      "eventType": "buyback",
-      "emittedAt": "2026-11-24T15:25:22+00:00",
-      "priceAtEmit": 0.0,
-      "expectedImpactPct": 1.3,
-      "confidence": 68,
-      "return1d": null,
-      "hit1d": null
     }
   ],
   "signalPerformance": {
-    "n": 29,
-    "pending": 88,
-    "hitRate": 0.345,
-    "avgReturn": -0.42,
+    "n": 28,
+    "pending": 87,
+    "hitRate": 0.357,
+    "avgReturn": -0.43,
     "highConfidenceHitRate": 0.545,
     "byEvent": [
       {
         "eventType": "dividend",
-        "n": 15,
-        "hitRate": 0.267,
-        "avgReturn": -0.7
+        "n": 14,
+        "hitRate": 0.286,
+        "avgReturn": -0.75
       },
       {
         "eventType": "report",
@@ -3287,15 +3134,15 @@
     ]
   },
   "pipelineMetrics": {
-    "fetched": 192,
+    "fetched": 200,
     "expired": 8,
-    "lowImpact": 165,
-    "unlinked": 15,
+    "lowImpact": 172,
+    "unlinked": 18,
     "duplicatesMerged": 0,
-    "signals": 4,
+    "signals": 2,
     "dedupRate": 0.0,
     "impactAccuracy": null,
-    "latencyMs": 74,
+    "latencyMs": 81,
     "entityLinkPrecision": 1.0,
     "entityLinkRecall": 1.0,
     "entityEvalSamples": 50
@@ -3304,17 +3151,17 @@
     {
       "source": "MOEX: облигации",
       "status": "stale",
-      "detail": "Не удалось загрузить https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQCB/securities.json?iss.meta=off&iss.only=securities%2Cmar; сохранен прошлый снимок"
+      "detail": "Не удалось загрузить https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQOB/securities.json?iss.meta=off&iss.only=securities%2Cmar; сохранен прошлый снимок"
     },
     {
       "source": "MOEX: фонды",
       "status": "ok",
-      "detail": "10 инструментов · 1733 мс"
+      "detail": "10 инструментов · 1835 мс"
     },
     {
       "source": "MOEX: акции",
       "status": "ok",
-      "detail": "10 инструментов · 7528 мс"
+      "detail": "10 инструментов · 6817 мс"
     },
     {
       "source": "MOEX: IMOEX",
@@ -3324,7 +3171,7 @@
     {
       "source": "Snowball: дивиденды",
       "status": "ok",
-      "detail": "29 отсечек · 1717 мс"
+      "detail": "29 отсечек · 1525 мс"
     },
     {
       "source": "Московская биржа",
@@ -3337,29 +3184,9 @@
       "detail": "10 сообщений"
     },
     {
-      "source": "Банк России",
-      "status": "ok",
-      "detail": "8 сообщений"
-    },
-    {
-      "source": "Финам: компании",
-      "status": "ok",
-      "detail": "40 сообщений"
-    },
-    {
-      "source": "Коммерсантъ",
-      "status": "ok",
-      "detail": "20 сообщений"
-    },
-    {
       "source": "Ведомости",
       "status": "ok",
       "detail": "40 сообщений"
-    },
-    {
-      "source": "MarketTwits",
-      "status": "ok",
-      "detail": "19 сообщений"
     },
     {
       "source": "Интерфакс",
@@ -3367,19 +3194,39 @@
       "detail": "25 сообщений"
     },
     {
+      "source": "Финам: компании",
+      "status": "ok",
+      "detail": "40 сообщений"
+    },
+    {
+      "source": "Банк России",
+      "status": "ok",
+      "detail": "8 сообщений"
+    },
+    {
+      "source": "Коммерсантъ",
+      "status": "ok",
+      "detail": "27 сообщений"
+    },
+    {
+      "source": "MarketTwits",
+      "status": "ok",
+      "detail": "20 сообщений"
+    },
+    {
       "source": "Финам: облигации",
       "status": "error",
       "detail": "Не удалось загрузить https://bonds.finam.ru/news/today/rss.asp: HTTP Error 403: Forbidden"
     },
     {
-      "source": "РБК",
-      "status": "ok",
-      "detail": "30 сообщений"
-    },
-    {
       "source": "Роснефть",
       "status": "error",
       "detail": "Не удалось загрузить https://www.rosneft.ru/press/releases/rss/: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: "
+    },
+    {
+      "source": "РБК",
+      "status": "ok",
+      "detail": "30 сообщений"
     },
     {
       "source": "Газпром",
