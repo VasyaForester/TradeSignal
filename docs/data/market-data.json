@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T05:24:25+03:00",
+  "generatedAt": "2026-11-25T20:10:36+03:00",
   "methodologyVersion": "1.2.0",
   "market": "Московская биржа",
   "marketTape": {
@@ -31,11 +31,11 @@
     "value": 2272.61,
     "dayChange": 0.21,
     "stance": "боковик",
-    "horizon": "краткосрочно",
+    "horizon": "не только сессия",
     "longVerdict": "точечно",
-    "why": "Медиана вселенной -0.1% при индексе +0.2%. Есть шум без удара по бизнесу: Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках. Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
-    "outlook": "Пока это сессионная конъюнктура, а не смена долгосрочной перспективы. Горизонт 12 месяцев смотрите в блоке лучших идей, не в дневном проценте IMOEX.",
-    "longAdvice": "Рынок без явного дневного тренда. Длинные — только в отдельных бумагах, не в индексе целиком: X5, SBER, HEAD.",
+    "why": "Медиана вселенной -0.1% при индексе +0.2%. В ленте есть тяжелый негатив (❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…). Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
+    "outlook": "Это уже не чистый внутридневной шум: негатив или глубокая просадка могут держаться дольше одной сессии. Долгосрочный тренд по одному дню не переписываем.",
+    "longAdvice": "Рынок без явного дневного тренда. Длинные — только в отдельных бумагах, не в индексе целиком: X5, SBER, TRNFP.",
     "longTickers": [
       {
         "secid": "X5",
@@ -46,8 +46,8 @@
         "name": "Сбербанк"
       },
       {
-        "secid": "HEAD",
-        "name": "HeadHunter"
+        "secid": "TRNFP",
+        "name": "Транснефть, ап"
       }
     ],
     "breadthDown": 0.5,
@@ -66,28 +66,28 @@
     "avoid": [
       "ставки на широкий тренд дня"
     ],
-    "note": "Пока это сессионная конъюнктура, а не смена долгосрочной перспективы. Горизонт 12 месяцев смотрите в блоке лучших идей, не в дневном проценте IMOEX."
+    "note": "Это уже не чистый внутридневной шум: негатив или глубокая просадка могут держаться дольше одной сессии. Долгосрочный тренд по одному дню не переписываем."
   },
   "marketPulse": {
     "catalyst": {
-      "ticker": "GAZP",
-      "name": "Газпром",
+      "ticker": "LKOH",
+      "name": "Лукойл",
       "action": "SELL",
-      "eventType": "legal",
-      "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+      "eventType": "other",
+      "title": "ВТБ, \"ЛУКОЙЛ\" и \"префы\" \"Сургутнефтегаза\" возглавили отскок рынка",
       "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "expectedImpactPct": -2.3,
+      "expectedImpactPct": -4.6,
       "marketReactionPct": 0.0,
-      "gapPct": -2.3,
-      "reaction": "confirmed",
+      "gapPct": -4.6,
+      "reaction": "underreaction",
       "horizon": "1–3 дня",
-      "confidence": 81,
+      "confidence": 92,
       "sourceQuality": 0.5,
       "official": false,
-      "strength": 5.3,
+      "strength": 10,
       "source": {
-        "publisher": "РБК",
-        "url": "https://www.rbc.ru/politics/24/11/2026/6b05c7136ebc0591b7bbf116"
+        "publisher": "Финам: компании",
+        "url": "https://www.finam.ru/publications/item/vtb-lukoyl-i-prefy-surgutneftegaza-vozglavili-otskok-rynka-20261125-1926/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
       }
     },
     "mover": {
@@ -96,25 +96,45 @@
       "dayChange": 2.81
     },
     "anomaly": {
-      "ticker": "X5",
-      "title": "X5 +2.8% без свежего катализатора в ленте",
-      "kind": "mover",
-      "label": "сильное движение без явного события в снимке",
-      "expectedImpactPct": 0,
-      "marketReactionPct": 2.81,
+      "ticker": "LKOH",
+      "title": "ВТБ, \"ЛУКОЙЛ\" и \"префы\" \"Сургутнефтегаза\" возглавили отскок рынка",
+      "kind": "underreaction",
+      "label": "сильный катализатор, слабая реакция рынка",
+      "expectedImpactPct": -4.6,
+      "marketReactionPct": 0.0,
       "eventType": "other"
     }
   },
   "sinceLastUpdate": {
     "newSignals": [
       {
-        "ticker": "GAZP",
-        "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+        "ticker": "LKOH",
+        "title": "❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…",
         "action": "SELL"
       },
       {
-        "ticker": "AFLT",
-        "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
+        "ticker": "HNFG",
+        "title": "Акционеры Henderson одобрили дивиденды за 9 месяцев в размере 8 рублей на бумагу",
+        "action": "BUY"
+      },
+      {
+        "ticker": "GOOGL",
+        "title": "🇷🇺🇺🇸#GOOGL #суд Активы Google во Франции арестованы на €1,9 млрд по иску российской ООО «Гугл» - ТАСС",
+        "action": "SELL"
+      },
+      {
+        "ticker": "TRNFP",
+        "title": "Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…",
+        "action": "BUY"
+      },
+      {
+        "ticker": "LKOH",
+        "title": "ВТБ, \"ЛУКОЙЛ\" и \"префы\" \"Сургутнефтегаза\" возглавили отскок рынка",
+        "action": "SELL"
+      },
+      {
+        "ticker": "GAZP",
+        "title": "«Газпром» сообщил о рекордном расходе газа из хранилищ Европы",
         "action": "BUY"
       }
     ],
@@ -139,84 +159,186 @@
       "note": "Крепкий доллар обычно давит на банки и помогает экспортёрам, слабый — наоборот."
     },
     {
-      "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+      "title": "❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…",
       "positive": [],
       "negative": [
-        "GAZP"
+        "LKOH"
       ],
       "note": "Цепочка: новость → эмитент → сектор."
     },
     {
-      "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
+      "title": "Акционеры Henderson одобрили дивиденды за 9 месяцев в размере 8 рублей на бумагу",
       "positive": [
-        "AFLT"
+        "HNFG",
+        "X5"
       ],
       "negative": [],
+      "note": "Цепочка: новость → эмитент → сектор."
+    },
+    {
+      "title": "🇷🇺🇺🇸#GOOGL #суд Активы Google во Франции арестованы на €1,9 млрд по иску российской ООО «Гугл» - ТАСС",
+      "positive": [],
+      "negative": [
+        "GOOGL"
+      ],
       "note": "Цепочка: новость → эмитент → сектор."
     }
   ],
   "catalysts": [
     {
-      "ticker": "GAZP",
-      "name": "Газпром",
+      "ticker": "LKOH",
+      "name": "Лукойл",
       "action": "SELL",
-      "eventType": "legal",
-      "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
+      "eventType": "other",
+      "title": "ВТБ, \"ЛУКОЙЛ\" и \"префы\" \"Сургутнефтегаза\" возглавили отскок рынка",
       "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "expectedImpactPct": -2.3,
+      "expectedImpactPct": -4.6,
       "marketReactionPct": 0.0,
-      "gapPct": -2.3,
-      "reaction": "confirmed",
+      "gapPct": -4.6,
+      "reaction": "underreaction",
       "horizon": "1–3 дня",
-      "confidence": 81,
+      "confidence": 92,
       "sourceQuality": 0.5,
       "official": false,
-      "strength": 5.3,
+      "strength": 10,
       "source": {
-        "publisher": "РБК",
-        "url": "https://www.rbc.ru/politics/24/11/2026/6b05c7136ebc0591b7bbf116"
+        "publisher": "Финам: компании",
+        "url": "https://www.finam.ru/publications/item/vtb-lukoyl-i-prefy-surgutneftegaza-vozglavili-otskok-rynka-20261125-1926/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
       }
     },
     {
-      "ticker": "AFLT",
-      "name": "Аэрофлот",
+      "ticker": "GOOGL",
+      "name": "GOOGL",
+      "action": "SELL",
+      "eventType": "legal",
+      "title": "🇷🇺🇺🇸#GOOGL #суд Активы Google во Франции арестованы на €1,9 млрд по иску российской ООО «Гугл» - ТАСС",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "expectedImpactPct": -2.1,
+      "marketReactionPct": 0.0,
+      "gapPct": -2.1,
+      "reaction": "confirmed",
+      "horizon": "1–3 дня",
+      "confidence": 80,
+      "sourceQuality": 0.25,
+      "official": false,
+      "strength": 5.1,
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394842"
+      }
+    },
+    {
+      "ticker": "HNFG",
+      "name": "Henderson",
       "action": "BUY",
       "eventType": "dividend",
-      "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
+      "title": "Акционеры Henderson одобрили дивиденды за 9 месяцев в размере 8 рублей на бумагу",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 1.6,
-      "marketReactionPct": 0.0,
-      "gapPct": 1.6,
-      "reaction": "confirmed",
+      "expectedImpactPct": 1.7,
+      "marketReactionPct": -0.29,
+      "gapPct": 1.99,
+      "reaction": "divergence",
       "horizon": "1–5 дней",
-      "confidence": 73,
+      "confidence": 74,
       "sourceQuality": 0.5,
       "official": false,
-      "strength": 4.4,
+      "strength": 4.5,
       "source": {
         "publisher": "Финам: компании",
-        "url": "https://www.finam.ru/publications/item/aeroflot-natselen-na-vyplatu-dividendov-po-itogam-2026-goda-20261124-1007/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+        "url": "https://www.finam.ru/publications/item/aktsionery-henderson-odobrili-dividendy-za-9-mesyatsev-v-razmere-8-rubley-na-bumagu-20261125-1555/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+      }
+    },
+    {
+      "ticker": "LKOH",
+      "name": "Лукойл",
+      "action": "SELL",
+      "eventType": "sanctions",
+      "title": "❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "expectedImpactPct": -1.6,
+      "marketReactionPct": 0.0,
+      "gapPct": -1.6,
+      "reaction": "confirmed",
+      "horizon": "1–10 дней",
+      "confidence": 72,
+      "sourceQuality": 0.25,
+      "official": false,
+      "strength": 4.3,
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394855"
+      }
+    },
+    {
+      "ticker": "TRNFP",
+      "name": "Транснефть, ап",
+      "action": "BUY",
+      "eventType": "dividend",
+      "title": "Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…",
+      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
+      "expectedImpactPct": 1.5,
+      "marketReactionPct": -0.41,
+      "gapPct": 1.91,
+      "reaction": "divergence",
+      "horizon": "1–5 дней",
+      "confidence": 71,
+      "sourceQuality": 0.25,
+      "official": false,
+      "strength": 4.2,
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394850"
+      }
+    },
+    {
+      "ticker": "GAZP",
+      "name": "Газпром",
+      "action": "BUY",
+      "eventType": "other",
+      "title": "«Газпром» сообщил о рекордном расходе газа из хранилищ Европы",
+      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
+      "expectedImpactPct": 1.4,
+      "marketReactionPct": 0.0,
+      "gapPct": 1.4,
+      "reaction": "confirmed",
+      "horizon": "1–3 дня",
+      "confidence": 71,
+      "sourceQuality": 0.5,
+      "official": false,
+      "strength": 4.1,
+      "source": {
+        "publisher": "РБК",
+        "url": "https://www.rbc.ru/politics/25/11/2026/6b06f4825465bbff4f50f531"
       }
     }
   ],
   "anomalies": [
     {
-      "ticker": "X5",
-      "title": "X5 +2.8% без свежего катализатора в ленте",
-      "kind": "mover",
-      "label": "сильное движение без явного события в снимке",
-      "expectedImpactPct": 0,
-      "marketReactionPct": 2.81,
+      "ticker": "LKOH",
+      "title": "ВТБ, \"ЛУКОЙЛ\" и \"префы\" \"Сургутнефтегаза\" возглавили отскок рынка",
+      "kind": "underreaction",
+      "label": "сильный катализатор, слабая реакция рынка",
+      "expectedImpactPct": -4.6,
+      "marketReactionPct": 0.0,
       "eventType": "other"
     },
     {
-      "ticker": "CNRU",
-      "title": "CNRU -1.5% без свежего катализатора в ленте",
-      "kind": "mover",
-      "label": "сильное движение без явного события в снимке",
-      "expectedImpactPct": 0,
-      "marketReactionPct": -1.46,
-      "eventType": "other"
+      "ticker": "HNFG",
+      "title": "Акционеры Henderson одобрили дивиденды за 9 месяцев в размере 8 рублей на бумагу",
+      "kind": "divergence",
+      "label": "новость и цена смотрят в разные стороны",
+      "expectedImpactPct": 1.7,
+      "marketReactionPct": -0.29,
+      "eventType": "dividend"
+    },
+    {
+      "ticker": "TRNFP",
+      "title": "Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…",
+      "kind": "divergence",
+      "label": "новость и цена смотрят в разные стороны",
+      "expectedImpactPct": 1.5,
+      "marketReactionPct": -0.41,
+      "eventType": "dividend"
     }
   ],
   "sectors": [
@@ -246,7 +368,7 @@
           "dayChange": -0.41
         }
       ],
-      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
+      "why": "TRNFP: Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…"
     },
     {
       "id": "commodity",
@@ -314,79 +436,226 @@
           "dayChange": 2.81
         }
       ],
-      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
+      "why": "HNFG: Акционеры Henderson одобрили дивиденды за 9 месяцев в размере 8 рублей на бумагу"
     }
   ],
   "urgent": [
+    {
+      "ticker": "LKOH",
+      "hashtags": [
+        "#Лукойл",
+        "#LKOH"
+      ],
+      "action": "SELL",
+      "strength": 68,
+      "sentimentScore": -0.44,
+      "impactEstimatePct": -1.6,
+      "impactConfidence": 72,
+      "entityConfidence": 90,
+      "impactModel": "rules-v1",
+      "eventType": "sanctions",
+      "eventSeverity": 80,
+      "noveltyScore": 1.0,
+      "sourceQuality": 0.25,
+      "marketReaction": null,
+      "title": "❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "publishedAt": "2026-11-25T17:00:42+00:00",
+      "expiresAt": "2026-11-27T20:10:18.859277+03:00",
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394855"
+      },
+      "sources": [
+        {
+          "publisher": "MarketTwits",
+          "url": "https://t.me/markettwits/394855"
+        }
+      ],
+      "sourceCount": 1,
+      "signalScore": 66.88
+    },
+    {
+      "ticker": "HNFG",
+      "hashtags": [
+        "#Henderson",
+        "#HNFG"
+      ],
+      "action": "BUY",
+      "strength": 66,
+      "sentimentScore": 0.4,
+      "impactEstimatePct": 1.7,
+      "impactConfidence": 74,
+      "entityConfidence": 95,
+      "impactModel": "rules-v1",
+      "eventType": "dividend",
+      "eventSeverity": 30,
+      "noveltyScore": 1.0,
+      "sourceQuality": 0.5,
+      "marketReaction": {
+        "dayChangePct": -0.29,
+        "confirmed": false,
+        "divergence": false
+      },
+      "title": "Акционеры Henderson одобрили дивиденды за 9 месяцев в размере 8 рублей на бумагу",
+      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
+      "publishedAt": "Wed, 25 Nov 2026 15:53:32 +0300",
+      "expiresAt": "2026-11-27T20:10:18.836744+03:00",
+      "source": {
+        "publisher": "Финам: компании",
+        "url": "https://www.finam.ru/publications/item/aktsionery-henderson-odobrili-dividendy-za-9-mesyatsev-v-razmere-8-rubley-na-bumagu-20261125-1555/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+      },
+      "sources": [
+        {
+          "publisher": "Финам: компании",
+          "url": "https://www.finam.ru/publications/item/aktsionery-henderson-odobrili-dividendy-za-9-mesyatsev-v-razmere-8-rubley-na-bumagu-20261125-1555/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+        }
+      ],
+      "sourceCount": 1,
+      "signalScore": 62.39
+    },
+    {
+      "ticker": "GOOGL",
+      "hashtags": [
+        "#GOOGL"
+      ],
+      "action": "SELL",
+      "strength": 86,
+      "sentimentScore": -0.84,
+      "impactEstimatePct": -2.1,
+      "impactConfidence": 80,
+      "entityConfidence": 65,
+      "impactModel": "rules-v1",
+      "eventType": "legal",
+      "eventSeverity": 55,
+      "noveltyScore": 1.0,
+      "sourceQuality": 0.25,
+      "marketReaction": null,
+      "title": "🇷🇺🇺🇸#GOOGL #суд Активы Google во Франции арестованы на €1,9 млрд по иску российской ООО «Гугл» - ТАСС",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "publishedAt": "2026-11-25T15:46:10+00:00",
+      "expiresAt": "2026-11-26T20:10:18.851083+03:00",
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394842"
+      },
+      "sources": [
+        {
+          "publisher": "MarketTwits",
+          "url": "https://t.me/markettwits/394842"
+        }
+      ],
+      "sourceCount": 1,
+      "signalScore": 62.19
+    },
+    {
+      "ticker": "TRNFP",
+      "hashtags": [
+        "#Транснефть",
+        "#TRNFP"
+      ],
+      "action": "BUY",
+      "strength": 66,
+      "sentimentScore": 0.4,
+      "impactEstimatePct": 1.5,
+      "impactConfidence": 71,
+      "entityConfidence": 95,
+      "impactModel": "rules-v1",
+      "eventType": "dividend",
+      "eventSeverity": 30,
+      "noveltyScore": 1.0,
+      "sourceQuality": 0.25,
+      "marketReaction": {
+        "dayChangePct": -0.41,
+        "confirmed": false,
+        "divergence": false
+      },
+      "title": "Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…",
+      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
+      "publishedAt": "2026-11-25T16:08:17+00:00",
+      "expiresAt": "2026-11-27T20:10:18.857834+03:00",
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394850"
+      },
+      "sources": [
+        {
+          "publisher": "MarketTwits",
+          "url": "https://t.me/markettwits/394850"
+        }
+      ],
+      "sourceCount": 1,
+      "signalScore": 57.2
+    },
+    {
+      "ticker": "LKOH",
+      "hashtags": [
+        "#Лукойл",
+        "#LKOH"
+      ],
+      "action": "SELL",
+      "strength": 99,
+      "sentimentScore": -1.0,
+      "impactEstimatePct": -4.6,
+      "impactConfidence": 92,
+      "entityConfidence": 90,
+      "impactModel": "rules-v1",
+      "eventType": "other",
+      "eventSeverity": 20,
+      "noveltyScore": 1.0,
+      "sourceQuality": 0.5,
+      "marketReaction": null,
+      "title": "ВТБ, \"ЛУКОЙЛ\" и \"префы\" \"Сургутнефтегаза\" возглавили отскок рынка",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "publishedAt": "Wed, 25 Nov 2026 19:21:33 +0300",
+      "expiresAt": "2026-11-26T20:10:18.834625+03:00",
+      "source": {
+        "publisher": "Финам: компании",
+        "url": "https://www.finam.ru/publications/item/vtb-lukoyl-i-prefy-surgutneftegaza-vozglavili-otskok-rynka-20261125-1926/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+      },
+      "sources": [
+        {
+          "publisher": "Финам: компании",
+          "url": "https://www.finam.ru/publications/item/vtb-lukoyl-i-prefy-surgutneftegaza-vozglavili-otskok-rynka-20261125-1926/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
+        }
+      ],
+      "sourceCount": 1,
+      "signalScore": 56.95
+    },
     {
       "ticker": "GAZP",
       "hashtags": [
         "#Газпром",
         "#GAZP"
       ],
-      "action": "SELL",
-      "strength": 76,
-      "sentimentScore": -0.62,
-      "impactEstimatePct": -2.3,
-      "impactConfidence": 81,
+      "action": "BUY",
+      "strength": 64,
+      "sentimentScore": 0.36,
+      "impactEstimatePct": 1.4,
+      "impactConfidence": 71,
       "entityConfidence": 90,
       "impactModel": "rules-v1",
-      "eventType": "legal",
-      "eventSeverity": 55,
+      "eventType": "other",
+      "eventSeverity": 20,
       "noveltyScore": 1.0,
       "sourceQuality": 0.5,
       "marketReaction": null,
-      "title": "Для экс-губернатора Тамбовской области запросили 14 лет по делу о взятках",
-      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "publishedAt": "Tue, 24 Nov 2026 21:52:53 +0300",
-      "expiresAt": "2026-11-27T05:24:12.544133+03:00",
+      "title": "«Газпром» сообщил о рекордном расходе газа из хранилищ Европы",
+      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
+      "publishedAt": "Wed, 25 Nov 2026 18:52:08 +0300",
+      "expiresAt": "2026-11-27T20:10:18.865494+03:00",
       "source": {
         "publisher": "РБК",
-        "url": "https://www.rbc.ru/politics/24/11/2026/6b05c7136ebc0591b7bbf116"
+        "url": "https://www.rbc.ru/politics/25/11/2026/6b06f4825465bbff4f50f531"
       },
       "sources": [
         {
           "publisher": "РБК",
-          "url": "https://www.rbc.ru/politics/24/11/2026/6b05c7136ebc0591b7bbf116"
+          "url": "https://www.rbc.ru/politics/25/11/2026/6b06f4825465bbff4f50f531"
         }
       ],
       "sourceCount": 1,
-      "signalScore": 60.76
-    },
-    {
-      "ticker": "AFLT",
-      "hashtags": [
-        "#Аэрофлот",
-        "#AFLT"
-      ],
-      "action": "BUY",
-      "strength": 66,
-      "sentimentScore": 0.4,
-      "impactEstimatePct": 1.6,
-      "impactConfidence": 73,
-      "entityConfidence": 90,
-      "impactModel": "rules-v1",
-      "eventType": "dividend",
-      "eventSeverity": 30,
-      "noveltyScore": 1.0,
-      "sourceQuality": 0.5,
-      "marketReaction": null,
-      "title": "«Аэрофлот» нацелен на выплату дивидендов по итогам 2026 года",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "Tue, 24 Nov 2026 09:56:51 +0300",
-      "expiresAt": "2026-11-27T05:24:12.503165+03:00",
-      "source": {
-        "publisher": "Финам: компании",
-        "url": "https://www.finam.ru/publications/item/aeroflot-natselen-na-vyplatu-dividendov-po-itogam-2026-goda-20261124-1007/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
-      },
-      "sources": [
-        {
-          "publisher": "Финам: компании",
-          "url": "https://www.finam.ru/publications/item/aeroflot-natselen-na-vyplatu-dividendov-po-itogam-2026-goda-20261124-1007/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
-        }
-      ],
-      "sourceCount": 1,
-      "signalScore": 60.18
+      "signalScore": 52.5
     }
   ],
   "scalp": [
@@ -444,7 +713,7 @@
       "name": "Самараэнерго - ап",
       "cutoffDate": "2026-11-30",
       "dividendRub": 0.42,
-      "yieldPct": 13.15,
+      "yieldPct": 13.13,
       "currency": "RUB",
       "status": "announced",
       "source": {
@@ -459,7 +728,7 @@
       "dividendRub": 0.42,
       "yieldPct": 13.08,
       "currency": "RUB",
-      "status": "recommended",
+      "status": "announced",
       "source": {
         "publisher": "Snowball Income",
         "url": "https://snowball-income.com/calendars/dividend-calendar/mcx"
@@ -470,7 +739,7 @@
       "name": "Циан",
       "cutoffDate": "2026-11-30",
       "dividendRub": 33.0,
-      "yieldPct": 3.63,
+      "yieldPct": 3.65,
       "currency": "RUB",
       "status": "announced",
       "source": {
@@ -496,9 +765,9 @@
       "name": "Куйбышевазот ап",
       "cutoffDate": "2026-12-01",
       "dividendRub": 20.0,
-      "yieldPct": 5.37,
+      "yieldPct": 5.4,
       "currency": "RUB",
-      "status": "recommended",
+      "status": "announced",
       "source": {
         "publisher": "Snowball Income",
         "url": "https://snowball-income.com/calendars/dividend-calendar/mcx"
@@ -509,7 +778,7 @@
       "name": "ВИ.ру",
       "cutoffDate": "2026-12-07",
       "dividendRub": 7.0,
-      "yieldPct": 7.98,
+      "yieldPct": 7.99,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -522,7 +791,7 @@
       "name": "HENDERS",
       "cutoffDate": "2026-12-07",
       "dividendRub": 8.0,
-      "yieldPct": 2.89,
+      "yieldPct": 2.97,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -535,7 +804,7 @@
       "name": "НК ЛУКОЙЛ",
       "cutoffDate": "2026-12-09",
       "dividendRub": 535.0,
-      "yieldPct": 9.21,
+      "yieldPct": 9.27,
       "currency": "RUB",
       "status": "announced",
       "source": {
@@ -548,7 +817,7 @@
       "name": "КЦ ИКС 5",
       "cutoffDate": "2026-12-11",
       "dividendRub": 204.0,
-      "yieldPct": 8.76,
+      "yieldPct": 8.8,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -561,7 +830,7 @@
       "name": "ФосАгро",
       "cutoffDate": "2026-12-13",
       "dividendRub": 309.0,
-      "yieldPct": 6.14,
+      "yieldPct": 6.22,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -574,7 +843,7 @@
       "name": "Займер",
       "cutoffDate": "2026-12-13",
       "dividendRub": 7.14,
-      "yieldPct": 5.43,
+      "yieldPct": 5.45,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -587,7 +856,7 @@
       "name": "Т-Технологии",
       "cutoffDate": "2026-12-14",
       "dividendRub": 4.8,
-      "yieldPct": 1.73,
+      "yieldPct": 1.74,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -600,7 +869,7 @@
       "name": "Липецкая энергосбыт.ком.ОАО",
       "cutoffDate": "2026-12-15",
       "dividendRub": 15.11,
-      "yieldPct": 16.84,
+      "yieldPct": 17.21,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -613,7 +882,7 @@
       "name": "Мордовск.энергсбыт.комп.ао",
       "cutoffDate": "2026-12-15",
       "dividendRub": 0.1309,
-      "yieldPct": 11.81,
+      "yieldPct": 11.9,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -626,7 +895,7 @@
       "name": "Инарктика",
       "cutoffDate": "2026-12-15",
       "dividendRub": 10.0,
-      "yieldPct": 3.01,
+      "yieldPct": 3.09,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -678,7 +947,7 @@
       "name": "Фикс Прайс",
       "cutoffDate": "2026-12-28",
       "dividendRub": 0.1,
-      "yieldPct": 16.25,
+      "yieldPct": 16.69,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -691,7 +960,7 @@
       "name": "ММЦБ",
       "cutoffDate": "2026-12-29",
       "dividendRub": 2.33,
-      "yieldPct": 2.89,
+      "yieldPct": 2.95,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -704,7 +973,7 @@
       "name": "Европлан",
       "cutoffDate": "2027-01-08",
       "dividendRub": 87.0,
-      "yieldPct": 12.45,
+      "yieldPct": 12.47,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -743,7 +1012,7 @@
       "name": "Татнефть ап 3 вып.",
       "cutoffDate": "2027-01-10",
       "dividendRub": 31.44,
-      "yieldPct": 5.79,
+      "yieldPct": 5.92,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -756,7 +1025,7 @@
       "name": "Татнефть",
       "cutoffDate": "2027-01-10",
       "dividendRub": 31.44,
-      "yieldPct": 5.74,
+      "yieldPct": 5.85,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -769,7 +1038,20 @@
       "name": "NOMPНовошип ап",
       "cutoffDate": "2027-01-11",
       "dividendRub": 36.0,
-      "yieldPct": 20.81,
+      "yieldPct": 20.53,
+      "currency": "RUB",
+      "status": "recommended",
+      "source": {
+        "publisher": "Snowball Income",
+        "url": "https://snowball-income.com/calendars/dividend-calendar/mcx"
+      }
+    },
+    {
+      "secid": "NOMP",
+      "name": "Новошип",
+      "cutoffDate": "2027-01-11",
+      "dividendRub": 36.0,
+      "yieldPct": 20.0,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -782,7 +1064,7 @@
       "name": "Озон",
       "cutoffDate": "2027-01-12",
       "dividendRub": 120.0,
-      "yieldPct": 3.4,
+      "yieldPct": 3.41,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -795,7 +1077,7 @@
       "name": "НК Роснефть",
       "cutoffDate": "2027-01-12",
       "dividendRub": 9.44,
-      "yieldPct": 2.92,
+      "yieldPct": 2.95,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -808,7 +1090,7 @@
       "name": "Мобильные ТелеСистемы",
       "cutoffDate": "2027-01-18",
       "dividendRub": 7.0,
-      "yieldPct": 4.09,
+      "yieldPct": 4.08,
       "currency": "RUB",
       "status": "recommended",
       "source": {
@@ -887,6 +1169,40 @@
       "stance": "WATCH"
     },
     {
+      "secid": "TRNFP",
+      "name": "Транснефть, ап",
+      "price": 1024.2,
+      "dayChange": -0.41,
+      "targetPrice": 1115.56,
+      "dividend12m": 176.0,
+      "priceReturn": 8.9,
+      "dividendYield": 17.2,
+      "expectedReturn": 26.1,
+      "confidence": 88,
+      "financialTrend": 78,
+      "return3m": -4.1,
+      "return12m": -25.7,
+      "targetModel": "tradesignal-v1",
+      "targetDrivers": {
+        "impulse": -2.5,
+        "fundamental": 7.8,
+        "news": 1.5,
+        "macro": 2.1
+      },
+      "sector": "infra",
+      "thesis": "Защитный инфраструктурный бизнес и высокий ожидаемый дивиденд.",
+      "risks": "Тарифное регулирование, налоги и капитальные затраты.",
+      "liquidityRub": 353553974,
+      "sources": [
+        {
+          "publisher": "TradeSignal priors",
+          "publishedAt": "2026-08-06",
+          "url": "https://iss.moex.com/iss/reference/"
+        }
+      ],
+      "stance": "BUY"
+    },
+    {
       "secid": "HEAD",
       "name": "HeadHunter",
       "price": 2709.0,
@@ -911,40 +1227,6 @@
       "thesis": "Лидер HR-tech с высокой маржой и сильной генерацией денежных средств.",
       "risks": "Охлаждение рынка труда и снижение найма.",
       "liquidityRub": 253676585,
-      "sources": [
-        {
-          "publisher": "TradeSignal priors",
-          "publishedAt": "2026-08-06",
-          "url": "https://iss.moex.com/iss/reference/"
-        }
-      ],
-      "stance": "WATCH"
-    },
-    {
-      "secid": "TRNFP",
-      "name": "Транснефть, ап",
-      "price": 1024.2,
-      "dayChange": -0.41,
-      "targetPrice": 1100.53,
-      "dividend12m": 176.0,
-      "priceReturn": 7.5,
-      "dividendYield": 17.2,
-      "expectedReturn": 24.6,
-      "confidence": 85,
-      "financialTrend": 78,
-      "return3m": -4.1,
-      "return12m": -25.7,
-      "targetModel": "tradesignal-v1",
-      "targetDrivers": {
-        "impulse": -2.5,
-        "fundamental": 7.8,
-        "news": 0.0,
-        "macro": 2.1
-      },
-      "sector": "infra",
-      "thesis": "Защитный инфраструктурный бизнес и высокий ожидаемый дивиденд.",
-      "risks": "Тарифное регулирование, налоги и капитальные затраты.",
-      "liquidityRub": 353553974,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -1091,6 +1373,40 @@
       "stance": "WATCH"
     },
     {
+      "secid": "HNFG",
+      "name": "Henderson",
+      "price": 272.4,
+      "dayChange": -0.29,
+      "targetPrice": 292.67,
+      "dividend12m": 30.0,
+      "priceReturn": 7.4,
+      "dividendYield": 11.0,
+      "expectedReturn": 18.5,
+      "confidence": 88,
+      "financialTrend": 81,
+      "return3m": -13.4,
+      "return12m": -47.4,
+      "targetModel": "tradesignal-v1",
+      "targetDrivers": {
+        "impulse": -5.2,
+        "fundamental": 8.7,
+        "news": 1.5,
+        "macro": 2.4
+      },
+      "sector": "retail",
+      "thesis": "Расширение сети и рост продаж на квадратный метр.",
+      "risks": "Потребительский спрос и валютная себестоимость.",
+      "liquidityRub": 1983771,
+      "sources": [
+        {
+          "publisher": "TradeSignal priors",
+          "publishedAt": "2026-08-06",
+          "url": "https://iss.moex.com/iss/reference/"
+        }
+      ],
+      "stance": "BUY"
+    },
+    {
       "secid": "MDMG",
       "name": "Мать и дитя",
       "price": 1285.9,
@@ -1115,40 +1431,6 @@
       "thesis": "Защитный спрос на медицину, расширение сети и низкая долговая нагрузка.",
       "risks": "Темпы открытия клиник и дефицит персонала.",
       "liquidityRub": 50844325,
-      "sources": [
-        {
-          "publisher": "TradeSignal priors",
-          "publishedAt": "2026-08-06",
-          "url": "https://iss.moex.com/iss/reference/"
-        }
-      ],
-      "stance": "WATCH"
-    },
-    {
-      "secid": "HNFG",
-      "name": "Henderson",
-      "price": 272.4,
-      "dayChange": -0.29,
-      "targetPrice": 288.46,
-      "dividend12m": 30.0,
-      "priceReturn": 5.9,
-      "dividendYield": 11.0,
-      "expectedReturn": 16.9,
-      "confidence": 86,
-      "financialTrend": 81,
-      "return3m": -13.4,
-      "return12m": -47.4,
-      "targetModel": "tradesignal-v1",
-      "targetDrivers": {
-        "impulse": -5.2,
-        "fundamental": 8.7,
-        "news": 0.0,
-        "macro": 2.4
-      },
-      "sector": "retail",
-      "thesis": "Расширение сети и рост продаж на квадратный метр.",
-      "risks": "Потребительский спрос и валютная себестоимость.",
-      "liquidityRub": 1983771,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -3052,33 +3334,81 @@
       "hit1d": null
     },
     {
-      "id": "GAZP|SELL|дляэксгубернаторатамбовскойобластизапросили14летподелуовзятках",
-      "ticker": "GAZP",
+      "id": "LKOH|SELL|lkohконсорциумбоэлиполучит100lukoilintвобменнаакциилукойлаидругихроссийскихкомпа",
+      "ticker": "LKOH",
       "action": "SELL",
-      "eventType": "legal",
-      "emittedAt": "Tue, 24 Nov 2026 21:52:53 +0300",
+      "eventType": "sanctions",
+      "emittedAt": "2026-11-25T17:00:42+00:00",
       "priceAtEmit": 0.0,
-      "expectedImpactPct": -2.3,
-      "confidence": 81,
+      "expectedImpactPct": -1.6,
+      "confidence": 72,
       "return1d": null,
       "hit1d": null
     },
     {
-      "id": "AFLT|BUY|аэрофлотнацеленнавыплатудивидендовпоитогам2026года",
-      "ticker": "AFLT",
+      "id": "HNFG|BUY|акционерыhendersonодобрилидивидендыза9месяцеввразмере8рублейнабумагу",
+      "ticker": "HNFG",
       "action": "BUY",
       "eventType": "dividend",
-      "emittedAt": "Tue, 24 Nov 2026 09:56:51 +0300",
+      "emittedAt": "Wed, 25 Nov 2026 15:53:32 +0300",
+      "priceAtEmit": 272.4,
+      "expectedImpactPct": 1.7,
+      "confidence": 74,
+      "return1d": null,
+      "hit1d": null
+    },
+    {
+      "id": "GOOGL|SELL|googlсудактивыgoogleвофранцииарестованына19млрдпоискуроссийскойооогуглтасс",
+      "ticker": "GOOGL",
+      "action": "SELL",
+      "eventType": "legal",
+      "emittedAt": "2026-11-25T15:46:10+00:00",
       "priceAtEmit": 0.0,
-      "expectedImpactPct": 1.6,
-      "confidence": 73,
+      "expectedImpactPct": -2.1,
+      "confidence": 80,
+      "return1d": null,
+      "hit1d": null
+    },
+    {
+      "id": "TRNFP|BUY|главноеизинвестиционнойстратегииатон2027аналитикиинвестиционнойкомпаниивыделяютт",
+      "ticker": "TRNFP",
+      "action": "BUY",
+      "eventType": "dividend",
+      "emittedAt": "2026-11-25T16:08:17+00:00",
+      "priceAtEmit": 1024.2,
+      "expectedImpactPct": 1.5,
+      "confidence": 71,
+      "return1d": null,
+      "hit1d": null
+    },
+    {
+      "id": "LKOH|SELL|втблукойлипрефысургутнефтегазавозглавилиотскокрынка",
+      "ticker": "LKOH",
+      "action": "SELL",
+      "eventType": "other",
+      "emittedAt": "Wed, 25 Nov 2026 19:21:33 +0300",
+      "priceAtEmit": 0.0,
+      "expectedImpactPct": -4.6,
+      "confidence": 92,
+      "return1d": null,
+      "hit1d": null
+    },
+    {
+      "id": "GAZP|BUY|газпромсообщилорекордномрасходегазаизхранилищевропы",
+      "ticker": "GAZP",
+      "action": "BUY",
+      "eventType": "other",
+      "emittedAt": "Wed, 25 Nov 2026 18:52:08 +0300",
+      "priceAtEmit": 0.0,
+      "expectedImpactPct": 1.4,
+      "confidence": 71,
       "return1d": null,
       "hit1d": null
     }
   ],
   "signalPerformance": {
     "n": 28,
-    "pending": 87,
+    "pending": 91,
     "hitRate": 0.357,
     "avgReturn": -0.43,
     "highConfidenceHitRate": 0.545,
@@ -3134,15 +3464,15 @@
     ]
   },
   "pipelineMetrics": {
-    "fetched": 200,
+    "fetched": 193,
     "expired": 8,
-    "lowImpact": 172,
-    "unlinked": 18,
+    "lowImpact": 166,
+    "unlinked": 13,
     "duplicatesMerged": 0,
-    "signals": 2,
+    "signals": 6,
     "dedupRate": 0.0,
     "impactAccuracy": null,
-    "latencyMs": 81,
+    "latencyMs": 50,
     "entityLinkPrecision": 1.0,
     "entityLinkRecall": 1.0,
     "entityEvalSamples": 50
@@ -3151,17 +3481,17 @@
     {
       "source": "MOEX: облигации",
       "status": "stale",
-      "detail": "Не удалось загрузить https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQOB/securities.json?iss.meta=off&iss.only=securities%2Cmar; сохранен прошлый снимок"
+      "detail": "Не удалось загрузить https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQCB/securities.json?iss.meta=off&iss.only=securities%2Cmar; сохранен прошлый снимок"
     },
     {
       "source": "MOEX: фонды",
       "status": "ok",
-      "detail": "10 инструментов · 1835 мс"
+      "detail": "10 инструментов · 2127 мс"
     },
     {
       "source": "MOEX: акции",
       "status": "ok",
-      "detail": "10 инструментов · 6817 мс"
+      "detail": "10 инструментов · 8221 мс"
     },
     {
       "source": "MOEX: IMOEX",
@@ -3171,7 +3501,7 @@
     {
       "source": "Snowball: дивиденды",
       "status": "ok",
-      "detail": "29 отсечек · 1525 мс"
+      "detail": "30 отсечек · 1686 мс"
     },
     {
       "source": "Московская биржа",
@@ -3184,17 +3514,12 @@
       "detail": "10 сообщений"
     },
     {
-      "source": "Ведомости",
+      "source": "Финам: компании",
       "status": "ok",
       "detail": "40 сообщений"
     },
     {
-      "source": "Интерфакс",
-      "status": "ok",
-      "detail": "25 сообщений"
-    },
-    {
-      "source": "Финам: компании",
+      "source": "Ведомости",
       "status": "ok",
       "detail": "40 сообщений"
     },
@@ -3206,7 +3531,12 @@
     {
       "source": "Коммерсантъ",
       "status": "ok",
-      "detail": "27 сообщений"
+      "detail": "20 сообщений"
+    },
+    {
+      "source": "Интерфакс",
+      "status": "ok",
+      "detail": "25 сообщений"
     },
     {
       "source": "MarketTwits",
@@ -3219,14 +3549,14 @@
       "detail": "Не удалось загрузить https://bonds.finam.ru/news/today/rss.asp: HTTP Error 403: Forbidden"
     },
     {
-      "source": "Роснефть",
-      "status": "error",
-      "detail": "Не удалось загрузить https://www.rosneft.ru/press/releases/rss/: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: "
-    },
-    {
       "source": "РБК",
       "status": "ok",
       "detail": "30 сообщений"
+    },
+    {
+      "source": "Роснефть",
+      "status": "error",
+      "detail": "Не удалось загрузить https://www.rosneft.ru/press/releases/rss/: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: "
     },
     {
       "source": "Газпром",
