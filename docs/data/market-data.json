@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T20:10:36+03:00",
+  "generatedAt": "2026-11-26T04:46:24+03:00",
   "methodologyVersion": "1.2.0",
   "market": "Московская биржа",
   "marketTape": {
@@ -33,9 +33,9 @@
     "stance": "боковик",
     "horizon": "не только сессия",
     "longVerdict": "точечно",
-    "why": "Медиана вселенной -0.1% при индексе +0.2%. В ленте есть тяжелый негатив (❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…). Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
+    "why": "Медиана вселенной -0.1% при индексе +0.2%. В ленте есть тяжелый негатив (⬆️🇷🇺#MGKL = +12% МГКЛ допустила еще два техдефолта). Ключевая ставка 14.0% по-прежнему давит на оценку акций.",
     "outlook": "Это уже не чистый внутридневной шум: негатив или глубокая просадка могут держаться дольше одной сессии. Долгосрочный тренд по одному дню не переписываем.",
-    "longAdvice": "Рынок без явного дневного тренда. Длинные — только в отдельных бумагах, не в индексе целиком: X5, SBER, TRNFP.",
+    "longAdvice": "Рынок без явного дневного тренда. Длинные — только в отдельных бумагах, не в индексе целиком: X5, SBER, HEAD.",
     "longTickers": [
       {
         "secid": "X5",
@@ -46,8 +46,8 @@
         "name": "Сбербанк"
       },
       {
-        "secid": "TRNFP",
-        "name": "Транснефть, ап"
+        "secid": "HEAD",
+        "name": "HeadHunter"
       }
     ],
     "breadthDown": 0.5,
@@ -108,8 +108,13 @@
   "sinceLastUpdate": {
     "newSignals": [
       {
+        "ticker": "MGKL",
+        "title": "⬆️🇷🇺#MGKL = +12% МГКЛ допустила еще два техдефолта",
+        "action": "SELL"
+      },
+      {
         "ticker": "LKOH",
-        "title": "❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…",
+        "title": "Активы готовы к добыче // Зарубежный бизнес ЛУКОЙЛа может купить консорциум с Тоддом Боэли",
         "action": "SELL"
       },
       {
@@ -118,24 +123,9 @@
         "action": "BUY"
       },
       {
-        "ticker": "GOOGL",
-        "title": "🇷🇺🇺🇸#GOOGL #суд Активы Google во Франции арестованы на €1,9 млрд по иску российской ООО «Гугл» - ТАСС",
-        "action": "SELL"
-      },
-      {
-        "ticker": "TRNFP",
-        "title": "Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…",
-        "action": "BUY"
-      },
-      {
         "ticker": "LKOH",
         "title": "ВТБ, \"ЛУКОЙЛ\" и \"префы\" \"Сургутнефтегаза\" возглавили отскок рынка",
         "action": "SELL"
-      },
-      {
-        "ticker": "GAZP",
-        "title": "«Газпром» сообщил о рекордном расходе газа из хранилищ Европы",
-        "action": "BUY"
       }
     ],
     "confidenceChanges": [],
@@ -159,7 +149,15 @@
       "note": "Крепкий доллар обычно давит на банки и помогает экспортёрам, слабый — наоборот."
     },
     {
-      "title": "❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…",
+      "title": "⬆️🇷🇺#MGKL = +12% МГКЛ допустила еще два техдефолта",
+      "positive": [],
+      "negative": [
+        "MGKL"
+      ],
+      "note": "Цепочка: новость → эмитент → сектор."
+    },
+    {
+      "title": "Активы готовы к добыче // Зарубежный бизнес ЛУКОЙЛа может купить консорциум с Тоддом Боэли",
       "positive": [],
       "negative": [
         "LKOH"
@@ -173,14 +171,6 @@
         "X5"
       ],
       "negative": [],
-      "note": "Цепочка: новость → эмитент → сектор."
-    },
-    {
-      "title": "🇷🇺🇺🇸#GOOGL #суд Активы Google во Франции арестованы на €1,9 млрд по иску российской ООО «Гугл» - ТАСС",
-      "positive": [],
-      "negative": [
-        "GOOGL"
-      ],
       "note": "Цепочка: новость → эмитент → сектор."
     }
   ],
@@ -207,24 +197,45 @@
       }
     },
     {
-      "ticker": "GOOGL",
-      "name": "GOOGL",
+      "ticker": "MGKL",
+      "name": "MGKL",
       "action": "SELL",
-      "eventType": "legal",
-      "title": "🇷🇺🇺🇸#GOOGL #суд Активы Google во Франции арестованы на €1,9 млрд по иску российской ООО «Гугл» - ТАСС",
+      "eventType": "credit_distress",
+      "title": "⬆️🇷🇺#MGKL = +12% МГКЛ допустила еще два техдефолта",
       "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "expectedImpactPct": -2.1,
+      "expectedImpactPct": -2.4,
       "marketReactionPct": 0.0,
-      "gapPct": -2.1,
+      "gapPct": -2.4,
       "reaction": "confirmed",
-      "horizon": "1–3 дня",
-      "confidence": 80,
+      "horizon": "1–10 дней",
+      "confidence": 85,
       "sourceQuality": 0.25,
       "official": false,
-      "strength": 5.1,
+      "strength": 5.6,
       "source": {
         "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394842"
+        "url": "https://t.me/markettwits/394863"
+      }
+    },
+    {
+      "ticker": "LKOH",
+      "name": "Лукойл",
+      "action": "SELL",
+      "eventType": "sanctions",
+      "title": "Активы готовы к добыче // Зарубежный бизнес ЛУКОЙЛа может купить консорциум с Тоддом Боэли",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "expectedImpactPct": -1.7,
+      "marketReactionPct": 0.0,
+      "gapPct": -1.7,
+      "reaction": "confirmed",
+      "horizon": "1–10 дней",
+      "confidence": 74,
+      "sourceQuality": 0.5,
+      "official": false,
+      "strength": 4.5,
+      "source": {
+        "publisher": "Коммерсантъ",
+        "url": "https://www.kommersant.ru/doc/9130732"
       }
     },
     {
@@ -247,69 +258,6 @@
         "publisher": "Финам: компании",
         "url": "https://www.finam.ru/publications/item/aktsionery-henderson-odobrili-dividendy-za-9-mesyatsev-v-razmere-8-rubley-na-bumagu-20261125-1555/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
       }
-    },
-    {
-      "ticker": "LKOH",
-      "name": "Лукойл",
-      "action": "SELL",
-      "eventType": "sanctions",
-      "title": "❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…",
-      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "expectedImpactPct": -1.6,
-      "marketReactionPct": 0.0,
-      "gapPct": -1.6,
-      "reaction": "confirmed",
-      "horizon": "1–10 дней",
-      "confidence": 72,
-      "sourceQuality": 0.25,
-      "official": false,
-      "strength": 4.3,
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394855"
-      }
-    },
-    {
-      "ticker": "TRNFP",
-      "name": "Транснефть, ап",
-      "action": "BUY",
-      "eventType": "dividend",
-      "title": "Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 1.5,
-      "marketReactionPct": -0.41,
-      "gapPct": 1.91,
-      "reaction": "divergence",
-      "horizon": "1–5 дней",
-      "confidence": 71,
-      "sourceQuality": 0.25,
-      "official": false,
-      "strength": 4.2,
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394850"
-      }
-    },
-    {
-      "ticker": "GAZP",
-      "name": "Газпром",
-      "action": "BUY",
-      "eventType": "other",
-      "title": "«Газпром» сообщил о рекордном расходе газа из хранилищ Европы",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "expectedImpactPct": 1.4,
-      "marketReactionPct": 0.0,
-      "gapPct": 1.4,
-      "reaction": "confirmed",
-      "horizon": "1–3 дня",
-      "confidence": 71,
-      "sourceQuality": 0.5,
-      "official": false,
-      "strength": 4.1,
-      "source": {
-        "publisher": "РБК",
-        "url": "https://www.rbc.ru/politics/25/11/2026/6b06f4825465bbff4f50f531"
-      }
     }
   ],
   "anomalies": [
@@ -329,15 +277,6 @@
       "label": "новость и цена смотрят в разные стороны",
       "expectedImpactPct": 1.7,
       "marketReactionPct": -0.29,
-      "eventType": "dividend"
-    },
-    {
-      "ticker": "TRNFP",
-      "title": "Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…",
-      "kind": "divergence",
-      "label": "новость и цена смотрят в разные стороны",
-      "expectedImpactPct": 1.5,
-      "marketReactionPct": -0.41,
       "eventType": "dividend"
     }
   ],
@@ -368,7 +307,7 @@
           "dayChange": -0.41
         }
       ],
-      "why": "TRNFP: Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…"
+      "why": "Движение внутри сектора без единого заголовка в срочной ленте."
     },
     {
       "id": "commodity",
@@ -441,6 +380,40 @@
   ],
   "urgent": [
     {
+      "ticker": "MGKL",
+      "hashtags": [
+        "#MGKL"
+      ],
+      "action": "SELL",
+      "strength": 93,
+      "sentimentScore": -1.0,
+      "impactEstimatePct": -2.4,
+      "impactConfidence": 85,
+      "entityConfidence": 65,
+      "impactModel": "rules-v1",
+      "eventType": "credit_distress",
+      "eventSeverity": 90,
+      "noveltyScore": 1.0,
+      "sourceQuality": 0.25,
+      "marketReaction": null,
+      "title": "⬆️🇷🇺#MGKL = +12% МГКЛ допустила еще два техдефолта",
+      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
+      "publishedAt": "2026-11-25T18:46:00+00:00",
+      "expiresAt": "2026-11-27T04:46:11.935535+03:00",
+      "source": {
+        "publisher": "MarketTwits",
+        "url": "https://t.me/markettwits/394863"
+      },
+      "sources": [
+        {
+          "publisher": "MarketTwits",
+          "url": "https://t.me/markettwits/394863"
+        }
+      ],
+      "sourceCount": 1,
+      "signalScore": 74.9
+    },
+    {
       "ticker": "LKOH",
       "hashtags": [
         "#Лукойл",
@@ -449,31 +422,31 @@
       "action": "SELL",
       "strength": 68,
       "sentimentScore": -0.44,
-      "impactEstimatePct": -1.6,
-      "impactConfidence": 72,
+      "impactEstimatePct": -1.7,
+      "impactConfidence": 74,
       "entityConfidence": 90,
       "impactModel": "rules-v1",
       "eventType": "sanctions",
       "eventSeverity": 80,
       "noveltyScore": 1.0,
-      "sourceQuality": 0.25,
+      "sourceQuality": 0.5,
       "marketReaction": null,
-      "title": "❗️🇷🇺#LKOH КОНСОРЦИУМ БОЭЛИ ПОЛУЧИТ 100% LUKOIL INT. В ОБМЕН НА АКЦИИ \"ЛУКОЙЛА\" И \"ДРУГИХ РОССИЙСКИХ КОМПАНИЙ\" АКТИВЫ, ПОЛУЧЕННЫЕ ЛУКОЙЛОМ В ОБМЕН НА LUKOIL INT., БУДУТ ПОМЕЩЕНЫ НА ЗАКРЫТЫЙ КАСТОДИАЛЬНЫЙ СЧЕТ НА 5 ЛЕТ ИЛИ…",
+      "title": "Активы готовы к добыче // Зарубежный бизнес ЛУКОЙЛа может купить консорциум с Тоддом Боэли",
       "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "publishedAt": "2026-11-25T17:00:42+00:00",
-      "expiresAt": "2026-11-27T20:10:18.859277+03:00",
+      "publishedAt": "Wed, 25 Nov 2026 20:57:16 +0300",
+      "expiresAt": "2026-11-28T04:46:11.912172+03:00",
       "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394855"
+        "publisher": "Коммерсантъ",
+        "url": "https://www.kommersant.ru/doc/9130732"
       },
       "sources": [
         {
-          "publisher": "MarketTwits",
-          "url": "https://t.me/markettwits/394855"
+          "publisher": "Коммерсантъ",
+          "url": "https://www.kommersant.ru/doc/9130732"
         }
       ],
       "sourceCount": 1,
-      "signalScore": 66.88
+      "signalScore": 69.42
     },
     {
       "ticker": "HNFG",
@@ -500,7 +473,7 @@
       "title": "Акционеры Henderson одобрили дивиденды за 9 месяцев в размере 8 рублей на бумагу",
       "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
       "publishedAt": "Wed, 25 Nov 2026 15:53:32 +0300",
-      "expiresAt": "2026-11-27T20:10:18.836744+03:00",
+      "expiresAt": "2026-11-28T04:46:11.928853+03:00",
       "source": {
         "publisher": "Финам: компании",
         "url": "https://www.finam.ru/publications/item/aktsionery-henderson-odobrili-dividendy-za-9-mesyatsev-v-razmere-8-rubley-na-bumagu-20261125-1555/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
@@ -513,79 +486,6 @@
       ],
       "sourceCount": 1,
       "signalScore": 62.39
-    },
-    {
-      "ticker": "GOOGL",
-      "hashtags": [
-        "#GOOGL"
-      ],
-      "action": "SELL",
-      "strength": 86,
-      "sentimentScore": -0.84,
-      "impactEstimatePct": -2.1,
-      "impactConfidence": 80,
-      "entityConfidence": 65,
-      "impactModel": "rules-v1",
-      "eventType": "legal",
-      "eventSeverity": 55,
-      "noveltyScore": 1.0,
-      "sourceQuality": 0.25,
-      "marketReaction": null,
-      "title": "🇷🇺🇺🇸#GOOGL #суд Активы Google во Франции арестованы на €1,9 млрд по иску российской ООО «Гугл» - ТАСС",
-      "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
-      "publishedAt": "2026-11-25T15:46:10+00:00",
-      "expiresAt": "2026-11-26T20:10:18.851083+03:00",
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394842"
-      },
-      "sources": [
-        {
-          "publisher": "MarketTwits",
-          "url": "https://t.me/markettwits/394842"
-        }
-      ],
-      "sourceCount": 1,
-      "signalScore": 62.19
-    },
-    {
-      "ticker": "TRNFP",
-      "hashtags": [
-        "#Транснефть",
-        "#TRNFP"
-      ],
-      "action": "BUY",
-      "strength": 66,
-      "sentimentScore": 0.4,
-      "impactEstimatePct": 1.5,
-      "impactConfidence": 71,
-      "entityConfidence": 95,
-      "impactModel": "rules-v1",
-      "eventType": "dividend",
-      "eventSeverity": 30,
-      "noveltyScore": 1.0,
-      "sourceQuality": 0.25,
-      "marketReaction": {
-        "dayChangePct": -0.41,
-        "confirmed": false,
-        "divergence": false
-      },
-      "title": "Главное из инвестиционной Стратегии АТОН 2027 Аналитики инвестиционной компании выделяют три сценария для фондового рынка в следующем году. При базовом сценарии • Индекс Мосбиржи: 2800–3250 пунктов к концу года • Курс US…",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "2026-11-25T16:08:17+00:00",
-      "expiresAt": "2026-11-27T20:10:18.857834+03:00",
-      "source": {
-        "publisher": "MarketTwits",
-        "url": "https://t.me/markettwits/394850"
-      },
-      "sources": [
-        {
-          "publisher": "MarketTwits",
-          "url": "https://t.me/markettwits/394850"
-        }
-      ],
-      "sourceCount": 1,
-      "signalScore": 57.2
     },
     {
       "ticker": "LKOH",
@@ -608,7 +508,7 @@
       "title": "ВТБ, \"ЛУКОЙЛ\" и \"префы\" \"Сургутнефтегаза\" возглавили отскок рынка",
       "summary": "Негативное событие: сначала проверьте позицию и первоисточник.",
       "publishedAt": "Wed, 25 Nov 2026 19:21:33 +0300",
-      "expiresAt": "2026-11-26T20:10:18.834625+03:00",
+      "expiresAt": "2026-11-27T04:46:11.926601+03:00",
       "source": {
         "publisher": "Финам: компании",
         "url": "https://www.finam.ru/publications/item/vtb-lukoyl-i-prefy-surgutneftegaza-vozglavili-otskok-rynka-20261125-1926/?utm_source=rss&utm_medium=new_compaigns&news_to_finamb=new_compaigns"
@@ -621,41 +521,6 @@
       ],
       "sourceCount": 1,
       "signalScore": 56.95
-    },
-    {
-      "ticker": "GAZP",
-      "hashtags": [
-        "#Газпром",
-        "#GAZP"
-      ],
-      "action": "BUY",
-      "strength": 64,
-      "sentimentScore": 0.36,
-      "impactEstimatePct": 1.4,
-      "impactConfidence": 71,
-      "entityConfidence": 90,
-      "impactModel": "rules-v1",
-      "eventType": "other",
-      "eventSeverity": 20,
-      "noveltyScore": 1.0,
-      "sourceQuality": 0.5,
-      "marketReaction": null,
-      "title": "«Газпром» сообщил о рекордном расходе газа из хранилищ Европы",
-      "summary": "Позитивный катализатор: дождитесь подтверждения рынком и проверьте первоисточник.",
-      "publishedAt": "Wed, 25 Nov 2026 18:52:08 +0300",
-      "expiresAt": "2026-11-27T20:10:18.865494+03:00",
-      "source": {
-        "publisher": "РБК",
-        "url": "https://www.rbc.ru/politics/25/11/2026/6b06f4825465bbff4f50f531"
-      },
-      "sources": [
-        {
-          "publisher": "РБК",
-          "url": "https://www.rbc.ru/politics/25/11/2026/6b06f4825465bbff4f50f531"
-        }
-      ],
-      "sourceCount": 1,
-      "signalScore": 52.5
     }
   ],
   "scalp": [
@@ -1169,40 +1034,6 @@
       "stance": "WATCH"
     },
     {
-      "secid": "TRNFP",
-      "name": "Транснефть, ап",
-      "price": 1024.2,
-      "dayChange": -0.41,
-      "targetPrice": 1115.56,
-      "dividend12m": 176.0,
-      "priceReturn": 8.9,
-      "dividendYield": 17.2,
-      "expectedReturn": 26.1,
-      "confidence": 88,
-      "financialTrend": 78,
-      "return3m": -4.1,
-      "return12m": -25.7,
-      "targetModel": "tradesignal-v1",
-      "targetDrivers": {
-        "impulse": -2.5,
-        "fundamental": 7.8,
-        "news": 1.5,
-        "macro": 2.1
-      },
-      "sector": "infra",
-      "thesis": "Защитный инфраструктурный бизнес и высокий ожидаемый дивиденд.",
-      "risks": "Тарифное регулирование, налоги и капитальные затраты.",
-      "liquidityRub": 353553974,
-      "sources": [
-        {
-          "publisher": "TradeSignal priors",
-          "publishedAt": "2026-08-06",
-          "url": "https://iss.moex.com/iss/reference/"
-        }
-      ],
-      "stance": "BUY"
-    },
-    {
       "secid": "HEAD",
       "name": "HeadHunter",
       "price": 2709.0,
@@ -1227,6 +1058,40 @@
       "thesis": "Лидер HR-tech с высокой маржой и сильной генерацией денежных средств.",
       "risks": "Охлаждение рынка труда и снижение найма.",
       "liquidityRub": 253676585,
+      "sources": [
+        {
+          "publisher": "TradeSignal priors",
+          "publishedAt": "2026-08-06",
+          "url": "https://iss.moex.com/iss/reference/"
+        }
+      ],
+      "stance": "WATCH"
+    },
+    {
+      "secid": "TRNFP",
+      "name": "Транснефть, ап",
+      "price": 1024.2,
+      "dayChange": -0.41,
+      "targetPrice": 1100.53,
+      "dividend12m": 176.0,
+      "priceReturn": 7.5,
+      "dividendYield": 17.2,
+      "expectedReturn": 24.6,
+      "confidence": 85,
+      "financialTrend": 78,
+      "return3m": -4.1,
+      "return12m": -25.7,
+      "targetModel": "tradesignal-v1",
+      "targetDrivers": {
+        "impulse": -2.5,
+        "fundamental": 7.8,
+        "news": 0.0,
+        "macro": 2.1
+      },
+      "sector": "infra",
+      "thesis": "Защитный инфраструктурный бизнес и высокий ожидаемый дивиденд.",
+      "risks": "Тарифное регулирование, налоги и капитальные затраты.",
+      "liquidityRub": 353553974,
       "sources": [
         {
           "publisher": "TradeSignal priors",
@@ -1377,11 +1242,11 @@
       "name": "Henderson",
       "price": 272.4,
       "dayChange": -0.29,
-      "targetPrice": 292.67,
+      "targetPrice": 291.84,
       "dividend12m": 30.0,
-      "priceReturn": 7.4,
+      "priceReturn": 7.1,
       "dividendYield": 11.0,
-      "expectedReturn": 18.5,
+      "expectedReturn": 18.2,
       "confidence": 88,
       "financialTrend": 81,
       "return3m": -13.4,
@@ -1390,7 +1255,7 @@
       "targetDrivers": {
         "impulse": -5.2,
         "fundamental": 8.7,
-        "news": 1.5,
+        "news": 1.2,
         "macro": 2.4
       },
       "sector": "retail",
@@ -3334,14 +3199,26 @@
       "hit1d": null
     },
     {
-      "id": "LKOH|SELL|lkohконсорциумбоэлиполучит100lukoilintвобменнаакциилукойлаидругихроссийскихкомпа",
+      "id": "MGKL|SELL|mgkl12мгклдопустилаещедватехдефолта",
+      "ticker": "MGKL",
+      "action": "SELL",
+      "eventType": "credit_distress",
+      "emittedAt": "2026-11-25T18:46:00+00:00",
+      "priceAtEmit": 0.0,
+      "expectedImpactPct": -2.4,
+      "confidence": 85,
+      "return1d": null,
+      "hit1d": null
+    },
+    {
+      "id": "LKOH|SELL|активыготовыкдобычезарубежныйбизнеслукойламожеткупитьконсорциумстоддомбоэли",
       "ticker": "LKOH",
       "action": "SELL",
       "eventType": "sanctions",
-      "emittedAt": "2026-11-25T17:00:42+00:00",
+      "emittedAt": "Wed, 25 Nov 2026 20:57:16 +0300",
       "priceAtEmit": 0.0,
-      "expectedImpactPct": -1.6,
-      "confidence": 72,
+      "expectedImpactPct": -1.7,
+      "confidence": 74,
       "return1d": null,
       "hit1d": null
     },
@@ -3358,30 +3235,6 @@
       "hit1d": null
     },
     {
-      "id": "GOOGL|SELL|googlсудактивыgoogleвофранцииарестованына19млрдпоискуроссийскойооогуглтасс",
-      "ticker": "GOOGL",
-      "action": "SELL",
-      "eventType": "legal",
-      "emittedAt": "2026-11-25T15:46:10+00:00",
-      "priceAtEmit": 0.0,
-      "expectedImpactPct": -2.1,
-      "confidence": 80,
-      "return1d": null,
-      "hit1d": null
-    },
-    {
-      "id": "TRNFP|BUY|главноеизинвестиционнойстратегииатон2027аналитикиинвестиционнойкомпаниивыделяютт",
-      "ticker": "TRNFP",
-      "action": "BUY",
-      "eventType": "dividend",
-      "emittedAt": "2026-11-25T16:08:17+00:00",
-      "priceAtEmit": 1024.2,
-      "expectedImpactPct": 1.5,
-      "confidence": 71,
-      "return1d": null,
-      "hit1d": null
-    },
-    {
       "id": "LKOH|SELL|втблукойлипрефысургутнефтегазавозглавилиотскокрынка",
       "ticker": "LKOH",
       "action": "SELL",
@@ -3392,23 +3245,11 @@
       "confidence": 92,
       "return1d": null,
       "hit1d": null
-    },
-    {
-      "id": "GAZP|BUY|газпромсообщилорекордномрасходегазаизхранилищевропы",
-      "ticker": "GAZP",
-      "action": "BUY",
-      "eventType": "other",
-      "emittedAt": "Wed, 25 Nov 2026 18:52:08 +0300",
-      "priceAtEmit": 0.0,
-      "expectedImpactPct": 1.4,
-      "confidence": 71,
-      "return1d": null,
-      "hit1d": null
     }
   ],
   "signalPerformance": {
     "n": 28,
-    "pending": 91,
+    "pending": 89,
     "hitRate": 0.357,
     "avgReturn": -0.43,
     "highConfidenceHitRate": 0.545,
@@ -3464,15 +3305,15 @@
     ]
   },
   "pipelineMetrics": {
-    "fetched": 193,
+    "fetched": 177,
     "expired": 8,
-    "lowImpact": 166,
-    "unlinked": 13,
+    "lowImpact": 147,
+    "unlinked": 18,
     "duplicatesMerged": 0,
-    "signals": 6,
+    "signals": 4,
     "dedupRate": 0.0,
     "impactAccuracy": null,
-    "latencyMs": 50,
+    "latencyMs": 47,
     "entityLinkPrecision": 1.0,
     "entityLinkRecall": 1.0,
     "entityEvalSamples": 50
@@ -3481,17 +3322,17 @@
     {
       "source": "MOEX: облигации",
       "status": "stale",
-      "detail": "Не удалось загрузить https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQCB/securities.json?iss.meta=off&iss.only=securities%2Cmar; сохранен прошлый снимок"
+      "detail": "Не удалось загрузить https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQOB/securities.json?iss.meta=off&iss.only=securities%2Cmar; сохранен прошлый снимок"
     },
     {
       "source": "MOEX: фонды",
       "status": "ok",
-      "detail": "10 инструментов · 2127 мс"
+      "detail": "10 инструментов · 1589 мс"
     },
     {
       "source": "MOEX: акции",
       "status": "ok",
-      "detail": "10 инструментов · 8221 мс"
+      "detail": "10 инструментов · 6312 мс"
     },
     {
       "source": "MOEX: IMOEX",
@@ -3501,7 +3342,7 @@
     {
       "source": "Snowball: дивиденды",
       "status": "ok",
-      "detail": "30 отсечек · 1686 мс"
+      "detail": "30 отсечек · 1361 мс"
     },
     {
       "source": "Московская биржа",
@@ -3514,9 +3355,9 @@
       "detail": "10 сообщений"
     },
     {
-      "source": "Финам: компании",
+      "source": "Коммерсантъ",
       "status": "ok",
-      "detail": "40 сообщений"
+      "detail": "34 сообщений"
     },
     {
       "source": "Ведомости",
@@ -3529,14 +3370,14 @@
       "detail": "8 сообщений"
     },
     {
-      "source": "Коммерсантъ",
-      "status": "ok",
-      "detail": "20 сообщений"
-    },
-    {
       "source": "Интерфакс",
       "status": "ok",
       "detail": "25 сообщений"
+    },
+    {
+      "source": "Финам: компании",
+      "status": "ok",
+      "detail": "40 сообщений"
     },
     {
       "source": "MarketTwits",
@@ -3549,11 +3390,6 @@
       "detail": "Не удалось загрузить https://bonds.finam.ru/news/today/rss.asp: HTTP Error 403: Forbidden"
     },
     {
-      "source": "РБК",
-      "status": "ok",
-      "detail": "30 сообщений"
-    },
-    {
       "source": "Роснефть",
       "status": "error",
       "detail": "Не удалось загрузить https://www.rosneft.ru/press/releases/rss/: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: "
@@ -3562,6 +3398,11 @@
       "source": "Газпром",
       "status": "error",
       "detail": "Не удалось загрузить https://www.gazprom.ru/rss/: <urlopen error timed out>"
+    },
+    {
+      "source": "РБК",
+      "status": "error",
+      "detail": "Не удалось загрузить https://rssexport.rbc.ru/rbcnews/news/30/full.rss: The read operation timed out"
     }
   ],
   "disclaimer": "Информация не является индивидуальной инвестиционной рекомендацией. Прогнозы и дивиденды не гарантированы."
